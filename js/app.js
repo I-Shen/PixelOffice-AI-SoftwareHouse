@@ -17,7 +17,7 @@ export class PixelOfficeApp {
   constructor() {
     try {
       this.router = new LLMRouter();
-      this.optimizer = new PromptOptimizer();
+      this.optimizer = new PromptOptimizer(this.router);
       this.debateEngine = new DebateEngine(this.router);
       this.orchestrator = new SDLCOrchestrator(this.router, this.debateEngine, this.optimizer);
       this.advisor = new ExecutiveAdvisor(this.router);
@@ -358,6 +358,13 @@ export class PixelOfficeApp {
   }
 
   appendDialogueMessage(dialogue) {
+    if (!dialogue || !dialogue.message) return;
+    
+    // Ensure timestamp exists
+    if (!dialogue.timestamp) {
+      dialogue.timestamp = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
     this.dialogueHistory.push(dialogue);
 
     if (!this.isSidebarOpen) {
@@ -391,13 +398,13 @@ export class PixelOfficeApp {
       <div class="msg-header">
         <div class="msg-author-info">
           <span class="msg-avatar">${dialogue.avatar || '👤'}</span>
-          <span class="msg-author-name">${dialogue.name}</span>
-          <span class="msg-role-tag">${dialogue.role}</span>
+          <span class="msg-author-name">${dialogue.name || 'Agent'}</span>
+          <span class="msg-role-tag">${dialogue.role || 'Staff'}</span>
         </div>
         <span class="msg-timestamp">${dialogue.timestamp}</span>
       </div>
-      <div class="msg-stage-badge">${dialogue.stage}</div>
-      <div class="msg-text-bubble">${dialogue.message}</div>
+      <div class="msg-stage-badge">${dialogue.stage || 'SDLC'}</div>
+      <div class="msg-text-bubble">${(dialogue.message || '').replace(/\n/g, '<br>')}</div>
     `;
 
     this.dialogueFeedList.appendChild(card);
@@ -407,7 +414,7 @@ export class PixelOfficeApp {
   _categorizeStage(stageName) {
     const s = (stageName || "").toLowerCase();
     if (s.includes('war room') || s.includes('debate')) return 'debate';
-    if (s.includes('planning') || s.includes('triage') || s.includes('research')) return 'planning';
+    if (s.includes('planning') || s.includes('triage') || s.includes('research') || s.includes('audit') || s.includes('konsultasi')) return 'planning';
     if (s.includes('coding') || s.includes('modular') || s.includes('architect')) return 'engineering';
     if (s.includes('qa') || s.includes('testing') || s.includes('security') || s.includes('review')) return 'qa_sec';
     return 'all';
@@ -466,7 +473,7 @@ export class PixelOfficeApp {
       activeProject: this.promptInput ? this.promptInput.value : "Unknown",
       totalDialogues: this.dialogueHistory.length,
       dialogues: this.dialogueHistory,
-      metaEvaluation: this.orchestrator.projectArtifacts.metaEvaluation || null
+      metaEvaluation: this.orchestrator.projectArtifacts ? this.orchestrator.projectArtifacts.metaEvaluation : null
     };
 
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
@@ -556,18 +563,46 @@ export class PixelOfficeApp {
 
   async handleAuditPrompt() {
     const rawText = this.promptInput.value.trim();
-    if (!rawText) return;
+    if (!rawText) {
+      alert("Silakan ketikkan prompt atau kebutuhan aplikasi terlebih dahulu!");
+      return;
+    }
 
     this.auditBtn.disabled = true;
     this.auditBtn.innerHTML = `🔍 Menganalisis...`;
+    this.appendTerminalLog("system", `🔍 [Elena] Memulai analisis mutu & optimasi prompt...`);
+
+    if (this.canvasEngine) {
+      this.canvasEngine.setAgentTarget("optimizer", "executive");
+      this.canvasEngine.showSpeechBubble("optimizer", "Menganalisis mutu prompt teknis...");
+    }
+    this.highlightActiveAgentCard("optimizer", "Audit Prompt");
 
     try {
       const result = await this.optimizer.optimizePrompt(rawText);
       if (this.scoreValue) this.scoreValue.textContent = result.score;
-      this.promptInput.value = result.optimizedPromptText || rawText;
-      this.appendTerminalLog("system", `📊 Audit Mutu: Skor ${result.score}/100 [${result.grade}]`);
+      if (result.optimizedPromptText) {
+        this.promptInput.value = result.optimizedPromptText;
+      }
+      this.appendTerminalLog("system", `📊 [Audit Mutu Prompt] Skor: ${result.score}/100 [${result.grade}]`);
+
+      // Emit to Dialog Tim Sidebar
+      this.appendDialogueMessage({
+        agentId: "optimizer",
+        name: "Dr. Elena Rostova",
+        role: "PRD Architect",
+        avatar: "🔍",
+        color: "#8b5cf6",
+        stage: "0. Audit Prompt Mandiri",
+        message: `Menganalisis prompt: "${rawText.slice(0, 50)}...". Skor Mutu: ${result.score}/100 [${result.grade}]. PRD teroptimasi telah siap disalurkan ke pipeline.`
+      });
+
+      if (this.canvasEngine) {
+        this.canvasEngine.showSpeechBubble("optimizer", `Skor Mutu: ${result.score}/100 (${result.grade})`);
+      }
     } catch (err) {
-      console.error(err);
+      console.error("[Audit Prompt Error]", err);
+      this.appendTerminalLog("security", `⚠️ Gagal audit prompt: ${err.message || String(err)}`);
     } finally {
       this.auditBtn.disabled = false;
       this.auditBtn.innerHTML = `🔍 Audit Prompt (<span id="promptScoreValue" style="color: #10b981; font-weight: bold;">${this.scoreValue ? this.scoreValue.textContent : '94'}</span>)`;
@@ -579,8 +614,25 @@ export class PixelOfficeApp {
     this.executiveModal.style.display = 'flex';
     this.consultChatBody.innerHTML = '';
 
+    if (this.canvasEngine) {
+      this.canvasEngine.setAgentTarget("manager", "executive");
+      this.canvasEngine.setAgentTarget("optimizer", "executive");
+      this.canvasEngine.showSpeechBubble("manager", "Halo Bos! Mari kita diskusikan spesifikasi proyek.");
+    }
+    this.highlightActiveAgentCard("manager", "Konsultasi Eksekutif");
+    this.appendTerminalLog("system", "👔 Arthur Vance & Dr. Elena Rostova membuka sesi konsultasi eksekutif...");
+
     if (rawText) {
       this.appendConsultMessage("user", rawText);
+      this.appendDialogueMessage({
+        agentId: "user",
+        name: "Bos @I-Shen",
+        role: "CEO / Klien",
+        avatar: "👤",
+        color: "#38bdf8",
+        stage: "Konsultasi Eksekutif",
+        message: rawText
+      });
     }
 
     const loadingId = 'loading-exec-' + Date.now();
@@ -594,10 +646,36 @@ export class PixelOfficeApp {
     try {
       const chatResponse = await this.advisor.startConsultation(rawText || "Saya ingin mengembangkan aplikasi software house.");
       loadingEl.remove();
-      this.appendConsultMessage("advisor", chatResponse.reply, chatResponse.questions);
+      const replyText = typeof chatResponse === 'string' ? chatResponse : (chatResponse.reply || chatResponse.text || "");
+      this.appendConsultMessage("advisor", replyText, chatResponse.questions);
+
+      this.appendDialogueMessage({
+        agentId: "manager",
+        name: "Arthur Vance & Dr. Elena Rostova",
+        role: "Executive Advisor",
+        avatar: "👔",
+        color: "#3b82f6",
+        stage: "Konsultasi Eksekutif",
+        message: replyText
+      });
+
+      if (this.canvasEngine) {
+        this.canvasEngine.showSpeechBubble("manager", replyText.length > 70 ? replyText.slice(0, 67) + '...' : replyText);
+      }
     } catch (err) {
+      console.error("[Executive Consultation Error]", err);
       loadingEl.remove();
-      this.appendConsultMessage("advisor", `Halo! Saya Arthur Vance dan Dr. Elena Rostova siap membantu membedah kebutuhan proyek Anda. Apa nama/judul proyek yang Anda inginkan dan fitur utamanya?`);
+      const fallbackReply = `Halo Bos @I-Shen! Saya Arthur Vance dan Dr. Elena Rostova siap membantu membedah kebutuhan proyek Anda. Apa nama/judul proyek yang Anda inginkan dan fitur utamanya?`;
+      this.appendConsultMessage("advisor", fallbackReply);
+      this.appendDialogueMessage({
+        agentId: "manager",
+        name: "Arthur Vance & Dr. Elena Rostova",
+        role: "Executive Advisor",
+        avatar: "👔",
+        color: "#3b82f6",
+        stage: "Konsultasi Eksekutif",
+        message: fallbackReply
+      });
     }
   }
 
@@ -607,6 +685,15 @@ export class PixelOfficeApp {
 
     this.consultUserInput.value = '';
     this.appendConsultMessage("user", text);
+    this.appendDialogueMessage({
+      agentId: "user",
+      name: "Bos @I-Shen",
+      role: "CEO / Klien",
+      avatar: "👤",
+      color: "#38bdf8",
+      stage: "Konsultasi Eksekutif",
+      message: text
+    });
 
     const loadingId = 'loading-exec-' + Date.now();
     const loadingEl = document.createElement('div');
@@ -619,10 +706,36 @@ export class PixelOfficeApp {
     try {
       const chatResponse = await this.advisor.continueConsultation(text);
       loadingEl.remove();
-      this.appendConsultMessage("advisor", chatResponse.reply, chatResponse.questions);
+      const replyText = typeof chatResponse === 'string' ? chatResponse : (chatResponse.reply || chatResponse.text || "");
+      this.appendConsultMessage("advisor", replyText, chatResponse.questions);
+
+      this.appendDialogueMessage({
+        agentId: "manager",
+        name: "Arthur Vance & Dr. Elena Rostova",
+        role: "Executive Advisor",
+        avatar: "👔",
+        color: "#3b82f6",
+        stage: "Konsultasi Eksekutif",
+        message: replyText
+      });
+
+      if (this.canvasEngine) {
+        this.canvasEngine.showSpeechBubble("optimizer", "Dr. Elena: Mencatat spesifikasi tambahan...");
+      }
     } catch (e) {
+      console.error("[Consultation Message Error]", e);
       loadingEl.remove();
-      this.appendConsultMessage("advisor", "Baik, kami catat spesifikasi tersebut. Ada detail lain atau siap kita mulai?");
+      const fallbackReply = "Baik Bos, kami catat spesifikasi tersebut. Ada detail lain atau siap kita mulai?";
+      this.appendConsultMessage("advisor", fallbackReply);
+      this.appendDialogueMessage({
+        agentId: "manager",
+        name: "Arthur Vance & Dr. Elena Rostova",
+        role: "Executive Advisor",
+        avatar: "👔",
+        color: "#3b82f6",
+        stage: "Konsultasi Eksekutif",
+        message: fallbackReply
+      });
     }
   }
 
@@ -647,7 +760,7 @@ export class PixelOfficeApp {
     }
 
     let questionsHtml = '';
-    if (questions && questions.length > 0) {
+    if (questions && Array.isArray(questions) && questions.length > 0) {
       questionsHtml = `
         <div class="consult-questions-box">
           <strong>❓ Poin Diskusi / Klarifikasi:</strong>
@@ -658,9 +771,11 @@ export class PixelOfficeApp {
       `;
     }
 
+    const safeText = (text || "").replace(/\n/g, '<br>');
+
     msgCard.innerHTML = `
       ${headerHtml}
-      <div class="consult-msg-text">${text.replace(/\n/g, '<br>')}</div>
+      <div class="consult-msg-text">${safeText}</div>
       ${questionsHtml}
     `;
 
