@@ -1,0 +1,990 @@
+/* ==========================================================================
+   PixelOffice AI Software House - Modern Glassmorphism & Core Stylesheet
+   Zero-Scroll Master Cockpit Layout (100vh Widescreen Mission Control)
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Press+Start+2P&family=Fira+Code:wght@400;500;600&display=swap');
+
+:root {
+  --bg-primary: #070a12;
+  --bg-secondary: #0f172a;
+  --bg-tertiary: #1e293b;
+  
+  --panel-bg: rgba(15, 23, 42, 0.75);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --panel-hover: rgba(255, 255, 255, 0.12);
+  
+  --accent-blue: #3b82f6;
+  --accent-red: #ef4444;
+  --accent-yellow: #f59e0b;
+  --accent-green: #10b981;
+  --accent-purple: #8b5cf6;
+  --accent-cyan: #06b6d4;
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-mono: 'Fira Code', monospace;
+  
+  --glow-blue: 0 0 20px rgba(59, 130, 246, 0.35);
+  --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+  
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.3) rgba(15, 23, 42, 0.4);
+}
+
+/* =============================================================
+ * Universal Dark Theme Custom Scrollbars
+ * ============================================================= */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.28);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.6);
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+}
+
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: #f3f4f6;
+  line-height: 1.4;
+  height: 100vh;
+  overflow: hidden;
+  background-image: 
+    radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.07) 0%, transparent 40%),
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+}
+
+/* -------------------------------------------------------------
+ * Top Navigation Header
+ * ------------------------------------------------------------- */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  height: 52px;
+  background: rgba(11, 15, 25, 0.9);
+  border-bottom: 1px solid var(--panel-border);
+  backdrop-filter: blur(12px);
+  z-index: 50;
+}
+
+.brand-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-logo {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  padding: 5px 9px;
+  border-radius: var(--radius-sm);
+  color: #0b0f19;
+  font-weight: bold;
+  box-shadow: var(--glow-blue);
+  border: 1px solid #93c5fd;
+}
+
+.brand-text h1 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-badge {
+  font-size: 9px;
+  font-weight: 600;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 2px 7px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
+  animation: pulse-green 2s infinite;
+}
+
+.savings-highlight {
+  color: #10b981 !important;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+}
+
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* -------------------------------------------------------------
+ * Cockpit Master Viewport Grid (Zero Scroll)
+ * ------------------------------------------------------------- */
+.cockpit-viewport-grid {
+  display: grid;
+  grid-template-columns: 1fr 430px;
+  gap: 12px;
+  height: calc(100vh - 52px);
+  padding: 10px 18px 12px;
+  overflow: hidden;
+}
+
+@media (max-width: 1200px) {
+  .cockpit-viewport-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow-y: auto;
+  }
+}
+
+/* -------------------------------------------------------------
+ * Left Pane: Office Canvas + Progress Stepper + Action Bar
+ * ------------------------------------------------------------- */
+.left-office-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+
+.office-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.office-title {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: #93c5fd;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.viewport-badges {
+  display: flex;
+  gap: 6px;
+}
+
+.mini-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  color: #9ca3af;
+}
+
+.canvas-wrapper {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  background: #111827;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#officeCanvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* -------------------------------------------------------------
+ * Project Progress Stepper Card (Integrated)
+ * ------------------------------------------------------------- */
+.project-progress-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-title-text {
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.progress-percentage {
+  font-size: 12px;
+  font-weight: 800;
+  color: #10b981;
+}
+
+.progress-track-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #38bdf8, #3b82f6, #10b981);
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  transition: width 0.4s ease;
+}
+
+.milestone-stepper {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 3px;
+}
+
+.milestone-step-chip {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 4px 2px;
+  text-align: center;
+  font-size: 8.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.milestone-step-chip.active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.3);
+}
+
+.milestone-step-chip.done {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #10b981;
+}
+
+.security-patch-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 9px;
+  color: #f87171;
+  font-weight: 700;
+}
+
+/* -------------------------------------------------------------
+ * Prompt Action Command Dock (Bottom Strip)
+ * ------------------------------------------------------------- */
+.prompt-action-dock {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.prompt-dock-textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: #f8fafc;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  padding: 6px 10px;
+  resize: none;
+  line-height: 1.4;
+  outline: none;
+}
+
+.prompt-dock-textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+}
+
+.prompt-dock-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.preset-pill-group {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.preset-btn:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #60a5fa;
+  color: #fff;
+}
+
+.btn-action-cluster {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e2e8f0;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: var(--glow-blue);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* -------------------------------------------------------------
+ * Right Pane: HUD Telemetry, Agent Grid & Live Terminal
+ * ------------------------------------------------------------- */
+.right-hud-section {
+  display: grid;
+  grid-template-rows: 210px 1fr 140px;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+}
+
+.hud-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.hud-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.hud-card-header h3 {
+  font-size: 11px;
+  font-weight: 700;
+  color: #93c5fd;
+}
+
+.hud-status-badge {
+  font-size: 9px;
+  color: #10b981;
+  font-weight: 600;
+}
+
+/* Agent List */
+.agent-team-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  padding: 6px;
+  overflow-y: auto;
+}
+
+.agent-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 5px;
+  padding: 5px 6px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.agent-card.active {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+.agent-avatar {
+  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.agent-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.agent-name {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-role {
+  font-size: 9px;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agent-activity-status {
+  font-size: 8.5px;
+  color: #6ee7b7;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Terminal Log Stream */
+.terminal-content {
+  flex: 1;
+  background: #050811;
+  padding: 8px 10px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.log-entry {
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.log-time { color: #6b7280; font-size: 9.5px; margin-right: 4px; }
+.log-tag-system { color: #38bdf8; font-weight: 600; }
+.log-tag-debate { color: #f59e0b; font-weight: 600; }
+.log-tag-code { color: #10b981; font-weight: 600; }
+.log-tag-security { color: #ef4444; font-weight: 600; }
+.log-tag-router { color: #a78bfa; font-weight: 600; }
+.log-tag-review { color: #ec4899; font-weight: 600; }
+.log-tag-deploy { color: #14b8a6; font-weight: 600; }
+
+/* Kanban Backlog */
+.kanban-queue-list {
+  padding: 6px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.kanban-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 5px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.kanban-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(96, 165, 250, 0.3);
+}
+
+.kanban-item.in-progress {
+  border-left: 3px solid #38bdf8;
+  background: rgba(56, 189, 248, 0.06);
+}
+
+.kanban-item.completed {
+  border-left: 3px solid #10b981;
+  opacity: 0.7;
+}
+
+.priority-badge {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.priority-high { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+.priority-medium { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+.priority-low { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+
+/* =============================================================
+ * Executive Suite Consultation Modal & Chat Drawer
+ * ============================================================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.executive-consult-modal {
+  background: #0b0f19;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(59, 130, 246, 0.2);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 720px;
+  height: 80vh;
+  max-height: 640px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modal-zoom-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-zoom-in {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.consult-modal-header {
+  padding: 14px 20px;
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.consult-advisor-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.advisor-avatars {
+  display: flex;
+  gap: 6px;
+}
+
+.avatar-chip {
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.consult-title-area h4 {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.consult-subtitle {
+  font-size: 10.5px;
+  color: #94a3b8;
+}
+
+.btn-close-modal {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border);
+  color: #9ca3af;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.btn-close-modal:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-color: #ef4444;
+}
+
+.consult-chat-body {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #070a12;
+}
+
+.chat-bubble-msg {
+  display: flex;
+  flex-direction: column;
+  max-width: 85%;
+  gap: 4px;
+  line-height: 1.5;
+}
+
+.chat-bubble-msg.user {
+  align-self: flex-end;
+}
+
+.chat-bubble-msg.user .msg-content {
+  background: #2563eb;
+  color: #fff;
+  border-radius: 14px 14px 2px 14px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+}
+
+.chat-bubble-msg.executive {
+  align-self: flex-start;
+}
+
+.chat-bubble-msg.executive .msg-header {
+  font-size: 10.5px;
+  color: #38bdf8;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-bubble-msg.executive .msg-content {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  color: #e2e8f0;
+  border-radius: 14px 14px 14px 2px;
+  padding: 14px 16px;
+  font-size: 13px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  white-space: pre-wrap;
+}
+
+.consult-footer {
+  padding: 12px 16px;
+  background: rgba(15, 23, 42, 0.9);
+  border-top: 1px solid var(--panel-border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.consult-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.consult-input-row input {
+  flex: 1;
+  background: #050811;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12.5px;
+  outline: none;
+}
+
+.consult-input-row input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+}
+
+.consult-action-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 4px;
+}
+
+/* =============================================================
+ * Comprehensive Responsive Layout (Tablet & Mobile)
+ * ============================================================= */
+
+@media (max-width: 1024px) {
+  body {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .app-header {
+    height: auto;
+    min-height: 52px;
+    padding: 10px 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .brand-area {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .header-status {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-start;
+  }
+
+  .status-pill {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+
+  .cockpit-viewport-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    gap: 12px;
+    padding: 10px;
+  }
+
+  .left-office-section {
+    height: auto;
+  }
+
+  .canvas-wrapper {
+    height: auto;
+    aspect-ratio: 1200 / 560;
+  }
+
+  .right-cockpit-sidebar {
+    height: auto;
+    grid-template-rows: auto auto auto;
+    gap: 12px;
+  }
+
+  .hud-dock-panel {
+    max-height: 280px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .brand-logo {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+
+  .brand-text h1 {
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+
+  .brand-badge {
+    font-size: 7.5px;
+    padding: 1px 5px;
+  }
+
+  .header-status {
+    gap: 4px;
+  }
+
+  .status-pill {
+    font-size: 9px;
+    padding: 2px 6px;
+    gap: 4px;
+  }
+
+  .office-bar-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 6px 8px;
+  }
+
+  .office-title {
+    font-size: 8.5px;
+    line-height: 1.3;
+  }
+
+  .viewport-badges {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .mini-badge {
+    font-size: 8px;
+    padding: 1px 5px;
+  }
+
+  .sdlc-stepper-container {
+    padding: 6px;
+  }
+
+  .sdlc-stepper-nodes {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .step-node {
+    font-size: 7.5px;
+    padding: 2px 5px;
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  .agent-team-list {
+    grid-template-columns: 1fr;
+  }
+}
