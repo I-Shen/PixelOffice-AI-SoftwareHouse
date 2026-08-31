@@ -1,0 +1,766 @@
+/**
+ * PixelOffice AI Software House - Main Application Controller
+ * Orchestrates 2D Virtual Office Canvas, SDLC Pipeline, Executive Advisor,
+ * Live Inter-Agent Dialogue Stream Sidebar & Meta-Evaluation Auditor.
+ */
+
+import { CONFIG } from './config.js';
+import { LLMRouter } from './llm_router.js';
+import { PixelOfficeCanvas } from './pixel_canvas.js';
+import { DebateEngine } from './debate_engine.js';
+import { SDLCOrchestrator } from './sdlc_orchestrator.js';
+import { PromptOptimizer } from './prompt_optimizer.js';
+import { KanbanQueue } from './kanban_queue.js';
+import { ExecutiveAdvisor } from './executive_advisor.js';
+
+export class PixelOfficeApp {
+  constructor() {
+    try {
+      this.router = new LLMRouter();
+      this.optimizer = new PromptOptimizer();
+      this.debateEngine = new DebateEngine(this.router);
+      this.orchestrator = new SDLCOrchestrator(this.router, this.debateEngine, this.optimizer);
+      this.advisor = new ExecutiveAdvisor(this.router);
+      this.kanban = new KanbanQueue((projects) => this.renderKanbanList(projects));
+    } catch (e) {
+      console.error("[Core Services Init Error]", e);
+    }
+    
+    this.canvasEngine = null;
+    this.dialogueHistory = [];
+    this.unreadDialogueCount = 0;
+    this.isSidebarOpen = false;
+    this.activeDialogueFilter = 'all';
+
+    this.initDOM();
+    this.initEventListeners();
+    this.renderAgentCards();
+    if (this.kanban) this.renderKanbanList(this.kanban.getAllProjects());
+    if (this.orchestrator && this.orchestrator.analytics) {
+      this.updateAnalyticsUI(this.orchestrator.analytics.getMetrics());
+    }
+
+    this.appendTerminalLog("system", "🏢 PixelOffice AI Software House Online.");
+    this.appendTerminalLog("system", `🔀 Smart Gemini Multi-Tier Fallback Gateway Active (Primary: ${CONFIG.models.fastTier[0]}).`);
+    this.appendTerminalLog("system", "💬 Live Inter-Agent Dialogue Stream & Meta-Evaluation Engine Ready.");
+  }
+
+  initDOM() {
+    try {
+      const canvas = document.getElementById('officeCanvas');
+      const bubbleContainer = document.getElementById('speechBubbleLayer');
+      if (canvas && bubbleContainer) {
+        this.canvasEngine = new PixelOfficeCanvas(canvas, bubbleContainer);
+      }
+    } catch (err) {
+      console.error("[Canvas Init Error]", err);
+    }
+
+    this.promptInput = document.getElementById('projectPrompt');
+    this.startBtn = document.getElementById('startProjectBtn');
+    this.auditBtn = document.getElementById('auditPromptBtn');
+    this.consultExecutiveBtn = document.getElementById('consultExecutiveBtn');
+    this.addToQueueBtn = document.getElementById('addToQueueBtn');
+    this.kanbanListContainer = document.getElementById('kanbanListContainer');
+
+    // Executive Modal DOM
+    this.executiveModal = document.getElementById('executiveModal');
+    this.closeConsultModalBtn = document.getElementById('closeConsultModalBtn');
+    this.consultChatBody = document.getElementById('consultChatBody');
+    this.consultUserInput = document.getElementById('consultUserInput');
+    this.sendConsultBtn = document.getElementById('sendConsultBtn');
+    this.launchFromConsultBtn = document.getElementById('launchFromConsultBtn');
+
+    this.terminalOutput = document.getElementById('terminalOutput');
+    this.modelBadge = document.getElementById('activeModelBadge');
+    this.copyLogsBtn = document.getElementById('copyLogsBtn');
+
+    // Analytics Header Elements
+    this.analyticsTotalTokens = document.getElementById('analyticsTotalTokens');
+    this.analyticsCostSaved = document.getElementById('analyticsCostSaved');
+
+    // Progress Stepper Elements
+    this.progressBarFill = document.getElementById('progressBarFill');
+    this.progressPercentageDisplay = document.getElementById('progressPercentageDisplay');
+    this.currentStageText = document.getElementById('currentStageText');
+    this.securityPatchBadge = document.getElementById('securityPatchBadge');
+    this.scoreValue = document.getElementById('promptScoreValue');
+
+    this.presetButtons = document.querySelectorAll('.preset-btn');
+
+    // =========================================================================
+    // 💬 Live Dialogue Sidebar Drawer DOM
+    // =========================================================================
+    this.sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+    this.dialogueSidebar = document.getElementById('dialogueSidebar');
+    this.closeSidebarBtn = document.getElementById('closeSidebarBtn');
+    this.sidebarBackdrop = document.getElementById('sidebarBackdrop');
+    this.dialogueFeedList = document.getElementById('dialogueFeedList');
+    this.dialogueUnreadBadge = document.getElementById('dialogueUnreadBadge');
+    this.sidebarScorecard = document.getElementById('sidebarScorecard');
+    this.scorecardScoreBadge = document.getElementById('scorecardScoreBadge');
+    this.scorecardMetrics = document.getElementById('scorecardMetrics');
+    this.exportDialogueJsonBtn = document.getElementById('exportDialogueJsonBtn');
+    this.clearDialogueBtn = document.getElementById('clearDialogueBtn');
+    this.dialogueFilterChips = document.querySelectorAll('.dialogue-filter-bar .filter-chip');
+  }
+
+  initEventListeners() {
+    this.startBtn.addEventListener('click', () => this.handleStartSDLC());
+    this.auditBtn.addEventListener('click', () => this.handleAuditPrompt());
+
+    // Sidebar Toggle Button Handlers
+    if (this.sidebarToggleBtn) {
+      this.sidebarToggleBtn.addEventListener('click', () => this.toggleDialogueSidebar(true));
+    }
+    if (this.closeSidebarBtn) {
+      this.closeSidebarBtn.addEventListener('click', () => this.toggleDialogueSidebar(false));
+    }
+    if (this.sidebarBackdrop) {
+      this.sidebarBackdrop.addEventListener('click', () => this.toggleDialogueSidebar(false));
+    }
+
+    // Sidebar Action Buttons
+    if (this.exportDialogueJsonBtn) {
+      this.exportDialogueJsonBtn.addEventListener('click', () => this.exportDialogueJson());
+    }
+    if (this.clearDialogueBtn) {
+      this.clearDialogueBtn.addEventListener('click', () => this.clearDialogueFeed());
+    }
+
+    // Dialogue Filter Chips
+    if (this.dialogueFilterChips) {
+      this.dialogueFilterChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          this.dialogueFilterChips.forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          this.activeDialogueFilter = chip.getAttribute('data-filter') || 'all';
+          this.renderFilteredDialogues();
+        });
+      });
+    }
+
+    if (this.copyLogsBtn) {
+      this.copyLogsBtn.addEventListener('click', () => {
+        const logEntries = Array.from(this.terminalOutput.querySelectorAll('.log-entry'))
+          .map(el => el.innerText)
+          .join('\n');
+        
+        navigator.clipboard.writeText(logEntries || "Tidak ada log terminal.")
+          .then(() => {
+            const originalText = this.copyLogsBtn.innerText;
+            this.copyLogsBtn.innerText = "✅ Tersalin!";
+            setTimeout(() => { this.copyLogsBtn.innerText = originalText; }, 2000);
+          })
+          .catch(() => {
+            alert("Gagal menyalin log otomatis. Silakan blok dan salin teks manual.");
+          });
+      });
+    }
+
+    // Global Error Capture
+    window.addEventListener('error', (e) => {
+      const src = e.filename ? e.filename.split('/').pop() : 'script';
+      this.appendTerminalLog("security", `⚠️ [UNCAUGHT ERROR] ${e.message} (${src}:${e.lineno})`);
+    });
+
+    window.addEventListener('unhandledrejection', (e) => {
+      const reason = e.reason ? (e.reason.message || String(e.reason)) : 'Promise Rejected';
+      this.appendTerminalLog("security", `⚠️ [PROMISE ERROR] ${reason}`);
+    });
+
+    if (this.consultExecutiveBtn) {
+      this.consultExecutiveBtn.addEventListener('click', () => {
+        this.openExecutiveConsultation();
+      });
+    }
+
+    if (this.closeConsultModalBtn) {
+      this.closeConsultModalBtn.addEventListener('click', () => {
+        this.executiveModal.style.display = 'none';
+      });
+    }
+
+    if (this.sendConsultBtn) {
+      this.sendConsultBtn.addEventListener('click', () => this.handleSendConsultMessage());
+    }
+
+    if (this.consultUserInput) {
+      this.consultUserInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') this.handleSendConsultMessage();
+      });
+    }
+
+    if (this.launchFromConsultBtn) {
+      this.launchFromConsultBtn.addEventListener('click', () => this.handleLaunchFromConsultation());
+    }
+
+    this.addToQueueBtn.addEventListener('click', () => {
+      const text = this.promptInput.value.trim();
+      if (!text) return;
+      this.kanban.addProject(text.slice(0, 30), text, "HIGH");
+      this.appendTerminalLog("system", `🗂️ Proyek ditambahkan ke Antrean Kanban Sprint.`);
+    });
+
+    this.presetButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const prompt = btn.getAttribute('data-prompt');
+        if (prompt) {
+          this.promptInput.value = prompt;
+          this.handleAuditPrompt();
+        }
+      });
+    });
+
+    this.promptInput.addEventListener('input', () => {
+      const evalResult = this.optimizer.evaluatePromptHeuristics(this.promptInput.value);
+      if (this.scoreValue && evalResult) {
+        this.scoreValue.textContent = evalResult.score;
+      }
+    });
+
+    this.router.on('model_attempt', data => {
+      this.modelBadge.textContent = data.model;
+      this.appendTerminalLog("router", `[Router] ${data.model} ➡️ ${data.agentId} (${data.taskType})...`);
+    });
+
+    this.router.on('fallback_triggered', data => {
+      this.appendTerminalLog("router", `⚠️ [Fallback Switch] ${data.failedModel} limit 429 ➡️ Beralih ke: ${data.nextModel}`);
+      this.orchestrator.analytics.recordUsage({ tokensUsed: 400, modelUsed: data.nextModel, isFallback: true });
+      this.updateAnalyticsUI(this.orchestrator.analytics.getMetrics());
+    });
+
+    this.debateEngine.on('agent_speaking', data => {
+      if (this.canvasEngine) {
+        this.canvasEngine.setAgentTarget(data.agentId, data.zone);
+      }
+      this.appendTerminalLog("debate", `🗣️ [War Room] ${data.agentName}: ${data.action}`);
+    });
+
+    this.debateEngine.on('speech_bubble', data => {
+      if (this.canvasEngine) {
+        this.canvasEngine.showSpeechBubble(data.agentId, data.text);
+      }
+    });
+
+    // =========================================================================
+    // 💬 Live Dialogue Event Listener
+    // =========================================================================
+    this.orchestrator.on('dialogue_event', dialogue => {
+      this.appendDialogueMessage(dialogue);
+    });
+
+    // =========================================================================
+    // 🎯 Meta-Evaluation Scorecard Listener
+    // =========================================================================
+    this.orchestrator.on('meta_evaluation_completed', evalData => {
+      this.renderMetaEvaluationScorecard(evalData);
+    });
+
+    this.orchestrator.on('stage_change', stage => {
+      let tag = "code";
+      if (stage.stageId.includes("review")) tag = "review";
+      else if (stage.stageId.includes("devops")) tag = "deploy";
+      else if (stage.stageId.includes("security")) tag = "security";
+      else if (stage.stageId.includes("ceo")) tag = "system";
+      
+      this.appendTerminalLog(tag, `📍 [SDLC] ${stage.stageName}`);
+      if (this.canvasEngine) {
+        this.canvasEngine.setAgentTarget(stage.activeAgent, stage.zone);
+      }
+      this.highlightActiveAgentCard(stage.activeAgent, stage.stageName);
+
+      // Update Live Progress Bar
+      const pct = stage.progressPercent || 10;
+      if (this.progressBarFill) this.progressBarFill.style.width = `${pct}%`;
+      if (this.progressPercentageDisplay) this.progressPercentageDisplay.textContent = `${pct}%`;
+      if (this.currentStageText) this.currentStageText.textContent = stage.stageName;
+
+      // Show Pentest Patch badge when revision happens
+      if (stage.stageId === "security_revision" || stage.stageId === "security_passed") {
+        if (this.securityPatchBadge) this.securityPatchBadge.style.display = "inline-flex";
+      }
+
+      this.updateStepChips(stage.stageId);
+    });
+
+    this.orchestrator.on('sdlc_complete', res => {
+      this.startBtn.disabled = false;
+      this.startBtn.innerHTML = `<span>🚀 Mulai Siklus SDLC</span>`;
+      this.appendTerminalLog("system", `🎉 [SDLC SELESAI] Terbackup di GitHub & Terdeploy live di Vercel.`);
+      if (this.canvasEngine) {
+        this.canvasEngine.showSpeechBubble("manager", "Proyek selesai 100%! Seluruh kode & audit telah diverifikasi.");
+        this.canvasEngine.unlockAllAgents();
+      }
+
+      if (this.progressBarFill) this.progressBarFill.style.width = `100%`;
+      if (this.progressPercentageDisplay) this.progressPercentageDisplay.textContent = `100%`;
+      if (this.currentStageText) this.currentStageText.textContent = `✅ Proyek 100% Selesai & Terdeploy Live`;
+
+      // Set all chips to done
+      for (let i = 0; i <= 8; i++) {
+        const chip = document.getElementById(`step-${i}`);
+        if (chip) chip.className = "milestone-step-chip done";
+      }
+
+      if (res.analytics) {
+        this.updateAnalyticsUI(res.analytics);
+      }
+    });
+
+    this.orchestrator.on('sdlc_error', err => {
+      this.startBtn.disabled = false;
+      this.startBtn.innerHTML = `<span>🚀 Mulai Siklus SDLC</span>`;
+      this.appendTerminalLog("security", `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+      this.appendTerminalLog("security", `❌ [SDLC PIPELINE ERROR TERDETEKSI]`);
+      this.appendTerminalLog("security", `📍 Tahap : ${err.stage || 'Pipeline SDLC'}`);
+      this.appendTerminalLog("security", `⚠️ Pesan : ${err.error || 'Terjadi kendala teknis'}`);
+      if (err.stack) {
+        this.appendTerminalLog("security", `🔍 Detail: ${err.stack}`);
+      }
+      this.appendTerminalLog("security", `💡 Tips  : Klik tombol '📋 Salin Log' di atas lalu kirimkan ke AI.`);
+      this.appendTerminalLog("security", `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+      
+      if (this.canvasEngine) {
+        this.canvasEngine.unlockAllAgents();
+      }
+      if (this.currentStageText) {
+        this.currentStageText.textContent = `⚠️ Error pada ${err.stage || 'SDLC'}: ${err.error || 'Periksa log'}`;
+      }
+    });
+  }
+
+  // ===========================================================================
+  // 💬 Dialogue Sidebar Controller Methods
+  // ===========================================================================
+
+  toggleDialogueSidebar(open) {
+    this.isSidebarOpen = open;
+    if (this.dialogueSidebar) {
+      if (open) {
+        this.dialogueSidebar.classList.add('open');
+        if (this.sidebarBackdrop) this.sidebarBackdrop.classList.add('open');
+        this.unreadDialogueCount = 0;
+        if (this.dialogueUnreadBadge) this.dialogueUnreadBadge.style.display = 'none';
+        if (this.sidebarToggleBtn) {
+          const icon = this.sidebarToggleBtn.querySelector('.toggle-icon');
+          if (icon) icon.textContent = '❯';
+        }
+      } else {
+        this.dialogueSidebar.classList.remove('open');
+        if (this.sidebarBackdrop) this.sidebarBackdrop.classList.remove('open');
+        if (this.sidebarToggleBtn) {
+          const icon = this.sidebarToggleBtn.querySelector('.toggle-icon');
+          if (icon) icon.textContent = '❮';
+        }
+      }
+    }
+  }
+
+  appendDialogueMessage(dialogue) {
+    this.dialogueHistory.push(dialogue);
+
+    if (!this.isSidebarOpen) {
+      this.unreadDialogueCount++;
+      if (this.dialogueUnreadBadge) {
+        this.dialogueUnreadBadge.style.display = 'inline-block';
+        this.dialogueUnreadBadge.textContent = this.unreadDialogueCount;
+      }
+    }
+
+    // Clear empty state if first message
+    const emptyState = this.dialogueFeedList ? this.dialogueFeedList.querySelector('.dialogue-empty-state') : null;
+    if (emptyState) {
+      emptyState.remove();
+    }
+
+    if (this._matchesDialogueFilter(dialogue, this.activeDialogueFilter)) {
+      this._renderSingleDialogueCard(dialogue);
+    }
+  }
+
+  _renderSingleDialogueCard(dialogue) {
+    if (!this.dialogueFeedList) return;
+
+    const card = document.createElement('div');
+    card.className = 'dialogue-msg-card';
+    card.style.borderLeftColor = dialogue.color || '#3b82f6';
+    card.setAttribute('data-stage-type', this._categorizeStage(dialogue.stage));
+
+    card.innerHTML = `
+      <div class="msg-header">
+        <div class="msg-author-info">
+          <span class="msg-avatar">${dialogue.avatar || '👤'}</span>
+          <span class="msg-author-name">${dialogue.name}</span>
+          <span class="msg-role-tag">${dialogue.role}</span>
+        </div>
+        <span class="msg-timestamp">${dialogue.timestamp}</span>
+      </div>
+      <div class="msg-stage-badge">${dialogue.stage}</div>
+      <div class="msg-text-bubble">${dialogue.message}</div>
+    `;
+
+    this.dialogueFeedList.appendChild(card);
+    this.dialogueFeedList.scrollTop = this.dialogueFeedList.scrollHeight;
+  }
+
+  _categorizeStage(stageName) {
+    const s = (stageName || "").toLowerCase();
+    if (s.includes('war room') || s.includes('debate')) return 'debate';
+    if (s.includes('planning') || s.includes('triage') || s.includes('research')) return 'planning';
+    if (s.includes('coding') || s.includes('modular') || s.includes('architect')) return 'engineering';
+    if (s.includes('qa') || s.includes('testing') || s.includes('security') || s.includes('review')) return 'qa_sec';
+    return 'all';
+  }
+
+  _matchesDialogueFilter(dialogue, filterType) {
+    if (filterType === 'all') return true;
+    const cat = this._categorizeStage(dialogue.stage);
+    return cat === filterType;
+  }
+
+  renderFilteredDialogues() {
+    if (!this.dialogueFeedList) return;
+    this.dialogueFeedList.innerHTML = "";
+
+    const filtered = this.dialogueHistory.filter(d => this._matchesDialogueFilter(d, this.activeDialogueFilter));
+    if (filtered.length === 0) {
+      this.dialogueFeedList.innerHTML = `
+        <div class="dialogue-empty-state">
+          <span style="font-size: 24px;">🔍</span>
+          <p>Tidak ada percakapan pada kategori ini.</p>
+        </div>
+      `;
+      return;
+    }
+
+    filtered.forEach(d => this._renderSingleDialogueCard(d));
+  }
+
+  renderMetaEvaluationScorecard(metrics) {
+    if (!this.sidebarScorecard) return;
+    this.sidebarScorecard.style.display = 'block';
+
+    if (this.scorecardScoreBadge) {
+      this.scorecardScoreBadge.textContent = `${metrics.promptAdherence}% Match`;
+    }
+
+    if (this.scorecardMetrics) {
+      this.scorecardMetrics.innerHTML = `
+        <div>🛡️ <strong>Keamanan:</strong> ${metrics.securityCompliance}</div>
+        <div>🔍 <strong>Kepatuhan PRD:</strong> ${metrics.prdStrictness}</div>
+        <div>📐 <strong>Arsitektur:</strong> ${metrics.architectureRating}</div>
+        <div>💻 <strong>Estetika UI:</strong> ${metrics.uiAestheticScore}</div>
+        <div>🧪 <strong>QA Sandbox:</strong> ${metrics.testingResilience}</div>
+        <div>🚀 <strong>Rilis:</strong> ${metrics.rolloutSafety}</div>
+        <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.08); font-style: italic; color: #cbd5e1;">
+          "${metrics.summary}"
+        </div>
+      `;
+    }
+  }
+
+  exportDialogueJson() {
+    const exportData = {
+      exportedAt: new Date().toISOString(),
+      activeProject: this.promptInput ? this.promptInput.value : "Unknown",
+      totalDialogues: this.dialogueHistory.length,
+      dialogues: this.dialogueHistory,
+      metaEvaluation: this.orchestrator.projectArtifacts.metaEvaluation || null
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pixeloffice_dialogue_log_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  clearDialogueFeed() {
+    this.dialogueHistory = [];
+    if (this.dialogueFeedList) {
+      this.dialogueFeedList.innerHTML = `
+        <div class="dialogue-empty-state">
+          <span style="font-size: 28px;">💬</span>
+          <p>Log percakapan dibersihkan.<br>Percakapan baru akan muncul saat SDLC berjalan.</p>
+        </div>
+      `;
+    }
+    if (this.sidebarScorecard) {
+      this.sidebarScorecard.style.display = 'none';
+    }
+  }
+
+  updateStepChips(stageId) {
+    const stageMap = {
+      "triage": 0,
+      "planning": 1,
+      "research": 2,
+      "debate": 3,
+      "coding": 4,
+      "testing": 5,
+      "security": 6,
+      "security_revision": 6,
+      "security_passed": 6,
+      "review": 7,
+      "ceo_gate": 8,
+      "devops": 8,
+      "complete": 8
+    };
+
+    const currentStepIndex = stageMap[stageId] ?? 0;
+
+    for (let i = 0; i <= 8; i++) {
+      const chip = document.getElementById(`step-${i}`);
+      if (!chip) continue;
+
+      if (i < currentStepIndex) {
+        chip.className = "milestone-step-chip done";
+      } else if (i === currentStepIndex) {
+        chip.className = "milestone-step-chip active";
+      } else {
+        chip.className = "milestone-step-chip";
+      }
+    }
+  }
+
+  updateAnalyticsUI(metrics) {
+    if (!metrics) return;
+    if (this.analyticsTotalTokens) this.analyticsTotalTokens.textContent = metrics.formattedTokens;
+    if (this.analyticsCostSaved) this.analyticsCostSaved.textContent = metrics.formattedSavings;
+  }
+
+  renderKanbanList(projects) {
+    if (!this.kanbanListContainer) return;
+    this.kanbanListContainer.innerHTML = "";
+
+    projects.forEach(p => {
+      const item = document.createElement('div');
+      item.className = `kanban-item ${p.status}`;
+      item.innerHTML = `
+        <div style="display: flex; flex-direction: column; min-width: 0;">
+          <span style="font-size: 10px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.title}</span>
+          <span style="font-size: 8.5px; color: #94a3b8;">${p.createdAt} • ${p.status.toUpperCase()}</span>
+        </div>
+        <span class="priority-badge priority-${p.priority.toLowerCase()}">${p.priority}</span>
+      `;
+      item.addEventListener('click', () => {
+        this.promptInput.value = p.prompt;
+        this.handleAuditPrompt();
+      });
+      this.kanbanListContainer.appendChild(item);
+    });
+  }
+
+  async handleAuditPrompt() {
+    const rawText = this.promptInput.value.trim();
+    if (!rawText) return;
+
+    this.auditBtn.disabled = true;
+    this.auditBtn.innerHTML = `🔍 Menganalisis...`;
+
+    try {
+      const result = await this.optimizer.optimizePrompt(rawText);
+      if (this.scoreValue) this.scoreValue.textContent = result.score;
+      this.promptInput.value = result.optimizedPromptText || rawText;
+      this.appendTerminalLog("system", `📊 Audit Mutu: Skor ${result.score}/100 [${result.grade}]`);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      this.auditBtn.disabled = false;
+      this.auditBtn.innerHTML = `🔍 Audit Prompt (<span id="promptScoreValue" style="color: #10b981; font-weight: bold;">${this.scoreValue ? this.scoreValue.textContent : '94'}</span>)`;
+    }
+  }
+
+  async openExecutiveConsultation(overridePrompt = null) {
+    const rawText = overridePrompt || this.promptInput.value.trim();
+    this.executiveModal.style.display = 'flex';
+    this.consultChatBody.innerHTML = '';
+
+    if (rawText) {
+      this.appendConsultMessage("user", rawText);
+    }
+
+    const loadingId = 'loading-exec-' + Date.now();
+    const loadingEl = document.createElement('div');
+    loadingEl.id = loadingId;
+    loadingEl.className = 'consult-msg-card consult-loading';
+    loadingEl.innerHTML = `<span>⏳ Arthur & Elena sedang meninjau kebutuhan proyek Anda...</span>`;
+    this.consultChatBody.appendChild(loadingEl);
+    this.consultChatBody.scrollTop = this.consultChatBody.scrollHeight;
+
+    try {
+      const chatResponse = await this.advisor.startConsultation(rawText || "Saya ingin mengembangkan aplikasi software house.");
+      loadingEl.remove();
+      this.appendConsultMessage("advisor", chatResponse.reply, chatResponse.questions);
+    } catch (err) {
+      loadingEl.remove();
+      this.appendConsultMessage("advisor", `Halo! Saya Arthur Vance dan Dr. Elena Rostova siap membantu membedah kebutuhan proyek Anda. Apa nama/judul proyek yang Anda inginkan dan fitur utamanya?`);
+    }
+  }
+
+  async handleSendConsultMessage() {
+    const text = this.consultUserInput.value.trim();
+    if (!text) return;
+
+    this.consultUserInput.value = '';
+    this.appendConsultMessage("user", text);
+
+    const loadingId = 'loading-exec-' + Date.now();
+    const loadingEl = document.createElement('div');
+    loadingEl.id = loadingId;
+    loadingEl.className = 'consult-msg-card consult-loading';
+    loadingEl.innerHTML = `<span>⏳ Meninjau...</span>`;
+    this.consultChatBody.appendChild(loadingEl);
+    this.consultChatBody.scrollTop = this.consultChatBody.scrollHeight;
+
+    try {
+      const chatResponse = await this.advisor.continueConsultation(text);
+      loadingEl.remove();
+      this.appendConsultMessage("advisor", chatResponse.reply, chatResponse.questions);
+    } catch (e) {
+      loadingEl.remove();
+      this.appendConsultMessage("advisor", "Baik, kami catat spesifikasi tersebut. Ada detail lain atau siap kita mulai?");
+    }
+  }
+
+  appendConsultMessage(sender, text, questions = []) {
+    const msgCard = document.createElement('div');
+    msgCard.className = `consult-msg-card ${sender}`;
+
+    let headerHtml = '';
+    if (sender === 'advisor') {
+      headerHtml = `
+        <div class="consult-msg-header">
+          <span class="avatar-tag">👔 Arthur & 🔬 Elena</span>
+          <span class="role-tag">Executive Advisor</span>
+        </div>
+      `;
+    } else {
+      headerHtml = `
+        <div class="consult-msg-header">
+          <span class="avatar-tag">👤 Anda (CEO / Klien)</span>
+        </div>
+      `;
+    }
+
+    let questionsHtml = '';
+    if (questions && questions.length > 0) {
+      questionsHtml = `
+        <div class="consult-questions-box">
+          <strong>❓ Poin Diskusi / Klarifikasi:</strong>
+          <ul>
+            ${questions.map(q => `<li>${q}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
+
+    msgCard.innerHTML = `
+      ${headerHtml}
+      <div class="consult-msg-text">${text.replace(/\n/g, '<br>')}</div>
+      ${questionsHtml}
+    `;
+
+    this.consultChatBody.appendChild(msgCard);
+    this.consultChatBody.scrollTop = this.consultChatBody.scrollHeight;
+  }
+
+  async handleLaunchFromConsultation() {
+    this.launchFromConsultBtn.disabled = true;
+    this.launchFromConsultBtn.innerText = "⏳ Menyusun PRD...";
+
+    try {
+      const finalPRD = await this.advisor.synthesizeFinalPRD();
+      this.promptInput.value = finalPRD;
+      this.executiveModal.style.display = 'none';
+      this.handleStartSDLC();
+    } catch (e) {
+      this.executiveModal.style.display = 'none';
+      this.handleStartSDLC();
+    } finally {
+      this.launchFromConsultBtn.disabled = false;
+      this.launchFromConsultBtn.innerText = "🚀 Setujui & Mulai SDLC";
+    }
+  }
+
+  async handleStartSDLC() {
+    const rawText = this.promptInput.value.trim();
+    if (!rawText) {
+      alert("Silakan masukkan spesifikasi atau kebutuhan proyek terlebih dahulu!");
+      return;
+    }
+
+    this.startBtn.disabled = true;
+    this.startBtn.innerHTML = `<span>⏳ SDLC Berjalan...</span>`;
+    if (this.progressBarFill) this.progressBarFill.style.width = "5%";
+    if (this.progressPercentageDisplay) this.progressPercentageDisplay.textContent = "5%";
+    if (this.currentStageText) this.currentStageText.textContent = "Inisialisasi Tim & Meta-Prompt...";
+
+    await this.orchestrator.runFullSDLC(rawText);
+  }
+
+  renderAgentCards() {
+    const list = document.getElementById('agentListContainer');
+    if (!list) return;
+    list.innerHTML = "";
+
+    CONFIG.agents.forEach(agent => {
+      const card = document.createElement('div');
+      card.className = 'agent-card';
+      card.id = `agent-card-${agent.id}`;
+      card.innerHTML = `
+        <div class="agent-avatar" style="border-color: ${agent.color}; color: ${agent.color}">${agent.avatar}</div>
+        <div class="agent-info">
+          <div class="agent-name">${agent.name}</div>
+          <div class="agent-role">${agent.role.split(' ')[0]}</div>
+          <div class="agent-activity-status" id="status-${agent.id}">
+            <span>●</span> Standby
+          </div>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  highlightActiveAgentCard(agentId, taskName = "Bertugas") {
+    document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('active'));
+    const target = document.getElementById(`agent-card-${agentId}`);
+    if (target) {
+      target.classList.add('active');
+      const status = document.getElementById(`status-${agentId}`);
+      if (status) status.innerHTML = `<span style="color: #10b981">●</span> Sedang ${taskName.slice(0, 16)}`;
+    }
+  }
+
+  appendTerminalLog(tag, message) {
+    if (!this.terminalOutput) return;
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    
+    const time = new Date().toTimeString().split(' ')[0];
+    let tagHtml = `<span class="log-tag-${tag}">[${tag.toUpperCase()}]</span>`;
+    
+    entry.innerHTML = `<span class="log-time">${time}</span> ${tagHtml} ${message}`;
+    this.terminalOutput.appendChild(entry);
+    this.terminalOutput.scrollTop = this.terminalOutput.scrollHeight;
+  }
+}
+
+function initApp() {
+  if (!window.pixelOfficeApp) {
+    try {
+      window.pixelOfficeApp = new PixelOfficeApp();
+    } catch (err) {
+      console.error("[PixelOfficeApp Init Error]", err);
+    }
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
