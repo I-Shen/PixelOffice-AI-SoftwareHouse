@@ -5,7 +5,44 @@
 
 export const CONFIG = {
   appName: "PixelOffice AI Software House",
-  version: "2.5.0-2026",
+  version: "2.8.4-2026",
+
+  // Master Corporate Blueprint & Ground Truth of PxO AI Soft
+  company: {
+    name: "PxO AI Soft",
+    legalName: "PxO AI Soft Enterprise Software House",
+    tagline: "Inovasi Berkelanjutan, Solusi Masa Depan: Memaksimalkan Otomasi, Efisiensi, dan Optimasi Bisnis Anda Bersama PxO AI Soft.",
+    shortDescription: "Next-Gen Intelligent Web Systems, Enterprise Web Applications & Business Process Automation.",
+    uniqueAdvantage: "Digerakkan oleh 10 Tenaga Ahli Senior dengan total pengalaman puluhan tahun di industri teknologi global. Kekuatan utama terletak pada daya adaptif yang sangat tinggi dan kemampuan Problem Solving yang tajam untuk mengurai kerumitan bisnis masa kini dan merekayasa solusi teknologi tangguh untuk masa depan.",
+    vision: "Menjadi pelopor software house cerdas terdepan yang mendefinisikan ulang standar kecepatan, ketepatan, dan efisiensi rekayasa sistem web enterprise di era digital.",
+    mission: [
+      "Mentransformasi alur kerja manual perusahaan menjadi sistem web otomatis berkinerja tinggi guna memangkas biaya operasional dan melipatgandakan profit klien.",
+      "Menghadirkan rekayasa perangkat lunak berstandar Security-First (bebas kerentanan SAST/OWASP) dan performa tinggi (Lighthouse 100/100).",
+      "Menjadi partner teknologi strategis yang adaptif, solutif, dan transparan bagi sektor swasta maupun pemerintahan."
+    ],
+    coreValues: [
+      { name: "Adaptive Innovation", desc: "Cepat beradaptasi dan selalu selangkah di depan dalam mengadopsi teknologi web modern." },
+      { name: "Precision Problem Solver", desc: "Akurat, solutif, dan berfokus pada penyelesaian akar masalah bisnis." },
+      { name: "Professional Integrity", desc: "Transparan, berintegritas tinggi, menjamin kepemilikan hak cipta (IP) 100% milik klien tanpa vendor lock-in." },
+      { name: "Peak Efficiency", desc: "Menghasilkan sistem web yang ultra-cepat, efektif, efisien, dan berdampak nyata pada pertumbuhan profit bisnis." }
+    ],
+    targetMarkets: [
+      "Perusahaan Swasta Nasional & Multinasional (B2B Enterprise)",
+      "Instansi Pemerintah & BUMN (B2G Public Sector & SPBE)"
+    ],
+    coreOfferings: [
+      "Enterprise Business Automation & Operational Portals",
+      "Intelligent High-Performance Web Applications",
+      "Public Sector & Government SPBE Portals",
+      "Independent Cyber Security & Code Performance Audit"
+    ],
+    guarantees: [
+      "100% Full IP Ownership (No Vendor Lock-in)",
+      "Military-Grade SAST & OWASP Top 10 Zero-Vulnerability Guarantee",
+      "Google Core Web Vitals 100/100 (< 1s Load Time)",
+      "Live Observability & Transparent SDLC Pipeline"
+    ]
+  },
   
   // Gemini Model Hierarchy for Smart Multi-Tier Fallback (Strictly Gemini 3.x, Priority: 3.7 -> 3.6 -> 3.5 -> 3.1)
   models: {
