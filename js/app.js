@@ -6,7 +6,7 @@
 import { CONFIG } from './config.js';
 import { LLMRouter } from './llm_router.js';
 import { PixelOfficeCanvas } from './pixel_canvas.js';
-import { PixelBuildingCanvas } from './pixel_building.js';
+import { IsometricBuildingCanvas } from './isometric_building.js';
 import { DebateEngine } from './debate_engine.js';
 import { SDLCOrchestrator } from './sdlc_orchestrator.js';
 import { PromptOptimizer } from './prompt_optimizer.js';
@@ -27,7 +27,7 @@ export class PixelOfficeApp {
     }
     
     this.canvasEngine = null;
-    this.buildingCanvasEngine = null;
+    this.buildingEngine = null;
     this.dialogueHistory = [];
     this.unreadDialogueCount = 0;
     this.isSidebarOpen = false;
@@ -56,13 +56,9 @@ export class PixelOfficeApp {
       if (canvas && bubbleContainer) {
         this.canvasEngine = new PixelOfficeCanvas(canvas, bubbleContainer);
       }
-      
       const buildingCanvas = document.getElementById('buildingCanvas');
       if (buildingCanvas) {
-        this.buildingCanvasEngine = new PixelBuildingCanvas(buildingCanvas);
-        if (this.canvasEngine) {
-          this.buildingCanvasEngine.setWeather(this.canvasEngine.currentWeather);
-        }
+        this.buildingEngine = new IsometricBuildingCanvas(buildingCanvas);
       }
     } catch (err) {
       console.error("[Canvas Init Error]", err);
@@ -1054,15 +1050,15 @@ export class PixelOfficeApp {
   }
 
   toggleCanvasFullscreen(forceState = null) {
-    const splitContainer = document.getElementById('canvasViewportSplit') || document.querySelector('.canvas-viewport-split') || document.querySelector('.canvas-wrapper');
+    const wrapper = document.querySelector('.canvas-wrapper');
     const fsText = document.getElementById('fullscreenText');
     const fsIcon = document.getElementById('fullscreenIcon');
-    if (!splitContainer) return;
+    if (!wrapper) return;
 
-    const shouldBeFs = forceState !== null ? forceState : !splitContainer.classList.contains('is-fullscreen');
+    const shouldBeFs = forceState !== null ? forceState : !wrapper.classList.contains('is-fullscreen');
 
     if (shouldBeFs) {
-      splitContainer.classList.add('is-fullscreen');
+      wrapper.classList.add('is-fullscreen');
       if (fsText) fsText.textContent = "Keluar Fullscreen";
       if (fsIcon) fsIcon.textContent = "✕";
 
@@ -1076,7 +1072,7 @@ export class PixelOfficeApp {
         document.body.appendChild(exitBtn);
       }
     } else {
-      splitContainer.classList.remove('is-fullscreen');
+      wrapper.classList.remove('is-fullscreen');
       if (fsText) fsText.textContent = "Fullscreen Ruangan";
       if (fsIcon) fsIcon.textContent = "⛶";
 
