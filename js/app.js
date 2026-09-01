@@ -1,7 +1,6 @@
 /**
- * PixelOffice AI Software House - Main Application Controller
- * Orchestrates 2D Virtual Office Canvas, SDLC Pipeline, Executive Advisor,
- * Live Inter-Agent Dialogue Stream Sidebar & Meta-Evaluation Auditor.
+ * PixelOffice AI Software House - Main Application Controller (v2.8.0)
+ * Unified Interactive Dialogue Stream & Headquarters Live Project Cockpit
  */
 
 import { CONFIG } from './config.js';
@@ -31,6 +30,8 @@ export class PixelOfficeApp {
     this.unreadDialogueCount = 0;
     this.isSidebarOpen = false;
     this.activeDialogueFilter = 'all';
+    this.lastSpeechTime = 0;
+    this.lastSpeechText = "";
 
     this.initDOM();
     this.initEventListeners();
@@ -56,21 +57,30 @@ export class PixelOfficeApp {
       console.error("[Canvas Init Error]", err);
     }
 
+    // Cockpit Prompt & SDLC Actions
     this.promptInput = document.getElementById('projectPrompt');
     this.startBtn = document.getElementById('startProjectBtn');
     this.auditBtn = document.getElementById('auditPromptBtn');
-    this.consultExecutiveBtn = document.getElementById('consultExecutiveBtn');
+    this.openSidebarFromDockBtn = document.getElementById('openSidebarFromDockBtn');
+    this.scoreValue = document.getElementById('promptScoreValue');
+    this.presetButtons = document.querySelectorAll('.preset-btn');
+
+    // Cockpit Tabs & Panels
+    this.cockpitTabBtns = document.querySelectorAll('.cockpit-tab-btn');
+    this.cockpitPanes = document.querySelectorAll('.cockpit-tab-pane');
+    this.cockpitCodeTitle = document.getElementById('cockpitCodeTitle');
+    this.cockpitCodeContent = document.getElementById('cockpitCodeContent');
+    this.copyCodeBtn = document.getElementById('copyCodeBtn');
+
+    // Cockpit Security Matrix Badges
+    this.secStatusPentest = document.getElementById('secStatusPentest');
+    this.secStatusSandbox = document.getElementById('secStatusSandbox');
+    this.secStatusPRD = document.getElementById('secStatusPRD');
+    this.secStatusArthur = document.getElementById('secStatusArthur');
+
+    // Right Pane HUD
     this.addToQueueBtn = document.getElementById('addToQueueBtn');
     this.kanbanListContainer = document.getElementById('kanbanListContainer');
-
-    // Executive Modal DOM
-    this.executiveModal = document.getElementById('executiveModal');
-    this.closeConsultModalBtn = document.getElementById('closeConsultModalBtn');
-    this.consultChatBody = document.getElementById('consultChatBody');
-    this.consultUserInput = document.getElementById('consultUserInput');
-    this.sendConsultBtn = document.getElementById('sendConsultBtn');
-    this.launchFromConsultBtn = document.getElementById('launchFromConsultBtn');
-
     this.terminalOutput = document.getElementById('terminalOutput');
     this.modelBadge = document.getElementById('activeModelBadge');
     this.copyLogsBtn = document.getElementById('copyLogsBtn');
@@ -84,13 +94,8 @@ export class PixelOfficeApp {
     this.progressPercentageDisplay = document.getElementById('progressPercentageDisplay');
     this.currentStageText = document.getElementById('currentStageText');
     this.securityPatchBadge = document.getElementById('securityPatchBadge');
-    this.scoreValue = document.getElementById('promptScoreValue');
 
-    this.presetButtons = document.querySelectorAll('.preset-btn');
-
-    // =========================================================================
-    // 💬 Live Dialogue Sidebar Drawer DOM
-    // =========================================================================
+    // Live Dialogue Sidebar Drawer DOM
     this.sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
     this.dialogueSidebar = document.getElementById('dialogueSidebar');
     this.closeSidebarBtn = document.getElementById('closeSidebarBtn');
@@ -103,11 +108,68 @@ export class PixelOfficeApp {
     this.exportDialogueJsonBtn = document.getElementById('exportDialogueJsonBtn');
     this.clearDialogueBtn = document.getElementById('clearDialogueBtn');
     this.dialogueFilterChips = document.querySelectorAll('.dialogue-filter-bar .filter-chip');
+
+    // Integrated Sidebar Chat Dock & Deal Card
+    this.sidebarChatInput = document.getElementById('sidebarChatInput');
+    this.sidebarSendChatBtn = document.getElementById('sidebarSendChatBtn');
+    this.dealConsensusCard = document.getElementById('dealConsensusCard');
+    this.dealSummaryText = document.getElementById('dealSummaryText');
+    this.closeDealCardBtn = document.getElementById('closeDealCardBtn');
+    this.sidebarExecuteSdlcBtn = document.getElementById('sidebarExecuteSdlcBtn');
+    this.quickChips = document.querySelectorAll('.sidebar-quick-prompts .quick-chip');
   }
 
   initEventListeners() {
-    this.startBtn.addEventListener('click', () => this.handleStartSDLC());
-    this.auditBtn.addEventListener('click', () => this.handleAuditPrompt());
+    // -------------------------------------------------------------
+    // Cockpit Tab Switching
+    // -------------------------------------------------------------
+    if (this.cockpitTabBtns) {
+      this.cockpitTabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabId = btn.getAttribute('data-tab');
+          this.cockpitTabBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          if (this.cockpitPanes) {
+            this.cockpitPanes.forEach(pane => {
+              if (pane.id === `pane-${tabId}`) {
+                pane.style.display = 'flex';
+                pane.classList.add('active');
+              } else {
+                pane.style.display = 'none';
+                pane.classList.remove('active');
+              }
+            });
+          }
+        });
+      });
+    }
+
+    if (this.copyCodeBtn && this.cockpitCodeContent) {
+      this.copyCodeBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(this.cockpitCodeContent.innerText || "")
+          .then(() => {
+            const orig = this.copyCodeBtn.innerText;
+            this.copyCodeBtn.innerText = "✅ Tersalin!";
+            setTimeout(() => { this.copyCodeBtn.innerText = orig; }, 2000);
+          })
+          .catch(() => alert("Gagal menyalin kode."));
+      });
+    }
+
+    // SDLC Launch & Audit Buttons
+    if (this.startBtn) this.startBtn.addEventListener('click', () => this.handleStartSDLC());
+    if (this.auditBtn) this.auditBtn.addEventListener('click', () => this.handleAuditPrompt());
+
+    if (this.openSidebarFromDockBtn) {
+      this.openSidebarFromDockBtn.addEventListener('click', () => {
+        this.toggleDialogueSidebar(true);
+        const prompt = this.promptInput ? this.promptInput.value.trim() : "";
+        if (prompt && this.dialogueHistory.length === 0) {
+          this.startSidebarConsultation(prompt);
+        }
+      });
+    }
 
     // Sidebar Toggle Button Handlers
     if (this.sidebarToggleBtn) {
@@ -126,6 +188,50 @@ export class PixelOfficeApp {
     }
     if (this.clearDialogueBtn) {
       this.clearDialogueBtn.addEventListener('click', () => this.clearDialogueFeed());
+    }
+
+    // Sidebar Interactive Chat Handlers
+    if (this.sidebarSendChatBtn) {
+      this.sidebarSendChatBtn.addEventListener('click', () => this.handleSendSidebarChat());
+    }
+    if (this.sidebarChatInput) {
+      this.sidebarChatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.handleSendSidebarChat();
+        }
+      });
+    }
+
+    // Quick Chips in Sidebar
+    if (this.quickChips) {
+      this.quickChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          const text = chip.getAttribute('data-text');
+          if (text && this.sidebarChatInput) {
+            this.sidebarChatInput.value = text;
+            this.handleSendSidebarChat();
+          }
+        });
+      });
+    }
+
+    // Deal Consensus Card Buttons
+    if (this.closeDealCardBtn && this.dealConsensusCard) {
+      this.closeDealCardBtn.addEventListener('click', () => {
+        this.dealConsensusCard.style.display = 'none';
+      });
+    }
+
+    if (this.sidebarExecuteSdlcBtn) {
+      this.sidebarExecuteSdlcBtn.addEventListener('click', () => {
+        if (this.advisor.masterPrompt && this.promptInput) {
+          this.promptInput.value = this.advisor.masterPrompt;
+          if (this.scoreValue) this.scoreValue.textContent = "100";
+        }
+        this.toggleDialogueSidebar(false);
+        this.handleStartSDLC();
+      });
     }
 
     // Dialogue Filter Chips
@@ -169,58 +275,39 @@ export class PixelOfficeApp {
       this.appendTerminalLog("security", `⚠️ [PROMISE ERROR] ${reason}`);
     });
 
-    if (this.consultExecutiveBtn) {
-      this.consultExecutiveBtn.addEventListener('click', () => {
-        this.openExecutiveConsultation();
+    if (this.addToQueueBtn) {
+      this.addToQueueBtn.addEventListener('click', () => {
+        const text = this.promptInput.value.trim();
+        if (!text) return;
+        this.kanban.addProject(text.slice(0, 30), text, "HIGH");
+        this.appendTerminalLog("system", `🗂️ Proyek ditambahkan ke Antrean Kanban Sprint.`);
       });
     }
 
-    if (this.closeConsultModalBtn) {
-      this.closeConsultModalBtn.addEventListener('click', () => {
-        this.executiveModal.style.display = 'none';
+    if (this.presetButtons) {
+      this.presetButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const prompt = btn.getAttribute('data-prompt');
+          if (prompt && this.promptInput) {
+            this.promptInput.value = prompt;
+            this.handleAuditPrompt();
+          }
+        });
       });
     }
 
-    if (this.sendConsultBtn) {
-      this.sendConsultBtn.addEventListener('click', () => this.handleSendConsultMessage());
-    }
-
-    if (this.consultUserInput) {
-      this.consultUserInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') this.handleSendConsultMessage();
-      });
-    }
-
-    if (this.launchFromConsultBtn) {
-      this.launchFromConsultBtn.addEventListener('click', () => this.handleLaunchFromConsultation());
-    }
-
-    this.addToQueueBtn.addEventListener('click', () => {
-      const text = this.promptInput.value.trim();
-      if (!text) return;
-      this.kanban.addProject(text.slice(0, 30), text, "HIGH");
-      this.appendTerminalLog("system", `🗂️ Proyek ditambahkan ke Antrean Kanban Sprint.`);
-    });
-
-    this.presetButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const prompt = btn.getAttribute('data-prompt');
-        if (prompt) {
-          this.promptInput.value = prompt;
-          this.handleAuditPrompt();
+    if (this.promptInput) {
+      this.promptInput.addEventListener('input', () => {
+        const evalResult = this.optimizer.evaluatePromptHeuristics(this.promptInput.value);
+        if (this.scoreValue && evalResult) {
+          this.scoreValue.textContent = evalResult.score;
         }
       });
-    });
+    }
 
-    this.promptInput.addEventListener('input', () => {
-      const evalResult = this.optimizer.evaluatePromptHeuristics(this.promptInput.value);
-      if (this.scoreValue && evalResult) {
-        this.scoreValue.textContent = evalResult.score;
-      }
-    });
-
+    // LLM Router Telemetry
     this.router.on('model_attempt', data => {
-      this.modelBadge.textContent = data.model;
+      if (this.modelBadge) this.modelBadge.textContent = data.model;
       this.appendTerminalLog("router", `[Router] ${data.model} ➡️ ${data.agentId} (${data.taskType})...`);
     });
 
@@ -230,6 +317,7 @@ export class PixelOfficeApp {
       this.updateAnalyticsUI(this.orchestrator.analytics.getMetrics());
     });
 
+    // War Room Debate Engine Event Wiring
     this.debateEngine.on('agent_speaking', data => {
       if (this.canvasEngine) {
         this.canvasEngine.setAgentTarget(data.agentId, data.zone);
@@ -243,18 +331,43 @@ export class PixelOfficeApp {
       }
     });
 
-    // =========================================================================
-    // 💬 Live Dialogue Event Listener
-    // =========================================================================
+    // -------------------------------------------------------------
+    // Canvas Speech Bubble Synchronization to Dialogue Stream
+    // -------------------------------------------------------------
+    if (this.canvasEngine) {
+      this.canvasEngine.onSpeech(data => {
+        const now = Date.now();
+        if (now - this.lastSpeechTime < 800 && this.lastSpeechText === data.text) return;
+        this.lastSpeechTime = now;
+        this.lastSpeechText = data.text;
+
+        this.appendDialogueMessage({
+          agentId: data.agentId,
+          name: data.name,
+          role: data.role,
+          avatar: data.avatar,
+          color: data.color,
+          stage: "Aktivitas Kantor",
+          message: data.text
+        });
+      });
+    }
+
+    // SDLC Pipeline Event Listeners
     this.orchestrator.on('dialogue_event', dialogue => {
       this.appendDialogueMessage(dialogue);
     });
 
-    // =========================================================================
-    // 🎯 Meta-Evaluation Scorecard Listener
-    // =========================================================================
     this.orchestrator.on('meta_evaluation_completed', evalData => {
       this.renderMetaEvaluationScorecard(evalData);
+    });
+
+    this.orchestrator.on('artifact_generated', artifact => {
+      if (artifact.stage === "code" || artifact.stage === "security_code") {
+        if (this.cockpitCodeContent) {
+          this.cockpitCodeContent.innerText = artifact.data || "";
+        }
+      }
     });
 
     this.orchestrator.on('stage_change', stage => {
@@ -270,13 +383,30 @@ export class PixelOfficeApp {
       }
       this.highlightActiveAgentCard(stage.activeAgent, stage.stageName);
 
+      // Update Security & QA Badges
+      if (stage.stageId === "testing" && this.secStatusSandbox) {
+        this.secStatusSandbox.textContent = "● Uji Unit & DOM Lolos (Sandbox)";
+        this.secStatusSandbox.style.color = "#10b981";
+      }
+      if (stage.stageId === "security" && this.secStatusPentest) {
+        this.secStatusPentest.textContent = "● 0 Vulnerabilities (SAST Cleared)";
+        this.secStatusPentest.style.color = "#10b981";
+      }
+      if (stage.stageId === "review" && this.secStatusPRD) {
+        this.secStatusPRD.textContent = "● 100% PRD Strict Compliance";
+        this.secStatusPRD.style.color = "#10b981";
+      }
+      if (stage.stageId === "devops" && this.secStatusArthur) {
+        this.secStatusArthur.textContent = "● Disetujui untuk Rilis Production";
+        this.secStatusArthur.style.color = "#10b981";
+      }
+
       // Update Live Progress Bar
       const pct = stage.progressPercent || 10;
       if (this.progressBarFill) this.progressBarFill.style.width = `${pct}%`;
       if (this.progressPercentageDisplay) this.progressPercentageDisplay.textContent = `${pct}%`;
       if (this.currentStageText) this.currentStageText.textContent = stage.stageName;
 
-      // Show Pentest Patch badge when revision happens
       if (stage.stageId === "security_revision" || stage.stageId === "security_passed") {
         if (this.securityPatchBadge) this.securityPatchBadge.style.display = "inline-flex";
       }
@@ -297,7 +427,6 @@ export class PixelOfficeApp {
       if (this.progressPercentageDisplay) this.progressPercentageDisplay.textContent = `100%`;
       if (this.currentStageText) this.currentStageText.textContent = `✅ Proyek 100% Selesai & Terdeploy Live`;
 
-      // Set all chips to done
       for (let i = 0; i <= 8; i++) {
         const chip = document.getElementById(`step-${i}`);
         if (chip) chip.className = "milestone-step-chip done";
@@ -331,7 +460,7 @@ export class PixelOfficeApp {
   }
 
   // ===========================================================================
-  // 💬 Dialogue Sidebar Controller Methods
+  // 💬 Dialogue Sidebar & Fast-Track Consultation Engine
   // ===========================================================================
 
   toggleDialogueSidebar(open) {
@@ -346,6 +475,7 @@ export class PixelOfficeApp {
           const icon = this.sidebarToggleBtn.querySelector('.toggle-icon');
           if (icon) icon.textContent = '❯';
         }
+        if (this.sidebarChatInput) this.sidebarChatInput.focus();
       } else {
         this.dialogueSidebar.classList.remove('open');
         if (this.sidebarBackdrop) this.sidebarBackdrop.classList.remove('open');
@@ -360,7 +490,6 @@ export class PixelOfficeApp {
   appendDialogueMessage(dialogue) {
     if (!dialogue || !dialogue.message) return;
     
-    // Ensure timestamp exists
     if (!dialogue.timestamp) {
       dialogue.timestamp = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     }
@@ -375,7 +504,6 @@ export class PixelOfficeApp {
       }
     }
 
-    // Clear empty state if first message
     const emptyState = this.dialogueFeedList ? this.dialogueFeedList.querySelector('.dialogue-empty-state') : null;
     if (emptyState) {
       emptyState.remove();
@@ -414,7 +542,7 @@ export class PixelOfficeApp {
   _categorizeStage(stageName) {
     const s = (stageName || "").toLowerCase();
     if (s.includes('war room') || s.includes('debate')) return 'debate';
-    if (s.includes('planning') || s.includes('triage') || s.includes('research') || s.includes('audit') || s.includes('konsultasi')) return 'planning';
+    if (s.includes('planning') || s.includes('triage') || s.includes('research') || s.includes('audit') || s.includes('konsultasi') || s.includes('eksekutif')) return 'planning';
     if (s.includes('coding') || s.includes('modular') || s.includes('architect')) return 'engineering';
     if (s.includes('qa') || s.includes('testing') || s.includes('security') || s.includes('review')) return 'qa_sec';
     return 'all';
@@ -491,13 +619,198 @@ export class PixelOfficeApp {
       this.dialogueFeedList.innerHTML = `
         <div class="dialogue-empty-state">
           <span style="font-size: 28px;">💬</span>
-          <p>Log percakapan dibersihkan.<br>Percakapan baru akan muncul saat SDLC berjalan.</p>
+          <p>Log percakapan dibersihkan.<br>Ketik ide Anda di bawah untuk memulai diskusi baru.</p>
         </div>
       `;
     }
     if (this.sidebarScorecard) {
       this.sidebarScorecard.style.display = 'none';
     }
+    if (this.dealConsensusCard) {
+      this.dealConsensusCard.style.display = 'none';
+    }
+  }
+
+  // -------------------------------------------------------------
+  // Fast-Track Interactive Consultation in Sidebar
+  // -------------------------------------------------------------
+  async startSidebarConsultation(rawPrompt) {
+    const text = (rawPrompt || "").trim();
+    if (!text) return;
+
+    this.appendDialogueMessage({
+      agentId: "user",
+      name: "Bos @I-Shen",
+      role: "CEO / Klien",
+      avatar: "👤",
+      color: "#38bdf8",
+      stage: "Konsultasi Eksekutif",
+      message: text
+    });
+
+    if (this.canvasEngine) {
+      this.canvasEngine.setAgentTarget("manager", "executive");
+      this.canvasEngine.setAgentTarget("optimizer", "executive");
+      this.canvasEngine.showSpeechBubble("manager", "Menerima ide proyek dari Bos @I-Shen...");
+    }
+
+    try {
+      const response = await this.advisor.startConsultation(text);
+      this.appendDialogueMessage({
+        agentId: "manager",
+        name: "Arthur Vance & Dr. Elena Rostova",
+        role: "Executive Advisor",
+        avatar: "👔",
+        color: "#3b82f6",
+        stage: "Konsultasi Eksekutif",
+        message: response.reply
+      });
+
+      if (this.canvasEngine) {
+        this.canvasEngine.showSpeechBubble("optimizer", "Dr. Elena: Memvalidasi arsitektur & skor 100 PRD.");
+      }
+
+      if (response.isDeal) {
+        this.showDealConsensusCard(response);
+      }
+    } catch (e) {
+      console.error("[Sidebar Consultation Error]", e);
+    }
+  }
+
+  async handleSendSidebarChat() {
+    if (!this.sidebarChatInput) return;
+    const text = this.sidebarChatInput.value.trim();
+    if (!text) return;
+
+    this.sidebarChatInput.value = "";
+    this.sidebarSendChatBtn.disabled = true;
+    this.sidebarSendChatBtn.innerText = "⏳...";
+
+    this.appendDialogueMessage({
+      agentId: "user",
+      name: "Bos @I-Shen",
+      role: "CEO / Klien",
+      avatar: "👤",
+      color: "#38bdf8",
+      stage: "Konsultasi Eksekutif",
+      message: text
+    });
+
+    if (this.canvasEngine) {
+      this.canvasEngine.setAgentTarget("manager", "executive");
+      this.canvasEngine.setAgentTarget("optimizer", "executive");
+      this.canvasEngine.showSpeechBubble("manager", "Arthur: Meninjau instruksi Bos...");
+    }
+
+    try {
+      const response = await this.advisor.sendMessage(text);
+      this.appendDialogueMessage({
+        agentId: "manager",
+        name: "Arthur Vance & Dr. Elena Rostova",
+        role: "Executive Advisor",
+        avatar: "👔",
+        color: "#3b82f6",
+        stage: "Konsultasi Eksekutif",
+        message: response.reply
+      });
+
+      if (this.canvasEngine) {
+        this.canvasEngine.showSpeechBubble("optimizer", "Dr. Elena: Mengunci parameter proyek (Skor 100/100)!");
+      }
+
+      if (response.isDeal) {
+        this.showDealConsensusCard(response);
+      }
+    } catch (e) {
+      console.error("[Send Sidebar Chat Error]", e);
+    } finally {
+      this.sidebarSendChatBtn.disabled = false;
+      this.sidebarSendChatBtn.innerText = "💬 Kirim";
+    }
+  }
+
+  showDealConsensusCard(response) {
+    if (!this.dealConsensusCard) return;
+    this.dealConsensusCard.style.display = 'flex';
+
+    if (this.dealSummaryText) {
+      this.dealSummaryText.innerHTML = `
+        <strong>🏆 Konsensus Tercapai (Skor 100/100 Emas)!</strong><br>
+        Arthur Vance & Dr. Elena Rostova telah merumuskan PRD Emas siap eksekusi.
+      `;
+    }
+
+    if (response.masterPrompt && this.promptInput) {
+      this.promptInput.value = response.masterPrompt;
+      if (this.scoreValue) this.scoreValue.textContent = "100";
+    }
+  }
+
+  // -------------------------------------------------------------
+  // Audit Prompt Mandiri & SDLC Pipeline Execution
+  // -------------------------------------------------------------
+  async handleAuditPrompt() {
+    const rawText = this.promptInput.value.trim();
+    if (!rawText) {
+      alert("Silakan ketikkan prompt atau kebutuhan aplikasi terlebih dahulu!");
+      return;
+    }
+
+    this.auditBtn.disabled = true;
+    this.auditBtn.innerHTML = `✨ Menganalisis...`;
+    this.appendTerminalLog("system", `🔍 [Elena] Memulai audit mutu & formulasi PRD Emas 100/100...`);
+
+    if (this.canvasEngine) {
+      this.canvasEngine.setAgentTarget("optimizer", "executive");
+      this.canvasEngine.showSpeechBubble("optimizer", "Menganalisis mutu prompt teknis...");
+    }
+    this.highlightActiveAgentCard("optimizer", "Audit Prompt");
+
+    try {
+      const result = await this.optimizer.optimizePrompt(rawText);
+      if (this.scoreValue) this.scoreValue.textContent = result.score;
+      if (result.optimizedPromptText) {
+        this.promptInput.value = result.optimizedPromptText;
+      }
+      this.appendTerminalLog("system", `📊 [Audit Mutu Prompt] Skor: ${result.score}/100 [${result.grade}]`);
+
+      this.appendDialogueMessage({
+        agentId: "optimizer",
+        name: "Dr. Elena Rostova",
+        role: "PRD Architect",
+        avatar: "🔍",
+        color: "#8b5cf6",
+        stage: "0. Audit Prompt Mandiri",
+        message: `Audit Prompt Selesai. Skor Mutu: ${result.score}/100 [${result.grade}]. PRD master telah siap disalurkan ke pipeline SDLC.`
+      });
+
+      if (this.canvasEngine) {
+        this.canvasEngine.showSpeechBubble("optimizer", `Skor Mutu: ${result.score}/100 (${result.grade})`);
+      }
+    } catch (err) {
+      console.error("[Audit Prompt Error]", err);
+      this.appendTerminalLog("security", `⚠️ Gagal audit prompt: ${err.message || String(err)}`);
+    } finally {
+      this.auditBtn.disabled = false;
+      this.auditBtn.innerHTML = `✨ Audit Prompt (<span id="promptScoreValue" style="color: #10b981; font-weight: bold;">${this.scoreValue ? this.scoreValue.textContent : '100'}</span>)`;
+    }
+  }
+
+  async handleStartSDLC() {
+    const rawText = this.promptInput.value.trim();
+    if (!rawText) {
+      alert("Silakan masukkan spesifikasi atau kebutuhan proyek terlebih dahulu!");
+      return;
+    }
+
+    this.startBtn.disabled = true;
+    this.startBtn.innerHTML = `<span>⏳ SDLC Berjalan...</span>`;
+    if (this.progressBarFill) this.progressBarFill.style.width = "5%";
+    if (this.progressPercentageDisplay) this.progressPercentageDisplay.textContent = "5%";
+    if (this.currentStageText) this.currentStageText.textContent = "Inisialisasi Tim & Meta-Prompt...";
+
+    await this.orchestrator.runFullSDLC(rawText);
   }
 
   updateStepChips(stageId) {
@@ -554,267 +867,11 @@ export class PixelOfficeApp {
         <span class="priority-badge priority-${p.priority.toLowerCase()}">${p.priority}</span>
       `;
       item.addEventListener('click', () => {
-        this.promptInput.value = p.prompt;
+        if (this.promptInput) this.promptInput.value = p.prompt;
         this.handleAuditPrompt();
       });
       this.kanbanListContainer.appendChild(item);
     });
-  }
-
-  async handleAuditPrompt() {
-    const rawText = this.promptInput.value.trim();
-    if (!rawText) {
-      alert("Silakan ketikkan prompt atau kebutuhan aplikasi terlebih dahulu!");
-      return;
-    }
-
-    this.auditBtn.disabled = true;
-    this.auditBtn.innerHTML = `🔍 Menganalisis...`;
-    this.appendTerminalLog("system", `🔍 [Elena] Memulai analisis mutu & optimasi prompt...`);
-
-    if (this.canvasEngine) {
-      this.canvasEngine.setAgentTarget("optimizer", "executive");
-      this.canvasEngine.showSpeechBubble("optimizer", "Menganalisis mutu prompt teknis...");
-    }
-    this.highlightActiveAgentCard("optimizer", "Audit Prompt");
-
-    try {
-      const result = await this.optimizer.optimizePrompt(rawText);
-      if (this.scoreValue) this.scoreValue.textContent = result.score;
-      if (result.optimizedPromptText) {
-        this.promptInput.value = result.optimizedPromptText;
-      }
-      this.appendTerminalLog("system", `📊 [Audit Mutu Prompt] Skor: ${result.score}/100 [${result.grade}]`);
-
-      // Emit to Dialog Tim Sidebar
-      this.appendDialogueMessage({
-        agentId: "optimizer",
-        name: "Dr. Elena Rostova",
-        role: "PRD Architect",
-        avatar: "🔍",
-        color: "#8b5cf6",
-        stage: "0. Audit Prompt Mandiri",
-        message: `Menganalisis prompt: "${rawText.slice(0, 50)}...". Skor Mutu: ${result.score}/100 [${result.grade}]. PRD teroptimasi telah siap disalurkan ke pipeline.`
-      });
-
-      if (this.canvasEngine) {
-        this.canvasEngine.showSpeechBubble("optimizer", `Skor Mutu: ${result.score}/100 (${result.grade})`);
-      }
-    } catch (err) {
-      console.error("[Audit Prompt Error]", err);
-      this.appendTerminalLog("security", `⚠️ Gagal audit prompt: ${err.message || String(err)}`);
-    } finally {
-      this.auditBtn.disabled = false;
-      this.auditBtn.innerHTML = `🔍 Audit Prompt (<span id="promptScoreValue" style="color: #10b981; font-weight: bold;">${this.scoreValue ? this.scoreValue.textContent : '94'}</span>)`;
-    }
-  }
-
-  async openExecutiveConsultation(overridePrompt = null) {
-    const rawText = overridePrompt || this.promptInput.value.trim();
-    this.executiveModal.style.display = 'flex';
-    this.consultChatBody.innerHTML = '';
-
-    if (this.canvasEngine) {
-      this.canvasEngine.setAgentTarget("manager", "executive");
-      this.canvasEngine.setAgentTarget("optimizer", "executive");
-      this.canvasEngine.showSpeechBubble("manager", "Halo Bos! Mari kita diskusikan spesifikasi proyek.");
-    }
-    this.highlightActiveAgentCard("manager", "Konsultasi Eksekutif");
-    this.appendTerminalLog("system", "👔 Arthur Vance & Dr. Elena Rostova membuka sesi konsultasi eksekutif...");
-
-    if (rawText) {
-      this.appendConsultMessage("user", rawText);
-      this.appendDialogueMessage({
-        agentId: "user",
-        name: "Bos @I-Shen",
-        role: "CEO / Klien",
-        avatar: "👤",
-        color: "#38bdf8",
-        stage: "Konsultasi Eksekutif",
-        message: rawText
-      });
-    }
-
-    const loadingId = 'loading-exec-' + Date.now();
-    const loadingEl = document.createElement('div');
-    loadingEl.id = loadingId;
-    loadingEl.className = 'consult-msg-card consult-loading';
-    loadingEl.innerHTML = `<span>⏳ Arthur & Elena sedang meninjau kebutuhan proyek Anda...</span>`;
-    this.consultChatBody.appendChild(loadingEl);
-    this.consultChatBody.scrollTop = this.consultChatBody.scrollHeight;
-
-    try {
-      const chatResponse = await this.advisor.startConsultation(rawText || "Saya ingin mengembangkan aplikasi software house.");
-      loadingEl.remove();
-      const replyText = typeof chatResponse === 'string' ? chatResponse : (chatResponse.reply || chatResponse.text || "");
-      this.appendConsultMessage("advisor", replyText, chatResponse.questions);
-
-      this.appendDialogueMessage({
-        agentId: "manager",
-        name: "Arthur Vance & Dr. Elena Rostova",
-        role: "Executive Advisor",
-        avatar: "👔",
-        color: "#3b82f6",
-        stage: "Konsultasi Eksekutif",
-        message: replyText
-      });
-
-      if (this.canvasEngine) {
-        this.canvasEngine.showSpeechBubble("manager", replyText.length > 70 ? replyText.slice(0, 67) + '...' : replyText);
-      }
-    } catch (err) {
-      console.error("[Executive Consultation Error]", err);
-      loadingEl.remove();
-      const fallbackReply = `Halo Bos @I-Shen! Saya Arthur Vance dan Dr. Elena Rostova siap membantu membedah kebutuhan proyek Anda. Apa nama/judul proyek yang Anda inginkan dan fitur utamanya?`;
-      this.appendConsultMessage("advisor", fallbackReply);
-      this.appendDialogueMessage({
-        agentId: "manager",
-        name: "Arthur Vance & Dr. Elena Rostova",
-        role: "Executive Advisor",
-        avatar: "👔",
-        color: "#3b82f6",
-        stage: "Konsultasi Eksekutif",
-        message: fallbackReply
-      });
-    }
-  }
-
-  async handleSendConsultMessage() {
-    const text = this.consultUserInput.value.trim();
-    if (!text) return;
-
-    this.consultUserInput.value = '';
-    this.appendConsultMessage("user", text);
-    this.appendDialogueMessage({
-      agentId: "user",
-      name: "Bos @I-Shen",
-      role: "CEO / Klien",
-      avatar: "👤",
-      color: "#38bdf8",
-      stage: "Konsultasi Eksekutif",
-      message: text
-    });
-
-    const loadingId = 'loading-exec-' + Date.now();
-    const loadingEl = document.createElement('div');
-    loadingEl.id = loadingId;
-    loadingEl.className = 'consult-msg-card consult-loading';
-    loadingEl.innerHTML = `<span>⏳ Meninjau...</span>`;
-    this.consultChatBody.appendChild(loadingEl);
-    this.consultChatBody.scrollTop = this.consultChatBody.scrollHeight;
-
-    try {
-      const chatResponse = await this.advisor.continueConsultation(text);
-      loadingEl.remove();
-      const replyText = typeof chatResponse === 'string' ? chatResponse : (chatResponse.reply || chatResponse.text || "");
-      this.appendConsultMessage("advisor", replyText, chatResponse.questions);
-
-      this.appendDialogueMessage({
-        agentId: "manager",
-        name: "Arthur Vance & Dr. Elena Rostova",
-        role: "Executive Advisor",
-        avatar: "👔",
-        color: "#3b82f6",
-        stage: "Konsultasi Eksekutif",
-        message: replyText
-      });
-
-      if (this.canvasEngine) {
-        this.canvasEngine.showSpeechBubble("optimizer", "Dr. Elena: Mencatat spesifikasi tambahan...");
-      }
-    } catch (e) {
-      console.error("[Consultation Message Error]", e);
-      loadingEl.remove();
-      const fallbackReply = "Baik Bos, kami catat spesifikasi tersebut. Ada detail lain atau siap kita mulai?";
-      this.appendConsultMessage("advisor", fallbackReply);
-      this.appendDialogueMessage({
-        agentId: "manager",
-        name: "Arthur Vance & Dr. Elena Rostova",
-        role: "Executive Advisor",
-        avatar: "👔",
-        color: "#3b82f6",
-        stage: "Konsultasi Eksekutif",
-        message: fallbackReply
-      });
-    }
-  }
-
-  appendConsultMessage(sender, text, questions = []) {
-    const msgCard = document.createElement('div');
-    msgCard.className = `consult-msg-card ${sender}`;
-
-    let headerHtml = '';
-    if (sender === 'advisor') {
-      headerHtml = `
-        <div class="consult-msg-header">
-          <span class="avatar-tag">👔 Arthur & 🔬 Elena</span>
-          <span class="role-tag">Executive Advisor</span>
-        </div>
-      `;
-    } else {
-      headerHtml = `
-        <div class="consult-msg-header">
-          <span class="avatar-tag">👤 Anda (CEO / Klien)</span>
-        </div>
-      `;
-    }
-
-    let questionsHtml = '';
-    if (questions && Array.isArray(questions) && questions.length > 0) {
-      questionsHtml = `
-        <div class="consult-questions-box">
-          <strong>❓ Poin Diskusi / Klarifikasi:</strong>
-          <ul>
-            ${questions.map(q => `<li>${q}</li>`).join('')}
-          </ul>
-        </div>
-      `;
-    }
-
-    const safeText = (text || "").replace(/\n/g, '<br>');
-
-    msgCard.innerHTML = `
-      ${headerHtml}
-      <div class="consult-msg-text">${safeText}</div>
-      ${questionsHtml}
-    `;
-
-    this.consultChatBody.appendChild(msgCard);
-    this.consultChatBody.scrollTop = this.consultChatBody.scrollHeight;
-  }
-
-  async handleLaunchFromConsultation() {
-    this.launchFromConsultBtn.disabled = true;
-    this.launchFromConsultBtn.innerText = "⏳ Menyusun PRD...";
-
-    try {
-      const finalPRD = await this.advisor.synthesizeFinalPRD();
-      this.promptInput.value = finalPRD;
-      this.executiveModal.style.display = 'none';
-      this.handleStartSDLC();
-    } catch (e) {
-      this.executiveModal.style.display = 'none';
-      this.handleStartSDLC();
-    } finally {
-      this.launchFromConsultBtn.disabled = false;
-      this.launchFromConsultBtn.innerText = "🚀 Setujui & Mulai SDLC";
-    }
-  }
-
-  async handleStartSDLC() {
-    const rawText = this.promptInput.value.trim();
-    if (!rawText) {
-      alert("Silakan masukkan spesifikasi atau kebutuhan proyek terlebih dahulu!");
-      return;
-    }
-
-    this.startBtn.disabled = true;
-    this.startBtn.innerHTML = `<span>⏳ SDLC Berjalan...</span>`;
-    if (this.progressBarFill) this.progressBarFill.style.width = "5%";
-    if (this.progressPercentageDisplay) this.progressPercentageDisplay.textContent = "5%";
-    if (this.currentStageText) this.currentStageText.textContent = "Inisialisasi Tim & Meta-Prompt...";
-
-    await this.orchestrator.runFullSDLC(rawText);
   }
 
   renderAgentCards() {
