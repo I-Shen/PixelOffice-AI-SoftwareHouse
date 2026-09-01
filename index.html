@@ -113,39 +113,31 @@
         </div>
       </div>
 
-      <!-- HEADQUARTERS ACTIVE COCKPIT: HANYA 2 MENU -->
-      <div class="hq-cockpit-container">
-        <div class="cockpit-tabs-header">
-          <button class="cockpit-tab-btn active" data-tab="telemetry">💻 Realtime SDLC & Router Telemetry</button>
-          <button class="cockpit-tab-btn" data-tab="agents">👥 Tim Software House (10 Agen Senior)</button>
-        </div>
-
-        <!-- TAB 1: REALTIME SDLC & ROUTER TELEMETRY -->
-        <div class="cockpit-tab-pane active" id="pane-telemetry">
-          <div class="cockpit-terminal-box">
-            <div class="code-box-header">
-              <span style="font-weight: 700; color: #38bdf8; font-size: 11px;">💻 Realtime SDLC & Router Telemetry Log Stream</span>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <button class="btn-secondary" id="copyLogsBtn" style="font-size: 9px; padding: 2px 7px;">📋 Salin Log</button>
-                <span style="font-size: 10px; color: #10b981; font-weight: 700;">● LIVE TELEMETRY</span>
-              </div>
+      <!-- DUAL COCKPIT GRID: 2 KOTAK BERDAMPINGAN (REALTIME TELEMETRY & 10 AGEN SENIOR) -->
+      <div class="dual-cockpit-grid">
+        
+        <!-- KOTAK 1: REALTIME SDLC & ROUTER TELEMETRY -->
+        <div class="cockpit-box terminal-cockpit-card">
+          <div class="code-box-header">
+            <span style="font-weight: 700; color: #38bdf8; font-size: 11px;">💻 Realtime SDLC & Router Telemetry</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button class="btn-secondary" id="copyLogsBtn" style="font-size: 9px; padding: 2px 7px;">📋 Salin Log</button>
+              <span style="font-size: 10px; color: #10b981; font-weight: 700;">● LIVE</span>
             </div>
-            <div class="terminal-content" id="terminalOutput">
-              <!-- Live log entries stream here -->
-            </div>
+          </div>
+          <div class="terminal-content" id="terminalOutput">
+            <!-- Live log entries stream here -->
           </div>
         </div>
 
-        <!-- TAB 2: TIM SOFTWARE HOUSE (10 AGEN SENIOR) -->
-        <div class="cockpit-tab-pane" id="pane-agents" style="display: none;">
-          <div class="cockpit-agents-box">
-            <div class="code-box-header">
-              <span style="font-weight: 700; color: #a855f7; font-size: 11px;">👥 Monitoring Status 10 Ahli Senior Software House</span>
-              <span class="hud-status-badge" style="color: #10b981; font-size: 10px; font-weight: 700;">● 10 Ahli Online & Siap Bertugas</span>
-            </div>
-            <div class="agent-team-grid" id="agentListContainer">
-              <!-- Populated dynamically by app.js -->
-            </div>
+        <!-- KOTAK 2: TIM SOFTWARE HOUSE (10 AGEN SENIOR) - SCROLLABLE -->
+        <div class="cockpit-box agents-cockpit-card">
+          <div class="code-box-header">
+            <span style="font-weight: 700; color: #a855f7; font-size: 11px;">👥 Tim Software House (10 Agen Senior)</span>
+            <span class="hud-status-badge" style="color: #10b981; font-size: 9.5px; font-weight: 700;">● 10 Ahli Online</span>
+          </div>
+          <div class="agent-scroll-list" id="agentListContainer">
+            <!-- Populated dynamically by app.js with vertical scroll -->
           </div>
         </div>
 
