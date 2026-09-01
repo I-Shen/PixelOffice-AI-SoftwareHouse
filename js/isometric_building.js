@@ -1,7 +1,8 @@
 /**
- * PixelOffice AI Software House - Ultra High-Detail 2.5D Isometric Hilltop HQ Engine (v4.0)
+ * PixelOffice AI Software House - Ultra High-Detail 2.5D Isometric Hilltop HQ Engine (v4.1)
  * Combines studio-grade ultra-detailed pixel art assets with real-time dynamic particle simulation,
- * multi-layer animated drifting clouds, rooftop beacon lighting, and interactive weather synchronization.
+ * multi-layer animated drifting clouds, shooting stars (bintang jatuh), rooftop beacon lighting,
+ * and 7-season interactive weather synchronization.
  */
 
 export class IsometricBuildingCanvas {
@@ -19,6 +20,7 @@ export class IsometricBuildingCanvas {
     this.cloudTick = 0;
     this.particles = [];
     this.fireworks = [];
+    this.shootingStars = [];
     this.lightningAlpha = 0;
     this.lightningTimer = 0;
     this.kiteSway = 0;
@@ -28,7 +30,8 @@ export class IsometricBuildingCanvas {
       sunny: this._loadImage('assets/hq_sunny.jpg'),
       winter: this._loadImage('assets/hq_winter.jpg'),
       autumn: this._loadImage('assets/hq_autumn.jpg'),
-      night: this._loadImage('assets/hq_night.jpg')
+      night: this._loadImage('assets/hq_night.jpg'),
+      starnight: this._loadImage('assets/hq_starnight.jpg')
     };
 
     // Multi-layer dynamic clouds (soaring across the sky)
@@ -83,6 +86,7 @@ export class IsometricBuildingCanvas {
   initWeatherParticles() {
     this.particles = [];
     this.fireworks = [];
+    this.shootingStars = [];
 
     if (this.currentWeather === 'rain') {
       for (let i = 0; i < 45; i++) {
@@ -124,19 +128,44 @@ export class IsometricBuildingCanvas {
           len: 20 + Math.random() * 25
         });
       }
+    } else if (this.currentWeather === 'starnight') {
+      // Pre-seed a shooting star
+      this.spawnShootingStar();
     }
   }
 
-  initInteraction() {
-    this.canvas.addEventListener('click', () => {
-      this.triggerBuildingPulse();
+  spawnShootingStar(startX = null, startY = null) {
+    const x = startX !== null ? startX : (this.width * 0.2 + Math.random() * this.width * 0.7);
+    const y = startY !== null ? startY : (20 + Math.random() * (this.height * 0.25));
+    const speed = 4.5 + Math.random() * 3.0;
+    const len = 35 + Math.random() * 30;
+    this.shootingStars.push({
+      x: x,
+      y: y,
+      vx: (speed * 0.85),
+      vy: (speed * 0.52),
+      len: len,
+      alpha: 1.0,
+      color: Math.random() > 0.4 ? '#38bdf8' : '#fde047'
     });
   }
 
-  triggerBuildingPulse() {
+  initInteraction() {
+    this.canvas.addEventListener('click', (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+      this.triggerBuildingPulse(clickX, clickY);
+    });
+  }
+
+  triggerBuildingPulse(clickX, clickY) {
     this.beaconBlink = 1.0;
-    if (this.currentWeather === 'fireworks' || this.currentWeather === 'sunny') {
-      this.spawnFirework(this.width / 2, 70);
+    if (this.currentWeather === 'starnight') {
+      // Click anywhere to shoot a shooting star / make a wish!
+      this.spawnShootingStar(clickX || this.width * 0.3, clickY || 40);
+    } else if (this.currentWeather === 'fireworks' || this.currentWeather === 'sunny') {
+      this.spawnFirework(clickX || this.width / 2, clickY || 70);
     }
   }
 
@@ -189,7 +218,22 @@ export class IsometricBuildingCanvas {
     }
 
     // Weather particle updates
-    if (this.currentWeather === 'rain') {
+    if (this.currentWeather === 'starnight') {
+      // Spontaneous shooting stars in deep night sky
+      if (Math.random() < 0.015 && this.shootingStars.length < 3) {
+        this.spawnShootingStar();
+      }
+
+      for (let i = this.shootingStars.length - 1; i >= 0; i--) {
+        const s = this.shootingStars[i];
+        s.x += s.vx * (delta / 16);
+        s.y += s.vy * (delta / 16);
+        s.alpha -= 0.018 * (delta / 16);
+        if (s.alpha <= 0 || s.y > this.height * 0.5) {
+          this.shootingStars.splice(i, 1);
+        }
+      }
+    } else if (this.currentWeather === 'rain') {
       if (this.lightningTimer > 0) {
         this.lightningTimer -= delta;
         this.lightningAlpha = Math.max(0, this.lightningTimer / 100);
@@ -258,6 +302,7 @@ export class IsometricBuildingCanvas {
     if (this.currentWeather === 'snow') activeImg = this.images.winter;
     else if (this.currentWeather === 'autumn') activeImg = this.images.autumn;
     else if (this.currentWeather === 'fireworks') activeImg = this.images.night;
+    else if (this.currentWeather === 'starnight') activeImg = this.images.starnight;
     else if (this.currentWeather === 'rain') activeImg = this.images.sunny;
 
     // 2. Draw Ultra High-Detail 2.5D Isometric Artwork
@@ -288,26 +333,32 @@ export class IsometricBuildingCanvas {
         this.ctx.fillRect(0, 0, this.width, this.height);
       }
     } else {
-      // Fallback background while loading
       this.ctx.fillStyle = '#0f172a';
       this.ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    // 3. Draw Real-time Floating Clouds in Upper Sky
-    this._drawClouds();
+    // 3. Draw Real-time Floating Clouds in Upper Sky (except in deep clear starry night)
+    if (this.currentWeather !== 'starnight') {
+      this._drawClouds();
+    }
 
     // 4. Draw Animated Rooftop Red Warning Beacon & Spire Glow
     this._drawSpireBeacon();
 
-    // 5. Draw Windy Season Floating Diamond Kites
+    // 5. Draw Starry Night Dynamic Shooting Stars (Bintang Jatuh)
+    if (this.currentWeather === 'starnight') {
+      this._drawShootingStars();
+    }
+
+    // 6. Draw Windy Season Floating Diamond Kites
     if (this.currentWeather === 'windy') {
       this._drawWindyKites();
     }
 
-    // 6. Draw Real-time Weather Particles (Snowflakes, Rain, Autumn Leaves, Fireworks)
+    // 7. Draw Real-time Weather Particles (Snowflakes, Rain, Autumn Leaves, Fireworks)
     this._drawWeatherParticles();
 
-    // 7. Draw Lightning Flash
+    // 8. Draw Lightning Flash
     if (this.lightningAlpha > 0.05) {
       this.ctx.fillStyle = `rgba(255, 255, 255, ${this.lightningAlpha * 0.6})`;
       this.ctx.fillRect(0, 0, this.width, this.height);
@@ -352,7 +403,7 @@ export class IsometricBuildingCanvas {
     const cx = this.width / 2;
     const spireY = Math.round(this.height * 0.08);
 
-    // Blinking Aircraft Beacon
+    // Blinking Aircraft Beacon & Antenna Spire Radiance
     const alpha = 0.4 + Math.sin(this.weatherTick * 5) * 0.5 + (this.beaconBlink * 0.5);
     this.ctx.fillStyle = `rgba(56, 189, 248, ${Math.min(1.0, alpha)})`;
     this.ctx.beginPath();
@@ -363,6 +414,30 @@ export class IsometricBuildingCanvas {
     this.ctx.beginPath();
     this.ctx.arc(cx, spireY + 6, 2.5, 0, Math.PI * 2);
     this.ctx.fill();
+  }
+
+  _drawShootingStars() {
+    this.shootingStars.forEach(st => {
+      this.ctx.save();
+      const grad = this.ctx.createLinearGradient(st.x, st.y, st.x - st.len, st.y - st.len * 0.6);
+      grad.addColorStop(0, `rgba(255, 255, 255, ${st.alpha})`);
+      grad.addColorStop(0.3, `rgba(56, 189, 248, ${st.alpha * 0.8})`);
+      grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+
+      this.ctx.strokeStyle = grad;
+      this.ctx.lineWidth = 2.2;
+      this.ctx.beginPath();
+      this.ctx.moveTo(st.x, st.y);
+      this.ctx.lineTo(st.x - st.len, st.y - st.len * 0.6);
+      this.ctx.stroke();
+
+      // Glowing bright head
+      this.ctx.fillStyle = '#ffffff';
+      this.ctx.beginPath();
+      this.ctx.arc(st.x, st.y, 2, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.restore();
+    });
   }
 
   _drawWindyKites() {
