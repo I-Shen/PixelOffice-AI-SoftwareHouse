@@ -120,6 +120,8 @@
           <button class="cockpit-tab-btn" data-tab="code">💻 2. Live Polyglot Code</button>
           <button class="cockpit-tab-btn" data-tab="security">🛡️ 3. Security & QA Matrix</button>
           <button class="cockpit-tab-btn" data-tab="deploy">🚀 4. Cloud Deploy Status</button>
+          <button class="cockpit-tab-btn" data-tab="telemetry">📟 5. Telemetry & Logs</button>
+          <button class="cockpit-tab-btn" data-tab="kanban">🗂️ 6. Sprint Kanban</button>
         </div>
 
         <!-- TAB 1: MASTER PRD & BLUEPRINT (100/100) -->
@@ -130,20 +132,20 @@
               class="prompt-dock-textarea" 
               rows="2"
               placeholder="Ketik kebutuhan proyek atau diskusikan langsung di menu '💬 Dialog Tim'..."
-            >Buatkan website company profile 'PxO AI Soft dotcom' dengan tema tech modern minimalis, memperkenalkan 10 pegawai senior kita dan jobdesknya, portfolio karya, disclaimer resmi bahwa sistem dibangun oleh Google Gemini AI, dan form konsultasi klien.</textarea>
+            >Buatkan website company profile 'PxO AI Soft' dengan tema clean-modern-minimalis-profesional-eyecatching, memperkenalkan 10 pegawai senior kita (Arthur, Elena, Marcus, Devon, Sophia, Kai, Sarah, Viktor, Naomi, Alex) dengan modal popup detail bio dummy, portfolio hasil proyek flexing ke umum & kompetitor, 4 layanan unggulan, dan form kontak.</textarea>
           </div>
 
           <div class="prompt-dock-actions">
             <div class="preset-pill-group">
               <span style="font-size: 10px; color: #9ca3af; align-self: center;">Preset:</span>
-              <button class="preset-btn" data-prompt="Buatkan website company profile 'PxO AI Soft dotcom' dengan tema tech modern minimalis, memperkenalkan 10 pegawai senior kita dan jobdesknya, portfolio karya, disclaimer resmi bahwa sistem dibangun oleh Google Gemini AI, dan form konsultasi klien.">🏢 PxO AI Company Profile</button>
+              <button class="preset-btn" data-prompt="Buatkan website company profile 'PxO AI Soft' dengan tema clean-modern-minimalis-profesional-eyecatching, memperkenalkan 10 pegawai senior kita dengan modal popup detail bio dummy, portfolio hasil proyek flexing, 4 layanan unggulan, dan form kontak.">🏢 PxO AI Company Profile</button>
               <button class="preset-btn" data-prompt="Tambahkan fitur upload foto pada form profil pengguna dengan preview thumbnail, storage adapter, dan validasi 5MB.">📸 Upload Foto & Storage</button>
               <button class="preset-btn" data-prompt="Buatkan REST API Microservice Payment Gateway dengan arsitektur Hexagonal, idempotency key, dan unit test 95%.">💳 Fintech API Hexagonal</button>
             </div>
 
             <div class="btn-action-cluster">
-              <button class="btn-secondary" id="openSidebarFromDockBtn" style="font-size: 11px; padding: 7px 14px; background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; color: #93c5fd;" title="Buka Dialog Tim untuk diskusi cepat & deal 100/100">
-                💬 Dialog Tim & Diskusi
+              <button class="btn-secondary" id="openSidebarFromDockBtn" style="font-size: 11px; padding: 7px 14px; background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; color: #93c5fd;" title="Fokus ke chat Ruang Eksekutif di panel kanan">
+                💬 Ruang Eksekutif
               </button>
               <button class="btn-secondary" id="auditPromptBtn" style="font-size: 11px; padding: 7px 12px;">
                 ✨ Audit Prompt (<span id="promptScoreValue" style="color: #10b981; font-weight: bold;">100</span>)
@@ -200,7 +202,7 @@
             <div class="deploy-card">
               <div class="deploy-card-title">🐙 GitHub Backup Repository (@I-Shen)</div>
               <a href="https://github.com/I-Shen/PixelOffice-AI-SoftwareHouse" target="_blank" class="deploy-url" id="cockpitGithubUrl">https://github.com/I-Shen/PixelOffice-AI-SoftwareHouse</a>
-              <span class="deploy-badge" style="color: #38bdf8;">● Tagged Release v2.8.0</span>
+              <span class="deploy-badge" style="color: #38bdf8;">● Tagged Release v2.8.6</span>
             </div>
             <div class="deploy-card">
               <div class="deploy-card-title">✈️ Telegram Telemetry Alert (@Shen_KTTBot)</div>
@@ -209,46 +211,110 @@
             </div>
           </div>
         </div>
+
+        <!-- TAB 5: ROUTER TELEMETRY & LOGS (Pindahan dari Kanan) -->
+        <div class="cockpit-tab-pane" id="pane-telemetry" style="display: none;">
+          <div class="cockpit-terminal-box">
+            <div class="code-box-header">
+              <span style="font-weight: 700; color: #38bdf8; font-size: 11px;">💻 Realtime SDLC & Router Telemetry Log Stream</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <button class="btn-secondary" id="copyLogsBtn" style="font-size: 9px; padding: 2px 7px;">📋 Salin Log</button>
+                <span style="font-size: 10px; color: #10b981; font-weight: 700;">● LIVE TELEMETRY</span>
+              </div>
+            </div>
+            <div class="terminal-content" id="terminalOutput">
+              <!-- Live log entries stream here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 6: SPRINT KANBAN BACKLOG (Pindahan dari Kanan) -->
+        <div class="cockpit-tab-pane" id="pane-kanban" style="display: none;">
+          <div class="cockpit-kanban-box">
+            <div class="code-box-header">
+              <span style="font-weight: 700; color: #f59e0b; font-size: 11px;">🗂️ Multi-Project Sprint Kanban Backlog</span>
+              <button class="btn-secondary" id="addToQueueBtn" style="font-size: 9px; padding: 2px 7px;">➕ Tambah Task</button>
+            </div>
+            <div class="kanban-queue-list" id="kanbanListContainer">
+              <!-- Populated by app.js -->
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </section>
 
-    <!-- RIGHT PANE: Live Telemetry, Agent Status, Terminal Logs & Kanban -->
-    <aside class="right-hud-section">
+    <!-- RIGHT PANE: Dedicated Live Dialogue & Executive Room Stream -->
+    <aside class="right-hud-section dialogue-right-panel" id="dialogueSidebar">
       
-      <!-- Tabbed / Stacked Agent Team Panel -->
-      <div class="hud-card agent-hud-box">
-        <div class="hud-card-header">
-          <h3>👥 Tim Software House (10 Agen Senior)</h3>
-          <span class="hud-status-badge">10 Ahli Online</span>
+      <!-- Dialogue Panel Header -->
+      <div class="dialogue-panel-header">
+        <div class="dialogue-header-title">
+          <span class="live-dot-indicator">●</span>
+          <h3>💬 Dialog Tim & Ruang Eksekutif</h3>
         </div>
-        <div class="agent-team-list" id="agentListContainer">
-          <!-- Populated dynamically by app.js -->
-        </div>
-      </div>
-
-      <!-- Realtime SDLC & Telemetry Terminal -->
-      <div class="hud-card terminal-hud-box">
-        <div class="hud-card-header">
-          <h3>💻 Realtime SDLC & Router Telemetry</h3>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button class="btn-secondary" id="copyLogsBtn" style="font-size: 8.5px; padding: 2px 6px;" title="Salin seluruh log error/aktivitas ke clipboard">📋 Salin Log</button>
-            <span style="font-size: 10px; color: #10b981; font-weight: 700;">● LIVE</span>
-          </div>
-        </div>
-        <div class="terminal-content" id="terminalOutput">
-          <!-- Live log entries stream here -->
+        <div class="dialogue-header-actions">
+          <button id="exportDialogueJsonBtn" class="btn-header-action" title="Ekspor Log (.JSON)">📥 Ekspor</button>
+          <button id="clearDialogueBtn" class="btn-header-action" title="Bersihkan Percakapan">🧹</button>
         </div>
       </div>
 
-      <!-- Multi-Project Kanban Sprint Backlog -->
-      <div class="hud-card kanban-hud-box">
-        <div class="hud-card-header">
-          <h3>🗂️ Sprint Kanban Backlog</h3>
-          <button class="btn-secondary" id="addToQueueBtn" style="font-size: 9px; padding: 2px 7px;">➕ Tambah</button>
+      <!-- Dialogue Filter Tabs with Smooth Horizontal Scroll -->
+      <div class="dialogue-filter-bar" id="dialogueFilterBar">
+        <span class="filter-chip active" data-filter="executive">👑 Ruang Eksekutif</span>
+        <span class="filter-chip" data-filter="all">🏢 Semua Diskusi</span>
+        <span class="filter-chip" data-filter="debate">⚔️ War Room</span>
+        <span class="filter-chip" data-filter="engineering">💻 Coding</span>
+        <span class="filter-chip" data-filter="qa_sec">🛡️ Security & QA</span>
+      </div>
+
+      <!-- Dialogue Feed Stream List -->
+      <div class="dialogue-feed-container" id="dialogueFeedList">
+        <div class="dialogue-empty-state">
+          <span style="font-size: 28px;">👑</span>
+          <p>Selamat datang di <strong>Ruang Eksekutif</strong>.<br>Ketik ide atau instruksi proyek Anda di bawah untuk berdiskusi langsung dengan <strong>Arthur Vance</strong> & <strong>Dr. Elena Rostova</strong>.</p>
         </div>
-        <div class="kanban-queue-list" id="kanbanListContainer">
-          <!-- Populated by app.js -->
+      </div>
+
+      <!-- Consensus & Deal 100/100 Card (Shown when Deal Reached) -->
+      <div class="deal-consensus-card" id="dealConsensusCard" style="display: none;">
+        <div class="deal-header">
+          <span class="deal-badge">🏆 KONSENSUS DEAL (SKOR 100/100)</span>
+          <button class="deal-close-btn" id="closeDealCardBtn">✕</button>
+        </div>
+        <div class="deal-body" id="dealSummaryText">
+          Spesifikasi proyek telah diverifikasi dan dikunci sempurna oleh Arthur Vance & Dr. Elena Rostova.
+        </div>
+        <!-- Master PRD Elena Preview Box -->
+        <div class="deal-prompt-preview" id="dealPromptPreview">
+          <div class="deal-prompt-label">📝 Draf Master PRD Elena (Siap Ditinjau):</div>
+          <div class="deal-prompt-text" id="dealMasterPromptText"></div>
+        </div>
+        <div class="deal-btn-group">
+          <button class="btn-deal-launch" id="sidebarExecuteSdlcBtn">
+            🚀 Eksekusi Koding Sekarang
+          </button>
+          <button class="btn-deal-review" id="sidebarReviewCockpitBtn">
+            📋 Tinjau di Cockpit
+          </button>
+        </div>
+      </div>
+
+      <!-- Docked Executive Chat Input Bar -->
+      <div class="sidebar-chat-dock">
+        <div class="chat-dock-room-header">
+          <div class="dock-room-tag">👑 Ruang Eksekutif (Arthur & Elena)</div>
+          <div class="dock-room-desc">Diskusi privat spesifikasi proyek dengan pimpinan tanpa interupsi engineer</div>
+        </div>
+        <div class="sidebar-input-row">
+          <input type="text" id="sidebarChatInput" placeholder="Ketik pesan/instruksi ke Arthur & Elena..." autocomplete="off" />
+          <button id="sidebarSendChatBtn" class="btn-sidebar-send" title="Kirim ke Ruang Eksekutif">💬 Kirim</button>
+        </div>
+        <div class="sidebar-quick-prompts">
+          <button class="quick-chip" data-text="Saya ingin buat website company profile PxO AI Soft modern, estetik, dan elegan.">🌐 Company Profile</button>
+          <button class="quick-chip" data-text="Spesifikasi sudah lengkap dan sesuai, mari kita sepakati dan mulai koding!">🤝 Sepakat / Deal</button>
+          <button class="quick-chip" data-text="Rekomendasikan prompt sempurna (Skor 100/100) dan mulai eksekusi!">🚀 Mulai SDLC</button>
         </div>
       </div>
 
@@ -256,112 +322,7 @@
 
   </main>
 
-  <!-- Floating Sidebar Toggle Button (Middle-Right "<") -->
-  <button id="sidebarToggleBtn" class="floating-sidebar-toggle" title="Buka Live Inter-Agent Dialogue & Meta-Auditor">
-    <span class="toggle-icon">❮</span>
-    <span class="toggle-label">💬 Dialog Tim</span>
-    <span id="dialogueUnreadBadge" class="dialogue-badge" style="display: none;">0</span>
-  </button>
-
-  <!-- Backdrop overlay when sidebar is open on mobile/tablet -->
-  <div id="sidebarBackdrop" class="sidebar-backdrop-overlay"></div>
-
-  <!-- Live Inter-Agent Dialogue & Meta-Auditor Sidebar Drawer -->
-  <div id="dialogueSidebar" class="dialogue-sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-title-group">
-        <span class="sidebar-badge-live">● LIVE OBSERVABILITY & CONSULTATION</span>
-        <h3>💬 Staff Dialogue Stream</h3>
-        <p>Diskusikan kebutuhan proyek Anda atau pantau obrolan 10 pegawai secara real-time.</p>
-      </div>
-      <button id="closeSidebarBtn" class="sidebar-close-btn" title="Tutup Sidebar">✕</button>
-    </div>
-
-    <!-- Meta-Evaluation & Accuracy Scorecard Widget -->
-    <div class="sidebar-scorecard" id="sidebarScorecard" style="display: none;">
-      <div class="scorecard-header">
-        <span class="scorecard-title">🎯 Meta-Evaluation & Accuracy</span>
-        <span class="scorecard-score" id="scorecardScoreBadge">100% Match</span>
-      </div>
-      <div class="scorecard-metrics" id="scorecardMetrics">
-        <!-- Injected dynamically -->
-      </div>
-    </div>
-
-    <!-- Dialogue Filter / Tabs with Smooth Horizontal Scroll -->
-    <div class="dialogue-filter-bar" id="dialogueFilterBar">
-      <span class="filter-chip active" data-filter="executive">👑 Ruang Eksekutif</span>
-      <span class="filter-chip" data-filter="all">🏢 Semua Percakapan</span>
-      <span class="filter-chip" data-filter="debate">⚔️ War Room</span>
-      <span class="filter-chip" data-filter="engineering">💻 Engineering</span>
-      <span class="filter-chip" data-filter="qa_sec">🛡️ QA & Security</span>
-    </div>
-
-    <!-- Dialogue Feed Stream List -->
-    <div class="dialogue-feed-container" id="dialogueFeedList">
-      <div class="dialogue-empty-state">
-        <span style="font-size: 28px;">👑</span>
-        <p>Selamat datang di <strong>Ruang Eksekutif</strong>.<br>Ketik ide atau instruksi proyek Anda di bawah untuk berdiskusi langsung dengan <strong>Arthur Vance</strong> & <strong>Dr. Elena Rostova</strong>.</p>
-      </div>
-    </div>
-
-    <!-- Consensus & Deal 100/100 Card (Shown when Deal Reached) -->
-    <div class="deal-consensus-card" id="dealConsensusCard" style="display: none;">
-      <div class="deal-header">
-        <span class="deal-badge">🏆 KONSENSUS DEAL (SKOR 100/100)</span>
-        <button class="deal-close-btn" id="closeDealCardBtn">✕</button>
-      </div>
-      <div class="deal-body" id="dealSummaryText">
-        Spesifikasi proyek telah diverifikasi dan dikunci sempurna oleh Arthur Vance & Dr. Elena Rostova.
-      </div>
-      <!-- Master PRD Elena Preview Box (Ditampilkan sebelum eksekusi) -->
-      <div class="deal-prompt-preview" id="dealPromptPreview">
-        <div class="deal-prompt-label">📝 Draf Master PRD Elena (Siap Ditinjau):</div>
-        <div class="deal-prompt-text" id="dealMasterPromptText"></div>
-      </div>
-      <div class="deal-btn-group">
-        <button class="btn-deal-launch" id="sidebarExecuteSdlcBtn">
-          🚀 Eksekusi Koding Sekarang (Mulai SDLC)
-        </button>
-        <button class="btn-deal-review" id="sidebarReviewCockpitBtn">
-          📋 Tinjau di Cockpit
-        </button>
-      </div>
-    </div>
-
-    <!-- Integrated Interactive Chat Bar inside Ruang Eksekutif -->
-    <div class="sidebar-chat-dock">
-      <div class="chat-dock-room-header">
-        <div class="dock-room-tag">👑 Ruang Eksekutif (Arthur & Elena)</div>
-        <div class="dock-room-desc">Diskusi privat spesifikasi proyek dengan pimpinan tanpa interupsi engineer</div>
-      </div>
-      <div class="sidebar-input-row">
-        <input type="text" id="sidebarChatInput" placeholder="Ketik pesan/instruksi ke Arthur & Elena..." autocomplete="off" />
-        <button id="sidebarSendChatBtn" class="btn-sidebar-send" title="Kirim ke Ruang Eksekutif">💬 Kirim</button>
-      </div>
-      <div class="sidebar-quick-prompts">
-        <button class="quick-chip" data-text="Saya ingin buat website company profile PxO AI Soft dotcom modern dan estetik.">🌐 Company Profile</button>
-        <button class="quick-chip" data-text="Spesifikasi sudah lengkap dan sesuai, mari kita sepakati dan mulai koding!">🤝 Sepakat / Deal</button>
-        <button class="quick-chip" data-text="Rekomendasikan prompt sempurna (Skor 100/100) dan mulai eksekusi!">🚀 Mulai SDLC</button>
-      </div>
-    </div>
-
-    <!-- Sidebar Footer Actions -->
-    <div class="sidebar-footer">
-      <button id="exportDialogueJsonBtn" class="btn-sidebar-action">📥 Ekspor Log (.JSON)</button>
-      <button id="clearDialogueBtn" class="btn-sidebar-secondary">🧹 Bersihkan</button>
-    </div>
-  </div>
-
-  <script type="module" src="js/app.js?v=2.8.1"></script>
-  <script>
-    // Failsafe auto-trigger to guarantee canvas & cards render even if timing edge-cases occur
-    window.addEventListener('load', function() {
-      if (window.pixelOfficeApp) {
-        if (!document.querySelector('.agent-card')) window.pixelOfficeApp.renderAgentCards();
-      }
-    });
-  </script>
+  <script type="module" src="js/app.js?v=2.8.6"></script>
 </body>
 </html>
 
