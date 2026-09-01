@@ -385,6 +385,11 @@ export class PixelOfficeCanvas {
     }, 7000);
   }
 
+  onSpeech(callback) {
+    if (!this.speechListeners) this.speechListeners = [];
+    this.speechListeners.push(callback);
+  }
+
   showSpeechBubble(agentId, text) {
     const agent = this.agents.find(a => a.id === agentId);
     if (!agent) return;
@@ -392,13 +397,13 @@ export class PixelOfficeCanvas {
     const existing = document.getElementById(`bubble-${agentId}`);
     if (existing) existing.remove();
 
-    const authorName = agent.id === "optimizer" ? "Dr. Elena" : agent.name.split(' ')[0];
+    const authorName = agent.id === "optimizer" ? "Dr. Elena Rostova" : agent.name;
 
     const bubble = document.createElement('div');
     bubble.id = `bubble-${agentId}`;
     bubble.className = 'pixel-speech-bubble';
     bubble.innerHTML = `
-      <div class="bubble-author">${authorName} • ${agent.role.split(' ')[0]}</div>
+      <div class="bubble-author">${authorName.split(' ')[0]} • ${agent.role.split(' ')[0]}</div>
       <div class="bubble-content">${text}</div>
     `;
 
@@ -409,6 +414,23 @@ export class PixelOfficeCanvas {
     bubble.style.top = `${Math.min(Math.max(percentY, 4), 86)}%`;
 
     this.bubbleContainer.appendChild(bubble);
+
+    if (this.speechListeners) {
+      this.speechListeners.forEach(cb => {
+        try {
+          cb({
+            agentId,
+            name: authorName,
+            role: agent.role,
+            avatar: agent.avatar || "👤",
+            color: agent.color || "#3b82f6",
+            text
+          });
+        } catch (e) {
+          console.warn("[Speech Listener Error]", e);
+        }
+      });
+    }
 
     setTimeout(() => {
       if (bubble.parentNode) bubble.remove();
