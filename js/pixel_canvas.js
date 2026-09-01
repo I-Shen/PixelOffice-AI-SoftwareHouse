@@ -115,6 +115,7 @@ export class PixelOfficeCanvas {
     this.startRenderLoop();
     this.startAutonomousRoutines();
     this.startCatRoamingAI();
+    this.startWeatherAutoCycle();
   }
 
   initCanvasInteractions() {
@@ -601,10 +602,20 @@ export class PixelOfficeCanvas {
     if (nameElem) nameElem.textContent = found.name;
   }
 
-  cycleNextWeather() {
+  startWeatherAutoCycle() {
+    if (this.weatherTimer) clearInterval(this.weatherTimer);
+    this.weatherTimer = setInterval(() => {
+      this.cycleNextWeather(true);
+    }, 45000);
+  }
+
+  cycleNextWeather(isAuto = false) {
     this.currentWeatherIndex = (this.currentWeatherIndex + 1) % this.weathers.length;
     const next = this.weathers[this.currentWeatherIndex];
     this.setWeather(next.id);
+    if (isAuto && window.pixelOfficeApp) {
+      window.pixelOfficeApp.appendTerminalLog("system", `🌤️ [Cuaca Berganti Otomatis] Suasana kantor berganti menjadi: ${next.icon} ${next.name}`);
+    }
     return next;
   }
 
