@@ -35,6 +35,7 @@ export class PixelOfficeApp {
 
     this.initDOM();
     this.initEventListeners();
+    this.initDigitalClock();
     this.renderAgentCards();
     if (this.kanban) this.renderKanbanList(this.kanban.getAllProjects());
     if (this.orchestrator && this.orchestrator.analytics) {
@@ -285,6 +286,31 @@ export class PixelOfficeApp {
           });
       });
     }
+
+    // Weather Switcher Controller
+    const weatherBtn = document.getElementById('weatherToggleBtn');
+    if (weatherBtn) {
+      weatherBtn.addEventListener('click', () => {
+        if (this.canvasEngine) {
+          const next = this.canvasEngine.cycleNextWeather();
+          this.appendTerminalLog("system", `🌤️ [Cuaca Luar Kantor] Berubah menjadi: ${next.icon} ${next.name}`);
+        }
+      });
+    }
+
+    // Canvas Fullscreen Toggle
+    const fsBtn = document.getElementById('canvasFullscreenBtn');
+    if (fsBtn) {
+      fsBtn.addEventListener('click', () => {
+        this.toggleCanvasFullscreen();
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.querySelector('.canvas-wrapper.is-fullscreen')) {
+        this.toggleCanvasFullscreen(false);
+      }
+    });
 
     // Global Error Capture
     window.addEventListener('error', (e) => {
@@ -977,6 +1003,61 @@ export class PixelOfficeApp {
     entry.innerHTML = `<span class="log-time">${time}</span> ${tagHtml} ${message}`;
     this.terminalOutput.appendChild(entry);
     this.terminalOutput.scrollTop = this.terminalOutput.scrollHeight;
+  }
+
+  // -------------------------------------------------------------
+  // Digital Clock & Canvas Fullscreen Controller
+  // -------------------------------------------------------------
+  initDigitalClock() {
+    this.updateClock();
+    setInterval(() => this.updateClock(), 1000);
+  }
+
+  updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+
+    const hoursElem = document.getElementById('clockHours');
+    const minutesElem = document.getElementById('clockMinutes');
+    const secondsElem = document.getElementById('clockSeconds');
+
+    if (hoursElem) hoursElem.textContent = h;
+    if (minutesElem) minutesElem.textContent = m;
+    if (secondsElem) secondsElem.textContent = `:${s}`;
+  }
+
+  toggleCanvasFullscreen(forceState = null) {
+    const wrapper = document.querySelector('.canvas-wrapper');
+    const fsText = document.getElementById('fullscreenText');
+    const fsIcon = document.getElementById('fullscreenIcon');
+    if (!wrapper) return;
+
+    const shouldBeFs = forceState !== null ? forceState : !wrapper.classList.contains('is-fullscreen');
+
+    if (shouldBeFs) {
+      wrapper.classList.add('is-fullscreen');
+      if (fsText) fsText.textContent = "Keluar Fullscreen";
+      if (fsIcon) fsIcon.textContent = "✕";
+
+      if (!document.getElementById('floatingExitFullscreenBtn')) {
+        const exitBtn = document.createElement('button');
+        exitBtn.id = 'floatingExitFullscreenBtn';
+        exitBtn.className = 'btn-exit-fullscreen';
+        exitBtn.innerHTML = '✕ Keluar Layar Penuh (ESC)';
+        exitBtn.style.cssText = 'position:fixed;top:16px;right:20px;z-index:100001;background:rgba(220,38,38,0.9);color:#fff;border:1px solid #f87171;padding:8px 16px;border-radius:8px;font-family:monospace;font-size:12px;font-weight:bold;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,0.6);backdrop-filter:blur(8px);';
+        exitBtn.onclick = () => this.toggleCanvasFullscreen(false);
+        document.body.appendChild(exitBtn);
+      }
+    } else {
+      wrapper.classList.remove('is-fullscreen');
+      if (fsText) fsText.textContent = "Fullscreen Ruangan";
+      if (fsIcon) fsIcon.textContent = "⛶";
+
+      const exitBtn = document.getElementById('floatingExitFullscreenBtn');
+      if (exitBtn) exitBtn.remove();
+    }
   }
 }
 
