@@ -1,5 +1,5 @@
 /**
- * PixelOffice AI Software House - Main Application Controller (v2.8.0)
+ * PixelOffice AI Software House - Main Application Controller (v2.8.1)
  * Unified Interactive Dialogue Stream & Headquarters Live Project Cockpit
  */
 
@@ -29,7 +29,7 @@ export class PixelOfficeApp {
     this.dialogueHistory = [];
     this.unreadDialogueCount = 0;
     this.isSidebarOpen = false;
-    this.activeDialogueFilter = 'all';
+    this.activeDialogueFilter = 'executive'; // Default to Ruang Eksekutif
     this.lastSpeechTime = 0;
     this.lastSpeechText = "";
 
@@ -107,6 +107,7 @@ export class PixelOfficeApp {
     this.scorecardMetrics = document.getElementById('scorecardMetrics');
     this.exportDialogueJsonBtn = document.getElementById('exportDialogueJsonBtn');
     this.clearDialogueBtn = document.getElementById('clearDialogueBtn');
+    this.dialogueFilterBar = document.getElementById('dialogueFilterBar');
     this.dialogueFilterChips = document.querySelectorAll('.dialogue-filter-bar .filter-chip');
 
     // Integrated Sidebar Chat Dock & Deal Card
@@ -190,7 +191,7 @@ export class PixelOfficeApp {
       this.clearDialogueBtn.addEventListener('click', () => this.clearDialogueFeed());
     }
 
-    // Sidebar Interactive Chat Handlers
+    // Sidebar Interactive Chat Handlers (Ruang Eksekutif Only)
     if (this.sidebarSendChatBtn) {
       this.sidebarSendChatBtn.addEventListener('click', () => this.handleSendSidebarChat());
     }
@@ -234,7 +235,16 @@ export class PixelOfficeApp {
       });
     }
 
-    // Dialogue Filter Chips
+    // Dialogue Filter Chips with Mouse Wheel Horizontal Scrolling
+    if (this.dialogueFilterBar) {
+      this.dialogueFilterBar.addEventListener('wheel', (e) => {
+        if (e.deltaY !== 0) {
+          e.preventDefault();
+          this.dialogueFilterBar.scrollLeft += e.deltaY;
+        }
+      }, { passive: false });
+    }
+
     if (this.dialogueFilterChips) {
       this.dialogueFilterChips.forEach(chip => {
         chip.addEventListener('click', () => {
@@ -327,12 +337,13 @@ export class PixelOfficeApp {
 
     this.debateEngine.on('speech_bubble', data => {
       if (this.canvasEngine) {
-        this.canvasEngine.showSpeechBubble(data.agentId, data.text);
+        this.canvasEngine.showSpeechBubble(data.agentId, data.text, true);
       }
     });
 
     // -------------------------------------------------------------
     // Canvas Speech Bubble Synchronization to Dialogue Stream
+    // (Only formal dialogue events will reach here)
     // -------------------------------------------------------------
     if (this.canvasEngine) {
       this.canvasEngine.onSpeech(data => {
@@ -347,7 +358,7 @@ export class PixelOfficeApp {
           role: data.role,
           avatar: data.avatar,
           color: data.color,
-          stage: "Aktivitas Kantor",
+          stage: "Diskusi Kantor",
           message: data.text
         });
       });
@@ -419,7 +430,7 @@ export class PixelOfficeApp {
       this.startBtn.innerHTML = `<span>🚀 Mulai Siklus SDLC</span>`;
       this.appendTerminalLog("system", `🎉 [SDLC SELESAI] Terbackup di GitHub & Terdeploy live di Vercel.`);
       if (this.canvasEngine) {
-        this.canvasEngine.showSpeechBubble("manager", "Proyek selesai 100%! Seluruh kode & audit telah diverifikasi.");
+        this.canvasEngine.showSpeechBubble("manager", "Proyek selesai 100%! Seluruh kode & audit telah diverifikasi.", true);
         this.canvasEngine.unlockAllAgents();
       }
 
@@ -541,15 +552,23 @@ export class PixelOfficeApp {
 
   _categorizeStage(stageName) {
     const s = (stageName || "").toLowerCase();
+    if (s.includes('eksekutif') || s.includes('konsultasi') || s.includes('executive')) return 'executive';
     if (s.includes('war room') || s.includes('debate')) return 'debate';
-    if (s.includes('planning') || s.includes('triage') || s.includes('research') || s.includes('audit') || s.includes('konsultasi') || s.includes('eksekutif')) return 'planning';
-    if (s.includes('coding') || s.includes('modular') || s.includes('architect')) return 'engineering';
-    if (s.includes('qa') || s.includes('testing') || s.includes('security') || s.includes('review')) return 'qa_sec';
-    return 'all';
+    if (s.includes('coding') || s.includes('modular') || s.includes('architect') || s.includes('planning') || s.includes('triage') || s.includes('research')) return 'engineering';
+    if (s.includes('qa') || s.includes('testing') || s.includes('security') || s.includes('review') || s.includes('devops')) return 'qa_sec';
+    return 'other';
   }
 
   _matchesDialogueFilter(dialogue, filterType) {
     if (filterType === 'all') return true;
+    if (filterType === 'executive') {
+      const stage = (dialogue.stage || "").toLowerCase();
+      return stage.includes('eksekutif') || 
+             stage.includes('konsultasi') ||
+             dialogue.agentId === "user" ||
+             dialogue.agentId === "manager" ||
+             dialogue.agentId === "optimizer";
+    }
     const cat = this._categorizeStage(dialogue.stage);
     return cat === filterType;
   }
@@ -560,10 +579,11 @@ export class PixelOfficeApp {
 
     const filtered = this.dialogueHistory.filter(d => this._matchesDialogueFilter(d, this.activeDialogueFilter));
     if (filtered.length === 0) {
+      const isExec = this.activeDialogueFilter === 'executive';
       this.dialogueFeedList.innerHTML = `
         <div class="dialogue-empty-state">
-          <span style="font-size: 24px;">🔍</span>
-          <p>Tidak ada percakapan pada kategori ini.</p>
+          <span style="font-size: 24px;">${isExec ? '👑' : '🔍'}</span>
+          <p>${isExec ? 'Belum ada percakapan di Ruang Eksekutif.<br>Ketik ide Anda di bawah untuk berdiskusi langsung dengan Arthur & Elena!' : 'Tidak ada percakapan pada kategori ini.'}</p>
         </div>
       `;
       return;
@@ -618,8 +638,8 @@ export class PixelOfficeApp {
     if (this.dialogueFeedList) {
       this.dialogueFeedList.innerHTML = `
         <div class="dialogue-empty-state">
-          <span style="font-size: 28px;">💬</span>
-          <p>Log percakapan dibersihkan.<br>Ketik ide Anda di bawah untuk memulai diskusi baru.</p>
+          <span style="font-size: 28px;">👑</span>
+          <p>Log percakapan dibersihkan.<br>Ketik ide Anda di bawah untuk memulai diskusi baru di Ruang Eksekutif.</p>
         </div>
       `;
     }
@@ -632,11 +652,19 @@ export class PixelOfficeApp {
   }
 
   // -------------------------------------------------------------
-  // Fast-Track Interactive Consultation in Sidebar
+  // Fast-Track Interactive Consultation in Ruang Eksekutif
   // -------------------------------------------------------------
   async startSidebarConsultation(rawPrompt) {
     const text = (rawPrompt || "").trim();
     if (!text) return;
+
+    this.activeDialogueFilter = 'executive';
+    if (this.dialogueFilterChips) {
+      this.dialogueFilterChips.forEach(c => {
+        if (c.getAttribute('data-filter') === 'executive') c.classList.add('active');
+        else c.classList.remove('active');
+      });
+    }
 
     this.appendDialogueMessage({
       agentId: "user",
@@ -644,14 +672,14 @@ export class PixelOfficeApp {
       role: "CEO / Klien",
       avatar: "👤",
       color: "#38bdf8",
-      stage: "Konsultasi Eksekutif",
+      stage: "Ruang Eksekutif",
       message: text
     });
 
     if (this.canvasEngine) {
       this.canvasEngine.setAgentTarget("manager", "executive");
       this.canvasEngine.setAgentTarget("optimizer", "executive");
-      this.canvasEngine.showSpeechBubble("manager", "Menerima ide proyek dari Bos @I-Shen...");
+      this.canvasEngine.showSpeechBubble("manager", "Arthur: Membuka sesi konsultasi di Ruang Eksekutif...", true);
     }
 
     try {
@@ -660,14 +688,14 @@ export class PixelOfficeApp {
         agentId: "manager",
         name: "Arthur Vance & Dr. Elena Rostova",
         role: "Executive Advisor",
-        avatar: "👔",
-        color: "#3b82f6",
-        stage: "Konsultasi Eksekutif",
+        avatar: "👑",
+        color: "#f59e0b",
+        stage: "Ruang Eksekutif",
         message: response.reply
       });
 
       if (this.canvasEngine) {
-        this.canvasEngine.showSpeechBubble("optimizer", "Dr. Elena: Memvalidasi arsitektur & skor 100 PRD.");
+        this.canvasEngine.showSpeechBubble("optimizer", "Dr. Elena: Menilai spesifikasi & arsitektur proyek.", true);
       }
 
       if (response.isDeal) {
@@ -687,20 +715,29 @@ export class PixelOfficeApp {
     this.sidebarSendChatBtn.disabled = true;
     this.sidebarSendChatBtn.innerText = "⏳...";
 
+    // Switch to executive view if not already
+    this.activeDialogueFilter = 'executive';
+    if (this.dialogueFilterChips) {
+      this.dialogueFilterChips.forEach(c => {
+        if (c.getAttribute('data-filter') === 'executive') c.classList.add('active');
+        else c.classList.remove('active');
+      });
+    }
+
     this.appendDialogueMessage({
       agentId: "user",
       name: "Bos @I-Shen",
       role: "CEO / Klien",
       avatar: "👤",
       color: "#38bdf8",
-      stage: "Konsultasi Eksekutif",
+      stage: "Ruang Eksekutif",
       message: text
     });
 
     if (this.canvasEngine) {
       this.canvasEngine.setAgentTarget("manager", "executive");
       this.canvasEngine.setAgentTarget("optimizer", "executive");
-      this.canvasEngine.showSpeechBubble("manager", "Arthur: Meninjau instruksi Bos...");
+      this.canvasEngine.showSpeechBubble("manager", "Arthur: Menganalisis instruksi di Ruang Eksekutif...", true);
     }
 
     try {
@@ -709,14 +746,14 @@ export class PixelOfficeApp {
         agentId: "manager",
         name: "Arthur Vance & Dr. Elena Rostova",
         role: "Executive Advisor",
-        avatar: "👔",
-        color: "#3b82f6",
-        stage: "Konsultasi Eksekutif",
+        avatar: "👑",
+        color: "#f59e0b",
+        stage: "Ruang Eksekutif",
         message: response.reply
       });
 
       if (this.canvasEngine) {
-        this.canvasEngine.showSpeechBubble("optimizer", "Dr. Elena: Mengunci parameter proyek (Skor 100/100)!");
+        this.canvasEngine.showSpeechBubble("optimizer", "Dr. Elena: Memperbarui spesifikasi PRD Emas.", true);
       }
 
       if (response.isDeal) {
@@ -763,7 +800,7 @@ export class PixelOfficeApp {
 
     if (this.canvasEngine) {
       this.canvasEngine.setAgentTarget("optimizer", "executive");
-      this.canvasEngine.showSpeechBubble("optimizer", "Menganalisis mutu prompt teknis...");
+      this.canvasEngine.showSpeechBubble("optimizer", "Menganalisis mutu prompt teknis...", true);
     }
     this.highlightActiveAgentCard("optimizer", "Audit Prompt");
 
@@ -781,12 +818,12 @@ export class PixelOfficeApp {
         role: "PRD Architect",
         avatar: "🔍",
         color: "#8b5cf6",
-        stage: "0. Audit Prompt Mandiri",
+        stage: "Ruang Eksekutif",
         message: `Audit Prompt Selesai. Skor Mutu: ${result.score}/100 [${result.grade}]. PRD master telah siap disalurkan ke pipeline SDLC.`
       });
 
       if (this.canvasEngine) {
-        this.canvasEngine.showSpeechBubble("optimizer", `Skor Mutu: ${result.score}/100 (${result.grade})`);
+        this.canvasEngine.showSpeechBubble("optimizer", `Skor Mutu: ${result.score}/100 (${result.grade})`, true);
       }
     } catch (err) {
       console.error("[Audit Prompt Error]", err);
