@@ -111,6 +111,7 @@ export class PixelOfficeApp {
     this.dialogueFilterChips = document.querySelectorAll('.dialogue-filter-bar .filter-chip');
 
     // Integrated Sidebar Chat Dock & Deal Card
+    this.sidebarChatDock = document.querySelector('.sidebar-chat-dock');
     this.sidebarChatInput = document.getElementById('sidebarChatInput');
     this.sidebarSendChatBtn = document.getElementById('sidebarSendChatBtn');
     this.dealConsensusCard = document.getElementById('dealConsensusCard');
@@ -251,6 +252,12 @@ export class PixelOfficeApp {
           this.dialogueFilterChips.forEach(c => c.classList.remove('active'));
           chip.classList.add('active');
           this.activeDialogueFilter = chip.getAttribute('data-filter') || 'all';
+
+          // Strictly toggle chat dock: ONLY visible in Ruang Eksekutif!
+          if (this.sidebarChatDock) {
+            this.sidebarChatDock.style.display = (this.activeDialogueFilter === 'executive') ? 'flex' : 'none';
+          }
+
           this.renderFilteredDialogues();
         });
       });
@@ -574,6 +581,10 @@ export class PixelOfficeApp {
   }
 
   renderFilteredDialogues() {
+    if (this.sidebarChatDock) {
+      this.sidebarChatDock.style.display = (this.activeDialogueFilter === 'executive') ? 'flex' : 'none';
+    }
+
     if (!this.dialogueFeedList) return;
     this.dialogueFeedList.innerHTML = "";
 
