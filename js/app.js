@@ -116,8 +116,10 @@ export class PixelOfficeApp {
     this.sidebarSendChatBtn = document.getElementById('sidebarSendChatBtn');
     this.dealConsensusCard = document.getElementById('dealConsensusCard');
     this.dealSummaryText = document.getElementById('dealSummaryText');
+    this.dealMasterPromptText = document.getElementById('dealMasterPromptText');
     this.closeDealCardBtn = document.getElementById('closeDealCardBtn');
     this.sidebarExecuteSdlcBtn = document.getElementById('sidebarExecuteSdlcBtn');
+    this.sidebarReviewCockpitBtn = document.getElementById('sidebarReviewCockpitBtn');
     this.quickChips = document.querySelectorAll('.sidebar-quick-prompts .quick-chip');
   }
 
@@ -227,12 +229,26 @@ export class PixelOfficeApp {
 
     if (this.sidebarExecuteSdlcBtn) {
       this.sidebarExecuteSdlcBtn.addEventListener('click', () => {
-        if (this.advisor.masterPrompt && this.promptInput) {
+        if (this.advisor && this.advisor.masterPrompt && this.promptInput) {
           this.promptInput.value = this.advisor.masterPrompt;
           if (this.scoreValue) this.scoreValue.textContent = "100";
         }
         this.toggleDialogueSidebar(false);
         this.handleStartSDLC();
+      });
+    }
+
+    if (this.sidebarReviewCockpitBtn) {
+      this.sidebarReviewCockpitBtn.addEventListener('click', () => {
+        if (this.advisor && this.advisor.masterPrompt && this.promptInput) {
+          this.promptInput.value = this.advisor.masterPrompt;
+          if (this.scoreValue) this.scoreValue.textContent = "100";
+        }
+        this.toggleDialogueSidebar(false);
+        if (this.promptInput) {
+          this.promptInput.focus();
+          this.promptInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
       });
     }
 
@@ -787,6 +803,10 @@ export class PixelOfficeApp {
         <strong>🏆 Konsensus Tercapai (Skor 100/100 Emas)!</strong><br>
         Arthur Vance & Dr. Elena Rostova telah merumuskan PRD Emas siap eksekusi.
       `;
+    }
+
+    if (this.dealMasterPromptText && response && response.masterPrompt) {
+      this.dealMasterPromptText.textContent = response.masterPrompt;
     }
 
     if (response && response.masterPrompt && this.promptInput) {
