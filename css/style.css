@@ -586,50 +586,19 @@ body {
  * Twin Scenes Viewport: 2D Interior Room + 2.5D Isometric Tower
  * ------------------------------------------------------------- */
 .twin-scenes-grid {
-  display: grid;
-  grid-template-columns: 1fr 320px;
+  display: flex;
+  align-items: stretch;
   gap: 10px;
   flex: 1;
   min-height: 0;
   width: 100%;
-}
-
-@media (max-width: 1400px) {
-  .twin-scenes-grid {
-    grid-template-columns: 1fr 280px;
-  }
-}
-
-@media (max-width: 1100px) {
-  .twin-scenes-grid {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-}
-
-.scene-sub-badge {
-  position: absolute;
-  top: 8px;
-  left: 10px;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  color: #7dd3fc;
-  font-size: 9px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 4px;
-  backdrop-filter: blur(6px);
-  z-index: 10;
-  pointer-events: none;
-  font-family: var(--font-pixel, monospace);
-  letter-spacing: 0.5px;
+  overflow: hidden;
 }
 
 .canvas-wrapper {
   position: relative;
   height: 100%;
   min-height: 0;
-  width: 100%;
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid rgba(59, 130, 246, 0.3);
@@ -639,20 +608,28 @@ body {
   justify-content: center;
 }
 
+/* Interior Room Scene (Patented Exact 1200:560 Aspect Ratio, Snapped Left) */
 .interior-scene-box {
+  aspect-ratio: 1200 / 560;
+  height: 100%;
+  max-width: 100%;
+  flex: 0 0 auto;
   background: #ece5d8;
 }
 
 .interior-scene-box #officeCanvas {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  object-position: left center; /* Mepet kiri sesuai instruksi Bos I-Shen! */
+  object-fit: fill; /* Perfectly fills the 1200/560 box without any black borders or distortion */
   display: block;
   image-rendering: pixelated;
 }
 
+/* Building Scene (Fills All Remaining Space in the Middle) */
 .building-scene-box {
+  flex: 1 1 0;
+  min-width: 120px;
+  height: 100%;
   background: #0f172a;
   border-color: rgba(168, 85, 247, 0.35);
 }
@@ -663,6 +640,21 @@ body {
   object-fit: contain;
   display: block;
   image-rendering: pixelated;
+}
+
+@media (max-width: 1050px) {
+  .twin-scenes-grid {
+    flex-direction: column;
+    height: auto;
+  }
+  .interior-scene-box {
+    width: 100%;
+    height: auto;
+  }
+  .building-scene-box {
+    width: 100%;
+    height: 240px;
+  }
 }
 
 /* Fullscreen Canvas State */
