@@ -632,12 +632,13 @@ body {
   height: 100%;
   background: #0f172a;
   border-color: rgba(168, 85, 247, 0.35);
+  overflow: hidden;
 }
 
 .building-scene-box #buildingCanvas {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: fill; /* Fills the vertical box edge-to-edge with the mountain peak & skyscraper */
   display: block;
   image-rendering: pixelated;
 }
