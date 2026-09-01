@@ -229,26 +229,15 @@ export class PixelOfficeApp {
 
     if (this.sidebarExecuteSdlcBtn) {
       this.sidebarExecuteSdlcBtn.addEventListener('click', () => {
-        if (this.advisor && this.advisor.masterPrompt && this.promptInput) {
-          this.promptInput.value = this.advisor.masterPrompt;
-          if (this.scoreValue) this.scoreValue.textContent = "100";
-        }
-        this.toggleDialogueSidebar(false);
-        this.handleStartSDLC();
+        const prompt = (this.advisor && this.advisor.masterPrompt) ? this.advisor.masterPrompt : "";
+        this.handleStartSDLC(prompt);
       });
     }
 
     if (this.sidebarReviewCockpitBtn) {
       this.sidebarReviewCockpitBtn.addEventListener('click', () => {
-        if (this.advisor && this.advisor.masterPrompt && this.promptInput) {
-          this.promptInput.value = this.advisor.masterPrompt;
-          if (this.scoreValue) this.scoreValue.textContent = "100";
-        }
-        this.toggleDialogueSidebar(false);
-        if (this.promptInput) {
-          this.promptInput.focus();
-          this.promptInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
+        const telemetryBtn = document.querySelector('.cockpit-tab-btn[data-tab="telemetry"]');
+        if (telemetryBtn) telemetryBtn.click();
       });
     }
 
@@ -449,8 +438,10 @@ export class PixelOfficeApp {
     });
 
     this.orchestrator.on('sdlc_complete', res => {
-      this.startBtn.disabled = false;
-      this.startBtn.innerHTML = `<span>🚀 Mulai Siklus SDLC</span>`;
+      if (this.startBtn) {
+        this.startBtn.disabled = false;
+        this.startBtn.innerHTML = `<span>🚀 Mulai Siklus SDLC</span>`;
+      }
       this.appendTerminalLog("system", `🎉 [SDLC SELESAI] Terbackup di GitHub & Terdeploy live di Vercel.`);
       if (this.canvasEngine) {
         this.canvasEngine.showSpeechBubble("manager", "Proyek selesai 100%! Seluruh kode & audit telah diverifikasi.", true);
@@ -472,8 +463,10 @@ export class PixelOfficeApp {
     });
 
     this.orchestrator.on('sdlc_error', err => {
-      this.startBtn.disabled = false;
-      this.startBtn.innerHTML = `<span>🚀 Mulai Siklus SDLC</span>`;
+      if (this.startBtn) {
+        this.startBtn.disabled = false;
+        this.startBtn.innerHTML = `<span>🚀 Mulai Siklus SDLC</span>`;
+      }
       this.appendTerminalLog("security", `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
       this.appendTerminalLog("security", `❌ [SDLC PIPELINE ERROR TERDETEKSI]`);
       this.appendTerminalLog("security", `📍 Tahap : ${err.stage || 'Pipeline SDLC'}`);
@@ -848,19 +841,26 @@ export class PixelOfficeApp {
     }
   }
 
-  async handleStartSDLC() {
-    let rawText = this.promptInput ? this.promptInput.value.trim() : "";
-    if (!rawText && this.advisor && this.advisor.masterPrompt) {
-      rawText = this.advisor.masterPrompt;
-      if (this.promptInput) this.promptInput.value = rawText;
+  async handleStartSDLC(customPrompt = null) {
+    let rawText = customPrompt || (this.advisor && this.advisor.masterPrompt) || (this.promptInput ? this.promptInput.value.trim() : "");
+    if (!rawText && this.advisor && this.advisor.currentDiscussionPrompt) {
+      rawText = this.advisor.currentDiscussionPrompt;
     }
     if (!rawText) {
-      alert("Silakan masukkan spesifikasi atau kebutuhan proyek terlebih dahulu!");
+      const lastUserMsg = [...this.dialogueHistory].reverse().find(d => d.agentId === "user");
+      if (lastUserMsg && lastUserMsg.message) {
+        rawText = lastUserMsg.message;
+      }
+    }
+    if (!rawText) {
+      alert("Silakan diskusikan kebutuhan proyek Anda di Ruang Eksekutif terlebih dahulu!");
       return;
     }
 
-    this.startBtn.disabled = true;
-    this.startBtn.innerHTML = `<span>⏳ SDLC Berjalan...</span>`;
+    if (this.startBtn) {
+      this.startBtn.disabled = true;
+      this.startBtn.innerHTML = `<span>⏳ SDLC Berjalan...</span>`;
+    }
     if (this.progressBarFill) this.progressBarFill.style.width = "5%";
     if (this.progressPercentageDisplay) this.progressPercentageDisplay.textContent = "5%";
     if (this.currentStageText) this.currentStageText.textContent = "Inisialisasi Tim & Meta-Prompt...";
