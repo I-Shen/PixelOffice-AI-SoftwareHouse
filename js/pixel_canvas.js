@@ -390,7 +390,7 @@ export class PixelOfficeCanvas {
     this.speechListeners.push(callback);
   }
 
-  showSpeechBubble(agentId, text) {
+  showSpeechBubble(agentId, text, isFormalDialogue = false) {
     const agent = this.agents.find(a => a.id === agentId);
     if (!agent) return;
 
@@ -415,7 +415,8 @@ export class PixelOfficeCanvas {
 
     this.bubbleContainer.appendChild(bubble);
 
-    if (this.speechListeners) {
+    // Only forward to Dialog Tim feed if it is a formal dialogue (consultation, SDLC, debate)
+    if (isFormalDialogue && this.speechListeners) {
       this.speechListeners.forEach(cb => {
         try {
           cb({
