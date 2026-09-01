@@ -600,6 +600,11 @@ export class PixelOfficeCanvas {
     const nameElem = document.getElementById('weatherNameDisplay');
     if (iconElem) iconElem.textContent = found.icon;
     if (nameElem) nameElem.textContent = found.name;
+
+    // Synchronize building canvas exterior weather in real-time
+    if (window.pixelOfficeApp && window.pixelOfficeApp.buildingCanvasEngine) {
+      window.pixelOfficeApp.buildingCanvasEngine.setWeather(weatherId);
+    }
   }
 
   startWeatherAutoCycle() {
