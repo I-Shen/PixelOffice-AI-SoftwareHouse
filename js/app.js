@@ -498,26 +498,9 @@ export class PixelOfficeApp {
   // ===========================================================================
 
   toggleDialogueSidebar(open) {
-    this.isSidebarOpen = open;
-    if (this.dialogueSidebar) {
-      if (open) {
-        this.dialogueSidebar.classList.add('open');
-        if (this.sidebarBackdrop) this.sidebarBackdrop.classList.add('open');
-        this.unreadDialogueCount = 0;
-        if (this.dialogueUnreadBadge) this.dialogueUnreadBadge.style.display = 'none';
-        if (this.sidebarToggleBtn) {
-          const icon = this.sidebarToggleBtn.querySelector('.toggle-icon');
-          if (icon) icon.textContent = '❯';
-        }
-        if (this.sidebarChatInput) this.sidebarChatInput.focus();
-      } else {
-        this.dialogueSidebar.classList.remove('open');
-        if (this.sidebarBackdrop) this.sidebarBackdrop.classList.remove('open');
-        if (this.sidebarToggleBtn) {
-          const icon = this.sidebarToggleBtn.querySelector('.toggle-icon');
-          if (icon) icon.textContent = '❮';
-        }
-      }
+    this.isSidebarOpen = true;
+    if (this.sidebarChatInput) {
+      this.sidebarChatInput.focus();
     }
   }
 
