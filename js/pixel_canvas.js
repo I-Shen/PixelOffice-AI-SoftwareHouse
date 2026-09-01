@@ -84,7 +84,26 @@ export class PixelOfficeCanvas {
       idleTimer: 0
     };
 
-    // Clocks
+    // Dynamic Weather & Seasonal Simulation Engine
+    this.weathers = [
+      { id: "sunny", name: "Cerah Berawan", icon: "☀️" },
+      { id: "rain", name: "Musim Hujan & Badai", icon: "🌧️" },
+      { id: "snow", name: "Musim Salju", icon: "❄️" },
+      { id: "autumn", name: "Musim Gugur", icon: "🍂" },
+      { id: "fireworks", name: "Malam Tahun Baru", icon: "🎆" },
+      { id: "windy", name: "Musim Layangan & Angin", icon: "🪁" }
+    ];
+    this.currentWeatherIndex = 0;
+    this.currentWeather = "sunny";
+    this.lightningTimer = 0;
+    this.lightningAlpha = 0;
+    this.fireworkSparks = [];
+    this.fireworkTimer = 0;
+    this.weatherParticles = [];
+    this.kiteSway = 0;
+    this.initWeatherParticles();
+
+    // Clocks & Ticks
     this.tick = 0;
     this.cloudOffset = 0;
     this.serverLightTick = 0;
@@ -460,7 +479,7 @@ export class PixelOfficeCanvas {
     this.coffeeSteamTick += delta * 0.008;
     this.musicNoteTick += delta * 0.004;
     this.bubbleTick += delta * 0.01;
-    this.cloudOffset = (this.cloudOffset + delta * 0.015) % 1200;
+    this.updateWeather(delta);
 
     // Update Fishes swimming
     const aqLeft = this.aquarium.x + 8;
@@ -520,6 +539,159 @@ export class PixelOfficeCanvas {
     });
   }
 
+  initWeatherParticles() {
+    this.weatherParticles = [];
+    this.fireworkSparks = [];
+    this.lightningAlpha = 0;
+
+    if (this.currentWeather === "rain") {
+      for (let i = 0; i < 50; i++) {
+        this.weatherParticles.push({
+          x: Math.random() * 1200,
+          y: 6 + Math.random() * 30,
+          speed: 3.5 + Math.random() * 2.5,
+          length: 4 + Math.random() * 4
+        });
+      }
+    } else if (this.currentWeather === "snow") {
+      for (let i = 0; i < 40; i++) {
+        this.weatherParticles.push({
+          x: Math.random() * 1200,
+          y: 6 + Math.random() * 30,
+          speed: 0.5 + Math.random() * 0.7,
+          sway: Math.random() * Math.PI * 2,
+          size: Math.random() > 0.6 ? 2 : 1
+        });
+      }
+    } else if (this.currentWeather === "autumn") {
+      const leafColors = ["#ea580c", "#d97706", "#dc2626", "#ca8a04", "#b45309"];
+      for (let i = 0; i < 30; i++) {
+        this.weatherParticles.push({
+          x: Math.random() * 1200,
+          y: 6 + Math.random() * 30,
+          speed: 0.6 + Math.random() * 0.8,
+          sway: Math.random() * Math.PI * 2,
+          rot: Math.random() * Math.PI,
+          color: leafColors[i % leafColors.length],
+          size: 3 + Math.floor(Math.random() * 2)
+        });
+      }
+    } else if (this.currentWeather === "windy") {
+      for (let i = 0; i < 22; i++) {
+        this.weatherParticles.push({
+          x: Math.random() * 1200,
+          y: 8 + Math.random() * 26,
+          speed: 3.0 + Math.random() * 3.0,
+          length: 14 + Math.random() * 20
+        });
+      }
+    }
+  }
+
+  setWeather(weatherId) {
+    const found = this.weathers.find(w => w.id === weatherId);
+    if (!found) return;
+    this.currentWeather = weatherId;
+    this.currentWeatherIndex = this.weathers.findIndex(w => w.id === weatherId);
+    this.initWeatherParticles();
+
+    const iconElem = document.getElementById('weatherIconDisplay');
+    const nameElem = document.getElementById('weatherNameDisplay');
+    if (iconElem) iconElem.textContent = found.icon;
+    if (nameElem) nameElem.textContent = found.name;
+  }
+
+  cycleNextWeather() {
+    this.currentWeatherIndex = (this.currentWeatherIndex + 1) % this.weathers.length;
+    const next = this.weathers[this.currentWeatherIndex];
+    this.setWeather(next.id);
+    return next;
+  }
+
+  updateWeather(delta) {
+    this.cloudOffset = (this.cloudOffset + delta * 0.015) % 1200;
+
+    if (this.currentWeather === "rain") {
+      if (this.lightningTimer > 0) {
+        this.lightningTimer -= delta;
+        this.lightningAlpha = Math.max(0, this.lightningTimer / 120);
+      } else if (Math.random() < 0.003) {
+        this.lightningTimer = 120;
+        this.lightningAlpha = 0.85;
+      }
+      this.weatherParticles.forEach(p => {
+        p.y += p.speed * (delta / 16);
+        p.x -= (p.speed * 0.25) * (delta / 16);
+        if (p.y > 40) {
+          p.y = 6;
+          p.x = Math.random() * 1200;
+        }
+      });
+    } else if (this.currentWeather === "snow") {
+      this.weatherParticles.forEach(p => {
+        p.y += p.speed * 0.35 * (delta / 16);
+        p.sway += 0.03;
+        p.x += Math.sin(p.sway) * 0.4;
+        if (p.y > 40) {
+          p.y = 6;
+          p.x = Math.random() * 1200;
+        }
+      });
+    } else if (this.currentWeather === "autumn") {
+      this.weatherParticles.forEach(p => {
+        p.y += p.speed * 0.4 * (delta / 16);
+        p.sway += 0.025;
+        p.x += (Math.cos(p.sway) * 0.8 + 0.5) * (delta / 16);
+        p.rot = (p.rot || 0) + 0.03;
+        if (p.y > 40) {
+          p.y = 6;
+          p.x = Math.random() * 1200;
+        }
+      });
+    } else if (this.currentWeather === "fireworks") {
+      for (let i = this.fireworkSparks.length - 1; i >= 0; i--) {
+        const s = this.fireworkSparks[i];
+        s.x += s.vx * (delta / 16);
+        s.y += s.vy * (delta / 16);
+        s.vy += 0.02;
+        s.alpha -= 0.015 * (delta / 16);
+        if (s.alpha <= 0) {
+          this.fireworkSparks.splice(i, 1);
+        }
+      }
+      this.fireworkTimer = (this.fireworkTimer || 0) + delta;
+      if (this.fireworkTimer > 750) {
+        this.fireworkTimer = 0;
+        const targetWx = [120, 340, 560, 780, 1000][Math.floor(Math.random() * 5)] + Math.random() * 70;
+        const targetWy = 10 + Math.random() * 15;
+        const colors = ["#38bdf8", "#f43f5e", "#fbbf24", "#34d399", "#a855f7", "#fb923c"];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        for (let a = 0; a < 16; a++) {
+          const angle = (a / 16) * Math.PI * 2;
+          const spd = 0.8 + Math.random() * 1.2;
+          this.fireworkSparks.push({
+            x: targetWx,
+            y: targetWy,
+            vx: Math.cos(angle) * spd,
+            vy: Math.sin(angle) * spd,
+            color: color,
+            alpha: 1.0,
+            size: Math.random() > 0.5 ? 2 : 1
+          });
+        }
+      }
+    } else if (this.currentWeather === "windy") {
+      this.weatherParticles.forEach(p => {
+        p.x += p.speed * 1.8 * (delta / 16);
+        if (p.x > 1200) {
+          p.x = -60;
+          p.y = 8 + Math.random() * 24;
+        }
+      });
+      this.kiteSway = (this.kiteSway || 0) + delta * 0.003;
+    }
+  }
+
   draw() {
     this.ctx.clearRect(0, 0, this.width, this.height);
     this._drawLofiBackground();
@@ -547,21 +719,146 @@ export class PixelOfficeCanvas {
       this.ctx.rect(wx, winY, winW, winH);
       this.ctx.clip();
 
-      this.ctx.fillStyle = "#38bdf8";
-      this.ctx.fillRect(wx, winY, winW, winH);
+      if (this.currentWeather === "sunny") {
+        const skyGrad = this.ctx.createLinearGradient(wx, winY, wx, winY + winH);
+        skyGrad.addColorStop(0, "#38bdf8");
+        skyGrad.addColorStop(1, "#7dd3fc");
+        this.ctx.fillStyle = skyGrad;
+        this.ctx.fillRect(wx, winY, winW, winH);
 
-      const loopW = winW + 80;
-      const cloudX = ((this.cloudOffset * 0.45) + (wx * 0.6)) % loopW - 40;
+        const loopW = winW + 80;
+        const cloudX = ((this.cloudOffset * 0.45) + (wx * 0.6)) % loopW - 40;
 
-      this.ctx.fillStyle = "rgba(255, 255, 255, 0.92)";
-      this.ctx.fillRect(wx + cloudX, winY + 13, 34, 9);
-      this.ctx.fillRect(wx + cloudX + 6, winY + 8, 22, 7);
-      this.ctx.fillRect(wx + cloudX + 11, winY + 4, 12, 5);
+        this.ctx.fillStyle = "rgba(255, 255, 255, 0.92)";
+        this.ctx.fillRect(wx + cloudX, winY + 13, 34, 9);
+        this.ctx.fillRect(wx + cloudX + 6, winY + 8, 22, 7);
+        this.ctx.fillRect(wx + cloudX + 11, winY + 4, 12, 5);
 
-      const cloud2X = (cloudX + 85) % loopW - 40;
-      this.ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
-      this.ctx.fillRect(wx + cloud2X, winY + 16, 22, 6);
-      this.ctx.fillRect(wx + cloud2X + 4, winY + 12, 14, 5);
+        const cloud2X = (cloudX + 85) % loopW - 40;
+        this.ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+        this.ctx.fillRect(wx + cloud2X, winY + 16, 22, 6);
+        this.ctx.fillRect(wx + cloud2X + 4, winY + 12, 14, 5);
+
+      } else if (this.currentWeather === "rain") {
+        const skyGrad = this.ctx.createLinearGradient(wx, winY, wx, winY + winH);
+        skyGrad.addColorStop(0, "#0f172a");
+        skyGrad.addColorStop(1, "#1e293b");
+        this.ctx.fillStyle = skyGrad;
+        this.ctx.fillRect(wx, winY, winW, winH);
+
+        this.ctx.strokeStyle = "rgba(186, 230, 253, 0.75)";
+        this.ctx.lineWidth = 1.2;
+        this.ctx.beginPath();
+        this.weatherParticles.forEach(p => {
+          if (p.x >= wx && p.x <= wx + winW) {
+            this.ctx.moveTo(p.x, p.y);
+            this.ctx.lineTo(p.x - 2, p.y + p.length);
+          }
+        });
+        this.ctx.stroke();
+
+        if (this.lightningAlpha > 0.05) {
+          this.ctx.fillStyle = `rgba(240, 249, 255, ${this.lightningAlpha})`;
+          this.ctx.fillRect(wx, winY, winW, winH);
+        }
+
+      } else if (this.currentWeather === "snow") {
+        const skyGrad = this.ctx.createLinearGradient(wx, winY, wx, winY + winH);
+        skyGrad.addColorStop(0, "#1e1b4b");
+        skyGrad.addColorStop(1, "#312e81");
+        this.ctx.fillStyle = skyGrad;
+        this.ctx.fillRect(wx, winY, winW, winH);
+
+        this.ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        this.weatherParticles.forEach(p => {
+          if (p.x >= wx && p.x <= wx + winW) {
+            this.ctx.fillRect(p.x, p.y, p.size, p.size);
+          }
+        });
+
+        this.ctx.fillStyle = "rgba(241, 245, 249, 0.75)";
+        this.ctx.fillRect(wx, winY + winH - 2, winW, 2);
+
+      } else if (this.currentWeather === "autumn") {
+        const skyGrad = this.ctx.createLinearGradient(wx, winY, wx, winY + winH);
+        skyGrad.addColorStop(0, "#c2410c");
+        skyGrad.addColorStop(1, "#ea580c");
+        this.ctx.fillStyle = skyGrad;
+        this.ctx.fillRect(wx, winY, winW, winH);
+
+        this.weatherParticles.forEach(p => {
+          if (p.x >= wx && p.x <= wx + winW) {
+            this.ctx.save();
+            this.ctx.translate(p.x, p.y);
+            this.ctx.rotate(p.rot);
+            this.ctx.fillStyle = p.color;
+            this.ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+            this.ctx.restore();
+          }
+        });
+
+      } else if (this.currentWeather === "fireworks") {
+        const skyGrad = this.ctx.createLinearGradient(wx, winY, wx, winY + winH);
+        skyGrad.addColorStop(0, "#020617");
+        skyGrad.addColorStop(1, "#0f172a");
+        this.ctx.fillStyle = skyGrad;
+        this.ctx.fillRect(wx, winY, winW, winH);
+
+        this.ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        for (let s = 0; s < 6; s++) {
+          const sx = wx + ((s * 27 + wx * 3) % (winW - 10)) + 5;
+          const sy = winY + ((s * 11 + wx * 5) % (winH - 8)) + 4;
+          if ((Math.floor(this.tick * 3) + s) % 3 !== 0) {
+            this.ctx.fillRect(sx, sy, 1.5, 1.5);
+          }
+        }
+
+        this.fireworkSparks.forEach(sp => {
+          if (sp.x >= wx && sp.x <= wx + winW && sp.y >= winY && sp.y <= winY + winH) {
+            this.ctx.fillStyle = sp.color;
+            this.ctx.globalAlpha = Math.max(0, sp.alpha);
+            this.ctx.fillRect(sp.x, sp.y, sp.size, sp.size);
+            this.ctx.globalAlpha = 1.0;
+          }
+        });
+
+      } else if (this.currentWeather === "windy") {
+        const skyGrad = this.ctx.createLinearGradient(wx, winY, wx, winY + winH);
+        skyGrad.addColorStop(0, "#0284c7");
+        skyGrad.addColorStop(1, "#38bdf8");
+        this.ctx.fillStyle = skyGrad;
+        this.ctx.fillRect(wx, winY, winW, winH);
+
+        this.ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.weatherParticles.forEach(p => {
+          if (p.x >= wx - 20 && p.x <= wx + winW + 20) {
+            this.ctx.moveTo(p.x, p.y);
+            this.ctx.lineTo(p.x + p.length, p.y + Math.sin(this.tick * 2 + p.x * 0.05) * 2);
+          }
+        });
+        this.ctx.stroke();
+
+        const kite1X = wx + 35 + Math.sin(this.kiteSway) * 15;
+        const kite1Y = winY + 12 + Math.cos(this.kiteSway * 1.5) * 4;
+        this.ctx.fillStyle = "#ef4444";
+        this.ctx.beginPath();
+        this.ctx.moveTo(kite1X, kite1Y - 5);
+        this.ctx.lineTo(kite1X + 4, kite1Y);
+        this.ctx.lineTo(kite1X, kite1Y + 5);
+        this.ctx.lineTo(kite1X - 4, kite1Y);
+        this.ctx.closePath();
+        this.ctx.fill();
+
+        this.ctx.strokeStyle = "#fde047";
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.moveTo(kite1X, kite1Y + 5);
+        this.ctx.lineTo(kite1X - 3, kite1Y + 9);
+        this.ctx.lineTo(kite1X + 2, kite1Y + 13);
+        this.ctx.stroke();
+      }
 
       this.ctx.restore();
 
@@ -570,7 +867,7 @@ export class PixelOfficeCanvas {
       this.ctx.strokeRect(wx, winY, winW, winH);
 
       this.ctx.lineWidth = 1;
-      this.ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+      this.ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
       this.ctx.beginPath();
       this.ctx.moveTo(wx + (winW / 2), winY);
       this.ctx.lineTo(wx + (winW / 2), winY + winH);
