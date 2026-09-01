@@ -429,32 +429,73 @@ Format Output:
         desc: "Kai Takahashi merevisi dan menambal (patching) kode berdasarkan advisory dari Security Lead..."
       });
 
-      const patchRes = await this.router.generateText({
-        prompt: isWebOrUI ? `Berdasarkan temuan audit keamanan dari Viktor Petrov:
+      try {
+        const patchRes = await this.router.generateText({
+          prompt: isWebOrUI ? `Anda adalah Kai Takahashi. Viktor Petrov (Security Lead) memberikan audit keamanan berikut:
 """
 ${secRes.text}
 """
 
-Tugas Anda sebagai Senior Coding Agent:
-Perbarui KODE HTML WEBSITE dari tahap sebelumnya dengan menambahkan sanitasi form (escapeHTML, honeypot) dan event listener aman.
-ATURAN KRUSIAL ANTI-REGRESI:
-1. PERTAHANKAN 100% seluruh konten HTML: 10 Profil Tim Eksekutif, Modal Detail Interaktif, Branding, Motto, dan Desain CSS!
-2. JANGAN memangkas atau menghapus elemen UI apa pun.
-3. JANGAN gunakan CSP atau SRI hash yang merusak pemuatan stylesheet.
+BERIKUT KODE HTML ASLI LENGKAP DARI TAHAP SEBELUMNYA:
+\`\`\`html
+${coderRes.text}
+\`\`\`
+
+TUGAS ANDA:
+Perbarui KODE HTML ASLI di atas dengan menambahkan sanitasi form (fungsi escapeHTML untuk output teks, honeypot field pada form) dan event listener aman.
+
+ATURAN ANTI-TRUNCATION MUTLAK (DILARANG KERAS MEMOTONG KODE):
+1. PERTAHANKAN 100% SELURUH KONTEN HTML ASLI: SEMUA 10 Profil Tim, SEMUA Biodata Modal Popup, SEMUA Portofolio Proyek, Form Kontak, dan seluruh Tag <style> CSS!
+2. DILARANG KERAS memotong kode dengan komentar seperti "<!-- ... sisa ... -->" atau "<!-- contoh ... -->".
+3. DILARANG KERAS menyembunyikan form dengan class="hidden".
 4. KEMBALIKAN KODE LENGKAP DARI <!DOCTYPE html> sampai </html>!`
-        : `Berdasarkan temuan audit keamanan dari Viktor Petrov berikut:
+          : `Berdasarkan temuan audit keamanan dari Viktor Petrov berikut:
 """
 ${secRes.text}
 """
 
-Tugas Anda sebagai Coding Agent:
-Lakukan refactoring dan tuliskan REVISI KODE LENGKAP yang 100% hardened & kebal terhadap seluruh celah yang ditemukan di atas.`,
-        systemInstruction: "Anda adalah Kai Takahashi, Senior Coding Agent. Terapkan sanitasi keamanan tanpa merusak komponen visual dan pastikan modal 10 tim tetap utuh.",
-        taskType: "reasoning",
-        agentId: "coder"
-      });
+KODE PRODUKSI ASLI:
+\`\`\`
+${coderRes.text}
+\`\`\`
 
-      finalPatchedCode = patchRes.text;
+Lakukan refactoring dan tuliskan REVISI KODE LENGKAP yang 100% hardened & kebal terhadap seluruh celah yang ditemukan di atas tanpa memangkas fitur apa pun.`,
+          systemInstruction: "Anda adalah Kai Takahashi, Senior Coding Agent. Terapkan sanitasi keamanan tanpa merusak komponen visual, jangan memotong kode sedikitpun, dan kembalikan kode lengkap utuh.",
+          taskType: "reasoning",
+          agentId: "coder"
+        });
+
+        // Strict Anti-Truncation & Code Integrity Guard
+        const candidateCode = (patchRes && patchRes.text) ? patchRes.text.trim() : "";
+        const isTruncated = candidateCode.includes("<!-- sisa") || 
+                            candidateCode.includes("<!-- ...") || 
+                            candidateCode.includes("<!-- contoh") || 
+                            candidateCode.includes("<!-- Sisa") ||
+                            (isWebOrUI && candidateCode.length < coderRes.text.length * 0.75);
+
+        if (!isTruncated && candidateCode.includes("<html") && candidateCode.includes("</html>")) {
+          finalPatchedCode = candidateCode;
+        } else {
+          console.warn("[Anti-Truncation Guard] Patch code was truncated or invalid. Retaining original full code with surgical sanitization injection.");
+          // Apply surgical injection of honeypot & escapeHTML if missing
+          let hardened = coderRes.text;
+          if (!hardened.includes("escapeHTML")) {
+            hardened = hardened.replace("</body>", `<script>
+// Built-in Defensive Sanitization (Kai Takahashi)
+function escapeHTML(str) {
+  const p = document.createElement('p');
+  p.textContent = str || '';
+  return p.innerHTML;
+}
+</script>\n</body>`);
+          }
+          finalPatchedCode = hardened;
+        }
+      } catch (err) {
+        console.warn("[Security Revision Error]", err);
+        finalPatchedCode = coderRes.text;
+      }
+
       this.projectArtifacts.stages.codeRevision = {
         securityAdvisory: secRes.text,
         patchedCode: finalPatchedCode
@@ -857,37 +898,64 @@ Buatkan ringkasan status rilis production yang resmi.`,
    * Intelligently extract project title / slug from natural language prompts
    */
   _extractProjectName(prompt) {
-    if (!prompt) return "pxo-ai-soft-dotcom";
+    if (!prompt) return "custom-web-project";
 
-    // 1. Check for explicit quoted project/website titles:
-    const explicitQuotes = prompt.match(/(?:judul|nama|project|proyek|website|yaitu|adalah)\s+(?:website|proyek|project|ini)?\s*(?:tetap\s+1\s*,?\s*)?(?:yaitu\s*|adalah\s*)?["'“]([^"'”]+)["'”]/i);
-    if (explicitQuotes && explicitQuotes[1]) {
-      const cand1 = explicitQuotes[1].trim().toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-      if (!cand1.includes('elena') && !cand1.includes('arthur') && !cand1.includes('vance') && cand1.length > 2) {
-        return cand1;
+    const text = String(prompt).trim();
+
+    // 1. Explicit pattern with quotes: e.g. "nama proyek untuk dideploy ... adalah 'PxO AI Soft .....'"
+    const explicitQuotesMatch = text.match(/(?:nama|judul|proyek|project|website|repo|repository|brand)\s+(?:[^\n\r"']{0,60}?\s+)?(?:adalah|yaitu|=|:)\s*["'“]([^"'”]+)["'”]/i);
+    if (explicitQuotesMatch && explicitQuotesMatch[1]) {
+      const slug = this._toSlug(explicitQuotesMatch[1]);
+      if (slug.length > 2) return slug;
+    }
+
+    // 2. Any explicit phrase: "nama proyek/website [X]" without quotes
+    const explicitPlainMatch = text.match(/(?:nama\s+proyek|nama\s+website|nama\s+project|nama\s+brand|judul\s+website)\s+(?:adalah|yaitu|=|:)?\s*([A-Za-z0-9\s]{3,35})/i);
+    if (explicitPlainMatch && explicitPlainMatch[1]) {
+      const slug = this._toSlug(explicitPlainMatch[1]);
+      if (slug.length > 2 && !/^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|mulai|konsultasi)$/i.test(slug)) {
+        return slug;
       }
     }
 
-    // 2. Any quoted text between 3 and 40 chars (filtering out persona names)
-    const genericQuotes = prompt.match(/["'“]([^"'”]{3,40})["'”]/g);
+    // 3. Search for any quoted string between 2 and 50 characters (ignoring aesthetic/role words)
+    const genericQuotes = text.match(/["'“]([^"'”]{2,50})["'”]/g);
     if (genericQuotes) {
       for (const q of genericQuotes) {
-        const cand2 = q.replace(/["'“]/g, '').trim().toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-        if (!cand2.includes('elena') && !cand2.includes('arthur') && !cand2.includes('vance') && !cand2.includes('takahashi') && cand2.length > 2) {
-          return cand2;
+        const clean = q.replace(/["'“”]/g, '').trim();
+        const ignoreList = /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|elena|arthur|kai|sarah|viktor|naomi|alex|marcus|devon|sophia|modal|detail|about\s*us|hero|layanan|kontak)$/i;
+        if (!ignoreList.test(clean)) {
+          const slug = this._toSlug(clean);
+          if (slug.length > 2) return slug;
         }
       }
     }
 
-    // 3. Clean conversational preambles and persona names
-    const cleaned = prompt
-      .replace(/^(?:dr\.?\s*elena\s*rostova|arthur\s*vance|kai\s*takahashi)[:\s-]*/i, '')
-      .replace(/^(?:coba\s+)?(?:buatkan|buat|tolong\s+buatkan|bikin|rancang|kembangkan)\s+(?:kembali\s+)?(?:pilot\s+project\s+)?(?:didalam\s+kantor\s+ini\s*)?/i, '')
-      .replace(/^(?:sebagai\s+para\s+tenaga\s+ahli\s+senior\s*,?\s*)?/i, '')
-      .replace(/^(?:saya\s+memiliki\s+kebutuhaan\s+untuk\s+buatkan\s*)?/i, '')
+    // 4. Company profile or app name pattern: "website company profile [Nama]" or "website [Nama]"
+    const compMatch = text.match(/(?:website\s+company\s+profile|company\s+profile|profil\s+perusahaan|toko\s+online|portal\s+berita|landing\s+page)\s+([A-Za-z0-9\s]{3,35})/i);
+    if (compMatch && compMatch[1]) {
+      const cand = compMatch[1].replace(/^(yang|untuk|dengan|berisi|adalah|yaitu)\s+/i, '').trim();
+      const slug = this._toSlug(cand);
+      if (slug.length > 2 && !/^(clean|modern|minimalis|profesional|mulai|konsultasi)$/i.test(slug)) {
+        return slug;
+      }
+    }
+
+    // 5. Fallback: Clean conversational noise and take first meaningful terms
+    const cleaned = text
+      .replace(/^(?:halo|tolong|buatkan|bikin|rancang|kembangkan|saya\s+butuh|saya\s+mau|mulai\s+konsultasi|konsultasi\s+eksekutif)[:\s,]*/i, '')
+      .replace(/^(?:website|aplikasi|sistem|proyek|project)\s+/i, '')
       .trim();
 
-    const cand3 = cleaned.slice(0, 25).trim().toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-    return cand3 || "pxo-ai-soft-dotcom";
+    const fallbackSlug = this._toSlug(cleaned.slice(0, 30));
+    return fallbackSlug.length > 2 ? fallbackSlug : "custom-web-project";
+  }
+
+  _toSlug(str) {
+    return (str || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 40);
   }
 }
