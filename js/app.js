@@ -789,7 +789,7 @@ export class PixelOfficeApp {
       `;
     }
 
-    if (response.masterPrompt && this.promptInput) {
+    if (response && response.masterPrompt && this.promptInput) {
       this.promptInput.value = response.masterPrompt;
       if (this.scoreValue) this.scoreValue.textContent = "100";
     }
@@ -846,7 +846,11 @@ export class PixelOfficeApp {
   }
 
   async handleStartSDLC() {
-    const rawText = this.promptInput.value.trim();
+    let rawText = this.promptInput ? this.promptInput.value.trim() : "";
+    if (!rawText && this.advisor && this.advisor.masterPrompt) {
+      rawText = this.advisor.masterPrompt;
+      if (this.promptInput) this.promptInput.value = rawText;
+    }
     if (!rawText) {
       alert("Silakan masukkan spesifikasi atau kebutuhan proyek terlebih dahulu!");
       return;
