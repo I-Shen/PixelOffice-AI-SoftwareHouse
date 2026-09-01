@@ -106,20 +106,22 @@
         </div>
       </div>
 
-      <!-- Dual Viewport Center: 2D Interior Command Room (Left) + Isometric PxO Headquarters Tower (Right) -->
-      <div class="canvas-viewport-split" id="canvasViewportSplit">
-        <!-- Left: Interior Command Room Canvas (Original crisp ratio, aligned left) -->
-        <div class="canvas-wrapper interior-wrapper">
-          <div class="scene-sub-badge">🏢 INTERIOR RUANG KERJA (10 AGEN)</div>
+      <!-- Twin Viewport Grid: Left 2D Interior Room + Middle 2.5D Isometric HQ Tower -->
+      <div class="twin-scenes-grid">
+        
+        <!-- Left: 2D Interior Room (Mepet Kiri, Original Aspect Ratio) -->
+        <div class="canvas-wrapper interior-scene-box" title="Ruangan Kantor 2D Pixel Art (10 Agen Senior)">
+          <div class="scene-sub-badge">🏢 2D Interior Ruangan</div>
           <canvas id="officeCanvas"></canvas>
           <div id="speechBubbleLayer" class="speech-bubble-layer"></div>
         </div>
 
-        <!-- Right: Isometric Pixel Tower Headquarters (Synchronized Weather & Seasonal World) -->
-        <div class="canvas-wrapper building-wrapper">
-          <div class="scene-sub-badge" id="towerWeatherBadge">🌆 GEDUNG UTAMA PxO AI SOFT (SINKRONISASI CUACA)</div>
+        <!-- Middle: 2.5D Isometric HQ Tower (Gedung Perkantoran PxO AI Soft) -->
+        <div class="canvas-wrapper building-scene-box" title="Gedung Perkantoran 2.5D Isometric PxO AI Soft (Sinkronisasi Cuaca & Musim)">
+          <div class="scene-sub-badge">🏙️ 2.5D Gedung Perkantoran PxO</div>
           <canvas id="buildingCanvas"></canvas>
         </div>
+
       </div>
 
       <!-- Integrated Live Progress Stepper Bar -->
