@@ -228,96 +228,120 @@ body {
   overflow: hidden;
 }
 
-/* Cockpit Terminal Box & Agents Box */
-.cockpit-terminal-box,
-.cockpit-agents-box {
-  background: #090d16;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  padding: 8px 12px;
+/* -------------------------------------------------------------
+ * Dual Cockpit Grid: 2 Boxes Side-by-Side (Zero Tab Buttons)
+ * ------------------------------------------------------------- */
+.dual-cockpit-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  height: 160px;
+  min-height: 160px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .dual-cockpit-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+.cockpit-box {
+  background: rgba(11, 15, 25, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md, 8px);
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 140px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
-.cockpit-terminal-box .terminal-content {
+.code-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 4px;
+}
+
+.terminal-cockpit-card .terminal-content {
   flex: 1;
-  max-height: 120px;
-  overflow-y: auto;
-  font-family: var(--font-mono);
-  font-size: 11px;
   background: #050811;
   border-radius: 4px;
   padding: 6px 8px;
-}
-
-/* 10 Senior Agents Monitoring Grid */
-.agent-team-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
-  padding: 6px 2px;
   overflow-y: auto;
-  max-height: 120px;
-}
-
-@media (max-width: 1300px) {
-  .agent-team-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .agent-team-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.agent-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 6px;
-  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
   display: flex;
-  gap: 7px;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* 10 Senior Agents Scrollable List */
+.agent-scroll-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 2px 2px 2px 0;
+  overflow-y: auto;
+}
+
+.agent-scroll-list .agent-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 5px;
+  padding: 4px 8px;
+  display: flex;
+  gap: 8px;
   align-items: center;
   transition: all 0.2s ease;
 }
 
-.agent-card:hover {
+.agent-scroll-list .agent-card:hover {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(59, 130, 246, 0.3);
 }
 
-.agent-card.active {
-  background: rgba(59, 130, 246, 0.18);
+.agent-scroll-list .agent-card.active {
+  background: rgba(59, 130, 246, 0.16);
   border-color: #3b82f6;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
 }
 
-.agent-avatar {
-  font-size: 14px;
-  width: 28px;
-  height: 28px;
+.agent-scroll-list .agent-avatar {
+  font-size: 13px;
+  width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.4);
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
-.agent-info {
+.agent-scroll-list .agent-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.agent-scroll-list .agent-meta {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  flex: 1;
 }
 
-.agent-name {
-  font-size: 10px;
+.agent-scroll-list .agent-name {
+  font-size: 10.5px;
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
@@ -325,7 +349,7 @@ body {
   text-overflow: ellipsis;
 }
 
-.agent-role {
+.agent-scroll-list .agent-role {
   font-size: 8.5px;
   color: #94a3b8;
   white-space: nowrap;
@@ -333,13 +357,13 @@ body {
   text-overflow: ellipsis;
 }
 
-.agent-activity-status {
-  font-size: 8px;
+.agent-scroll-list .agent-activity-status {
+  font-size: 8.5px;
   color: #6ee7b7;
   font-weight: 600;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin-left: 6px;
+  flex-shrink: 0;
 }
 
 .office-bar-header {
