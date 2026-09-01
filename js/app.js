@@ -1019,13 +1019,28 @@ export class PixelOfficeApp {
     const m = String(now.getMinutes()).padStart(2, '0');
     const s = String(now.getSeconds()).padStart(2, '0');
 
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const months = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    const dayName = days[now.getDay()];
+    const dateNum = String(now.getDate()).padStart(2, '0');
+    const monthName = months[now.getMonth()];
+    const yearNum = now.getFullYear();
+
+    const formattedDate = `${dayName}, ${dateNum} ${monthName} ${yearNum}`;
+
     const hoursElem = document.getElementById('clockHours');
     const minutesElem = document.getElementById('clockMinutes');
     const secondsElem = document.getElementById('clockSeconds');
+    const dateTextElem = document.getElementById('clockDateText');
 
     if (hoursElem) hoursElem.textContent = h;
     if (minutesElem) minutesElem.textContent = m;
     if (secondsElem) secondsElem.textContent = `:${s}`;
+    if (dateTextElem) dateTextElem.textContent = formattedDate;
   }
 
   toggleCanvasFullscreen(forceState = null) {
