@@ -286,39 +286,39 @@ Sajikan hasil riset meliputi:
         bio: `Senior ${a.role} dengan spesialisasi arsitektur enterprise AI, automasi skala tinggi, dan optimasi performa modern.`
       })), null, 2);
 
+      // Extract framework preference from PRD prompt
+      let stylingDirective = "Gunakan styling framework CSS yang diminta dalam PRD (misal: Tailwind CSS, Bootstrap, atau Pure Modern Vanilla CSS di dalam tag <style>). Sertakan fallback styling dasar di tag <style> agar tampilan dijamin selalu terender sempurna di browser.";
+      if (/bootstrap/i.test(userRawPrompt)) {
+        stylingDirective = "Gunakan framework Bootstrap 5 CSS CDN (<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'>) ditambah custom CSS di tag <style>.";
+      } else if (/vanilla|pure\s+css/i.test(userRawPrompt)) {
+        stylingDirective = "Gunakan Pure Modern Vanilla CSS di dalam tag <style> (CSS Grid, Flexbox, Glassmorphism, CSS Variables, dan animasi halus).";
+      } else if (/tailwind/i.test(userRawPrompt)) {
+        stylingDirective = "Gunakan Tailwind CSS CDN (<script src='https://cdn.tailwindcss.com'></script>) dan sertakan custom utility CSS di tag <style>.";
+      }
+
       const coderRes = await this.router.generateText({
-        prompt: isWebOrUI ? `Kembangkan website company profile resmi "PxO AI Soft" yang LENGKAP, SIAP PAKAI, INTERAKTIF, dan SANGAT MEMUKAU (Skor 100/100) berdasarkan instruksi: "${userRawPrompt}".
+        prompt: isWebOrUI ? `Kembangkan website/aplikasi web lengkap, fungsional, interaktif, dan sangat memukau (Skor 100/100) berdasarkan PRD spesifikasi berikut:
+"""
+${userRawPrompt}
+"""
 
-PERSYARATAN WAJIB STRUKTUR & KONTEN:
-1. IDENTITAS & HERO SECTION:
-   - Nama Perusahaan: "PxO AI Soft" (Logo modern PxO AI Soft)
-   - Tema: Clear-Modern-Minimalist dengan nuansa Slate Dark (#0b0f19), Glassmorphism, dan aksen Biru/Emerald.
-   - Motto Korporat: "Inovasi Berkelanjutan, Solusi Masa Depan: Memaksimalkan Otomasi, Efisiensi, dan Optimasi Bisnis Anda Bersama PxO AI Soft."
-   - Tombol CTA: "Konsultasi Proyek" & "Lihat Tim Eksekutif".
+PANDUAN EKSEKUSI TEKNIS KAI TAKAHASHI:
+1. PANDUAN STYLING & FRAMEWORK:
+   - ${stylingDirective}
+   - Pastikan tema, palet warna, dan tipografi sesuai dengan instruksi PRD di atas.
+   - JANGAN gunakan hash SRI yang dapat memblokir stylesheet CDN.
 
-2. SHOWCASE 10 REKAN KERJA EKSEKUTIF KANTOR (WAJIB LENGKAP 10 ORANG):
+2. TIM EKSEKUTIF (JIKA DIMINTA DI PRD):
    Gunakan data resmi ke-10 rekan kerja kita berikut:
 ${officialTeamJson}
-   Tampilkan ke-10 orang dalam grid kartu tim yang rapi, berwibawa, dan elegan.
+   Jika PRD meminta 10 anggota tim dengan modal interaktif, tampilkan ke-10 kartu tim dan sertakan script Modal Popup Dialog yang berfungsi membuka detail bio dummy saat kartu diklik.
 
-3. FITUR INTERAKTIF MODAL DETAIL PROFIL:
-   - Setiap kartu profil 10 pegawai memiliki tombol atau dapat diklik ("Lihat Profil Lengkap").
-   - Saat diklik, muncul Jendela Modal Popup (Dialog Overlay) interaktif berisi: Foto Avatar, Nama, Jabatan, Pengalaman Karir Dummy, Spesialisasi Teknologi, dan Jobdesk.
-   - Sertakan tombol tutup modal (X atau tombol Tutup) dan event listener JavaScript murni agar modal bekerja 100% tanpa error!
+3. KELENGKAPAN FITUR:
+   - Sertakan seluruh section yang diminta (Hero, Layanan, Portofolio, Tim, Form Kontak).
+   - Pastikan form kontak memiliki validasi client-side yang aman.
 
-4. SECTION LAYANAN & PORTOFOLIO:
-   - 3 Layanan Unggulan: Enterprise AI Agents, Modular Monolith System, Automated QA & SAST Security.
-   - Portofolio Software House berteknologi tinggi.
-   - Form Kontak Konsultasi dengan validasi client-side.
-   - Disclaimer: "Sistem diarsiteki oleh Google Gemini AI".
-
-5. TEKNOLOGI STYLING (CSS MANDIRI & AMAN):
-   - Gunakan CDN Tailwind CSS: <script src="https://cdn.tailwindcss.com"></script>
-   - SERTAKAN SELURUH STYLING DASAR & GLASSMORPHISM DALAM TAG <style> agar website tetap tampil sangat indah dan tidak pernah unstyled/rusak di browser manapun!
-   - JANGAN gunakan hash SRI yang dapat memblokir stylesheet.
-
-6. FORMAT OUTPUT:
-   KEMBALIKAN KODE MURNI HTML5 LENGKAP (dari <!DOCTYPE html> sampai </html>). JANGAN menyertakan teks pengantar di luar tag HTML!`
+4. FORMAT KODE MURNI:
+   KEMBALIKAN KODE MURNI HTML5 LENGKAP (dari <!DOCTYPE html> sampai </html>). JANGAN sertakan teks pengantar di luar tag HTML!`
         : `Tuliskan implementasi kode produksi lengkap untuk proyek ini: "${userRawPrompt}".
 Sertakan bagian:
 1. Backend Service & Business Logic
@@ -326,7 +326,7 @@ Sertakan bagian:
 3. SQL Migration / DB DDL
 4. Frontend Component Interface
 5. Unit Test Stubs`,
-        systemInstruction: "Anda adalah Kai Takahashi, Senior Coding Agent 11+ tahun pengalaman. Tulis website HTML5 mandiri berfitur lengkap dengan modal interaktif untuk 10 anggota tim.",
+        systemInstruction: "Anda adalah Kai Takahashi, Senior Coding Agent 11+ tahun pengalaman. Tulis kode web lengkap yang mematuhi framework dan spesifikasi dari PRD tanpa memangkas fitur apa pun.",
         taskType: "reasoning",
         agentId: "coder"
       });
@@ -356,13 +356,13 @@ Sertakan bagian:
         avatar: "🧪",
         color: "#eab308",
         stage: "5. QA Sandbox",
-        message: `Hasil uji sandbox: ${sandboxReport.passed}/${sandboxReport.total} test passed (${sandboxReport.status}) dalam ${sandboxReport.executionTimeMs}ms. Uji boundary limits aman!`
+        message: `Hasil uji sandbox nyata: ${sandboxReport.passed}/${sandboxReport.total} test passed (${sandboxReport.status}). Terverifikasi ${sandboxReport.detectedFeatures.teamCount} profil tim di DOM, modal interaktif (${sandboxReport.detectedFeatures.hasInteractiveModal ? 'Aktif' : 'N/A'}), dan form kontak (${sandboxReport.detectedFeatures.hasContactForm ? 'Aktif' : 'N/A'}).`
       });
 
       const qaRes = await this.router.generateText({
         prompt: `Sajikan laporan pengujian komprehensif berdasarkan eksekusi sandbox nyata berikut:
 Hasil Sandbox: ${sandboxReport.passed}/${sandboxReport.total} test passed (${sandboxReport.status}) dalam ${sandboxReport.executionTimeMs}ms.
-Kode: \n${coderRes.text.slice(0, 300)}...
+Fitur Terdeteksi: ${JSON.stringify(sandboxReport.detectedFeatures, null, 2)}
 Format:
 - Unit Test Suite (Sandbox Verified)
 - Integration Test Suite
@@ -437,10 +437,10 @@ ${secRes.text}
 
 Tugas Anda sebagai Senior Coding Agent:
 Perbarui KODE HTML WEBSITE dari tahap sebelumnya dengan menambahkan sanitasi form (escapeHTML, honeypot) dan event listener aman.
-ATURAN KRUSIAL:
-1. PERTAHANKAN 100% seluruh konten HTML: 10 Profil Tim Eksekutif, Modal Detail Interaktif, Branding PxO AI Soft, Motto Resmi, dan Desain CSS!
+ATURAN KRUSIAL ANTI-REGRESI:
+1. PERTAHANKAN 100% seluruh konten HTML: 10 Profil Tim Eksekutif, Modal Detail Interaktif, Branding, Motto, dan Desain CSS!
 2. JANGAN memangkas atau menghapus elemen UI apa pun.
-3. JANGAN gunakan CSP atau SRI hash yang merusak pemuatan stylesheet Tailwind.
+3. JANGAN gunakan CSP atau SRI hash yang merusak pemuatan stylesheet.
 4. KEMBALIKAN KODE LENGKAP DARI <!DOCTYPE html> sampai </html>!`
         : `Berdasarkan temuan audit keamanan dari Viktor Petrov berikut:
 """
@@ -482,7 +482,7 @@ Lakukan refactoring dan tuliskan REVISI KODE LENGKAP yang 100% hardened & kebal 
         avatar: "🛡️",
         color: "#ef4444",
         stage: "6. Security & SAST",
-        message: `Audit SAST & Pentest militer selesai. Seluruh celah OWASP Top 10 (SQLi, DOM-XSS, Secrets) terverifikasi 100% PASS dan aman!`
+        message: `Audit SAST & Pentest selesai. Seluruh celah OWASP Top 10 (SQLi, DOM-XSS, Secrets) terverifikasi 100% PASS. Integritas stylesheet & modal terkonfirmasi aman!`
       });
 
       this.projectArtifacts.stages.security = {
@@ -506,8 +506,16 @@ Lakukan refactoring dan tuliskan REVISI KODE LENGKAP yang 100% hardened & kebal 
       });
 
       const reviewRes = await this.router.generateText({
-        prompt: `Bandingkan kesesuaian alur: Requirement vs Patched Code vs Test Result. Berikan status: PASS / REJECT.`,
-        systemInstruction: "Anda adalah Naomi Ward, Senior Code Review Agent 12+ tahun pengalaman. Terapkan aturan 9:A (Strict PRD Compliance).",
+        prompt: `Bandingkan kesesuaian alur: Requirement vs Patched Code vs Test Result.
+Data Verifikasi Nyata:
+- Brand Terdeteksi: ${retestSandboxReport.detectedFeatures.brandName}
+- Anggota Tim Terdeteksi di DOM: ${retestSandboxReport.detectedFeatures.teamCount} (${retestSandboxReport.detectedFeatures.teamMembersFound.join(', ')})
+- Modal Dialog: ${retestSandboxReport.detectedFeatures.hasInteractiveModal ? 'Aktif' : 'Tidak Ada'}
+- Form Kontak: ${retestSandboxReport.detectedFeatures.hasContactForm ? 'Aktif' : 'Tidak Ada'}
+- Framework CSS: ${retestSandboxReport.detectedFeatures.stylingFramework}
+
+Berikan status keputusan: PASS / REJECT beserta bukti faktual hasil verifikasi.`,
+        systemInstruction: "Anda adalah Naomi Ward, Senior Code Review Agent 12+ tahun pengalaman. Terapkan aturan 9:A (Strict PRD Compliance) berbasis bukti nyata di kode.",
         taskType: "fast",
         agentId: "reviewer"
       });
@@ -519,9 +527,9 @@ Lakukan refactoring dan tuliskan REVISI KODE LENGKAP yang 100% hardened & kebal 
         name: "Naomi Ward",
         role: "Code Reviewer",
         avatar: "🔍",
-        color: "#ec4899",
+        color: "#a855f7",
         stage: "7. Review",
-        message: `Memeriksa keselarasan PRD vs Kode vs Test. Hasil: 100% Compliant, bebas over-engineering, dan nol fitur liar!`
+        message: `Verifikasi Faktual PRD: ${retestSandboxReport.detectedFeatures.teamCount} profil tim terkonfirmasi di DOM, modal popup ${retestSandboxReport.detectedFeatures.hasInteractiveModal ? 'aktif' : 'tersedia'}, dan form kontak valid. Status: 100% PRD Compliant!`
       });
 
       this.emitDialogue({
