@@ -941,8 +941,10 @@ export class PixelOfficeApp {
       card.innerHTML = `
         <div class="agent-avatar" style="border-color: ${agent.color}; color: ${agent.color}">${agent.avatar}</div>
         <div class="agent-info">
-          <div class="agent-name">${agent.name}</div>
-          <div class="agent-role">${agent.role.split(' ')[0]}</div>
+          <div class="agent-meta">
+            <div class="agent-name">${agent.name}</div>
+            <div class="agent-role">${agent.role}</div>
+          </div>
           <div class="agent-activity-status" id="status-${agent.id}">
             <span>●</span> Standby
           </div>
@@ -957,8 +959,9 @@ export class PixelOfficeApp {
     const target = document.getElementById(`agent-card-${agentId}`);
     if (target) {
       target.classList.add('active');
+      target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       const status = document.getElementById(`status-${agentId}`);
-      if (status) status.innerHTML = `<span style="color: #10b981">●</span> Sedang ${taskName.slice(0, 16)}`;
+      if (status) status.innerHTML = `<span style="color: #10b981">●</span> Sedang ${taskName.slice(0, 18)}`;
     }
   }
 
