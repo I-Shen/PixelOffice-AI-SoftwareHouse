@@ -113,107 +113,48 @@
         </div>
       </div>
 
-      <!-- HEADQUARTERS ACTIVE COCKPIT & LIVE PROJECT MATRIX -->
+      <!-- Integrated Prompt Action Command Dock -->
+      <div class="prompt-action-dock">
+        <div class="prompt-dock-input-wrap">
+          <textarea 
+            id="projectPrompt" 
+            class="prompt-dock-textarea" 
+            rows="2"
+            placeholder="Ketik kebutuhan proyek atau diskusikan langsung di menu '💬 Dialog Tim'..."
+          >Buatkan website company profile 'PxO AI Soft' dengan tema clean-modern-minimalis-profesional-eyecatching, memperkenalkan 10 pegawai senior kita (Arthur, Elena, Marcus, Devon, Sophia, Kai, Sarah, Viktor, Naomi, Alex) dengan modal popup detail bio dummy, portfolio hasil proyek flexing ke umum & kompetitor, 4 layanan unggulan, dan form kontak.</textarea>
+        </div>
+
+        <div class="prompt-dock-actions">
+          <div class="preset-pill-group">
+            <span style="font-size: 10px; color: #9ca3af; align-self: center;">Preset:</span>
+            <button class="preset-btn" data-prompt="Buatkan website company profile 'PxO AI Soft' dengan tema clean-modern-minimalis-profesional-eyecatching, memperkenalkan 10 pegawai senior kita dengan modal popup detail bio dummy, portfolio hasil proyek flexing, 4 layanan unggulan, dan form kontak.">🏢 PxO AI Company Profile</button>
+            <button class="preset-btn" data-prompt="Tambahkan fitur upload foto pada form profil pengguna dengan preview thumbnail, storage adapter, dan validasi 5MB.">📸 Upload Foto & Storage</button>
+            <button class="preset-btn" data-prompt="Buatkan REST API Microservice Payment Gateway dengan arsitektur Hexagonal, idempotency key, dan unit test 95%.">💳 Fintech API Hexagonal</button>
+          </div>
+
+          <div class="btn-action-cluster">
+            <button class="btn-secondary" id="openSidebarFromDockBtn" style="font-size: 11px; padding: 6px 12px; background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; color: #93c5fd;" title="Fokus ke chat Ruang Eksekutif di panel kanan">
+              💬 Ruang Eksekutif
+            </button>
+            <button class="btn-secondary" id="auditPromptBtn" style="font-size: 11px; padding: 6px 12px;">
+              ✨ Audit Prompt (<span id="promptScoreValue" style="color: #10b981; font-weight: bold;">100</span>)
+            </button>
+            <button class="btn-primary" id="startProjectBtn" style="padding: 6px 16px;">
+              <span>🚀 Mulai Siklus SDLC</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HEADQUARTERS ACTIVE COCKPIT: HANYA 2 MENU -->
       <div class="hq-cockpit-container">
         <div class="cockpit-tabs-header">
-          <button class="cockpit-tab-btn active" data-tab="prd">📋 1. Master PRD (100/100)</button>
-          <button class="cockpit-tab-btn" data-tab="code">💻 2. Live Polyglot Code</button>
-          <button class="cockpit-tab-btn" data-tab="security">🛡️ 3. Security & QA Matrix</button>
-          <button class="cockpit-tab-btn" data-tab="deploy">🚀 4. Cloud Deploy Status</button>
-          <button class="cockpit-tab-btn" data-tab="telemetry">📟 5. Telemetry & Logs</button>
-          <button class="cockpit-tab-btn" data-tab="kanban">🗂️ 6. Sprint Kanban</button>
+          <button class="cockpit-tab-btn active" data-tab="telemetry">💻 Realtime SDLC & Router Telemetry</button>
+          <button class="cockpit-tab-btn" data-tab="agents">👥 Tim Software House (10 Agen Senior)</button>
         </div>
 
-        <!-- TAB 1: MASTER PRD & BLUEPRINT (100/100) -->
-        <div class="cockpit-tab-pane active" id="pane-prd">
-          <div class="prompt-dock-input-wrap">
-            <textarea 
-              id="projectPrompt" 
-              class="prompt-dock-textarea" 
-              rows="2"
-              placeholder="Ketik kebutuhan proyek atau diskusikan langsung di menu '💬 Dialog Tim'..."
-            >Buatkan website company profile 'PxO AI Soft' dengan tema clean-modern-minimalis-profesional-eyecatching, memperkenalkan 10 pegawai senior kita (Arthur, Elena, Marcus, Devon, Sophia, Kai, Sarah, Viktor, Naomi, Alex) dengan modal popup detail bio dummy, portfolio hasil proyek flexing ke umum & kompetitor, 4 layanan unggulan, dan form kontak.</textarea>
-          </div>
-
-          <div class="prompt-dock-actions">
-            <div class="preset-pill-group">
-              <span style="font-size: 10px; color: #9ca3af; align-self: center;">Preset:</span>
-              <button class="preset-btn" data-prompt="Buatkan website company profile 'PxO AI Soft' dengan tema clean-modern-minimalis-profesional-eyecatching, memperkenalkan 10 pegawai senior kita dengan modal popup detail bio dummy, portfolio hasil proyek flexing, 4 layanan unggulan, dan form kontak.">🏢 PxO AI Company Profile</button>
-              <button class="preset-btn" data-prompt="Tambahkan fitur upload foto pada form profil pengguna dengan preview thumbnail, storage adapter, dan validasi 5MB.">📸 Upload Foto & Storage</button>
-              <button class="preset-btn" data-prompt="Buatkan REST API Microservice Payment Gateway dengan arsitektur Hexagonal, idempotency key, dan unit test 95%.">💳 Fintech API Hexagonal</button>
-            </div>
-
-            <div class="btn-action-cluster">
-              <button class="btn-secondary" id="openSidebarFromDockBtn" style="font-size: 11px; padding: 7px 14px; background: rgba(59, 130, 246, 0.15); border-color: #3b82f6; color: #93c5fd;" title="Fokus ke chat Ruang Eksekutif di panel kanan">
-                💬 Ruang Eksekutif
-              </button>
-              <button class="btn-secondary" id="auditPromptBtn" style="font-size: 11px; padding: 7px 12px;">
-                ✨ Audit Prompt (<span id="promptScoreValue" style="color: #10b981; font-weight: bold;">100</span>)
-              </button>
-              <button class="btn-primary" id="startProjectBtn" style="padding: 7px 18px;">
-                <span>🚀 Mulai Siklus SDLC</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 2: LIVE POLYGLOT CODE STREAM -->
-        <div class="cockpit-tab-pane" id="pane-code" style="display: none;">
-          <div class="cockpit-code-box">
-            <div class="code-box-header">
-              <span id="cockpitCodeTitle" style="font-weight: 700; color: #93c5fd; font-size: 11px;">Kai Takahashi (Senior Coder) - Polyglot Code Output</span>
-              <button class="btn-secondary" id="copyCodeBtn" style="font-size: 9px; padding: 2px 7px;">📋 Salin Kode</button>
-            </div>
-            <pre><code id="cockpitCodeContent">// Menunggu proses SDLC Tahap 4 (Coding Agent)...
-// Kode yang dihasilkan oleh Kai Takahashi akan muncul secara real-time di sini.</code></pre>
-          </div>
-        </div>
-
-        <!-- TAB 3: SECURITY SAST & QA MATRIX -->
-        <div class="cockpit-tab-pane" id="pane-security" style="display: none;">
-          <div class="cockpit-sec-grid">
-            <div class="sec-card">
-              <span class="sec-label">🛡️ OWASP SAST Pentest (Viktor Petrov)</span>
-              <span class="sec-status" id="secStatusPentest" style="color: #38bdf8;">● Standby (Zero-Tolerance)</span>
-            </div>
-            <div class="sec-card">
-              <span class="sec-label">🧪 Sandbox Test Execution (Sarah Jenkins)</span>
-              <span class="sec-status" id="secStatusSandbox" style="color: #eab308;">● Menunggu Eksekusi</span>
-            </div>
-            <div class="sec-card">
-              <span class="sec-label">🔍 PRD Compliance Audit (Naomi Ward)</span>
-              <span class="sec-status" id="secStatusPRD" style="color: #ec4899;">● 100% Strict Guardrails</span>
-            </div>
-            <div class="sec-card">
-              <span class="sec-label">👑 Executive Quality Gate (Arthur Vance)</span>
-              <span class="sec-status" id="secStatusArthur" style="color: #10b981;">● Siap Audit Rilis</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 4: CLOUD DEPLOYMENT STATUS -->
-        <div class="cockpit-tab-pane" id="pane-deploy" style="display: none;">
-          <div class="cockpit-deploy-grid">
-            <div class="deploy-card">
-              <div class="deploy-card-title">▲ Vercel Production Deployment</div>
-              <a href="https://pixeloffice-ai-softwarehouse.vercel.app" target="_blank" class="deploy-url" id="cockpitVercelUrl">https://pixeloffice-ai-softwarehouse.vercel.app</a>
-              <span class="deploy-badge" style="color: #10b981;">● Active & Live</span>
-            </div>
-            <div class="deploy-card">
-              <div class="deploy-card-title">🐙 GitHub Backup Repository (@I-Shen)</div>
-              <a href="https://github.com/I-Shen/PixelOffice-AI-SoftwareHouse" target="_blank" class="deploy-url" id="cockpitGithubUrl">https://github.com/I-Shen/PixelOffice-AI-SoftwareHouse</a>
-              <span class="deploy-badge" style="color: #38bdf8;">● Tagged Release v2.8.6</span>
-            </div>
-            <div class="deploy-card">
-              <div class="deploy-card-title">✈️ Telegram Telemetry Alert (@Shen_KTTBot)</div>
-              <div style="font-size: 11px; color: #cbd5e1;">Channel Notifikasi CEO: Terhubung (Chat ID: 853902519)</div>
-              <span class="deploy-badge" style="color: #a855f7;">● Telemetry Active</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 5: ROUTER TELEMETRY & LOGS (Pindahan dari Kanan) -->
-        <div class="cockpit-tab-pane" id="pane-telemetry" style="display: none;">
+        <!-- TAB 1: REALTIME SDLC & ROUTER TELEMETRY -->
+        <div class="cockpit-tab-pane active" id="pane-telemetry">
           <div class="cockpit-terminal-box">
             <div class="code-box-header">
               <span style="font-weight: 700; color: #38bdf8; font-size: 11px;">💻 Realtime SDLC & Router Telemetry Log Stream</span>
@@ -228,15 +169,15 @@
           </div>
         </div>
 
-        <!-- TAB 6: SPRINT KANBAN BACKLOG (Pindahan dari Kanan) -->
-        <div class="cockpit-tab-pane" id="pane-kanban" style="display: none;">
-          <div class="cockpit-kanban-box">
+        <!-- TAB 2: TIM SOFTWARE HOUSE (10 AGEN SENIOR) -->
+        <div class="cockpit-tab-pane" id="pane-agents" style="display: none;">
+          <div class="cockpit-agents-box">
             <div class="code-box-header">
-              <span style="font-weight: 700; color: #f59e0b; font-size: 11px;">🗂️ Multi-Project Sprint Kanban Backlog</span>
-              <button class="btn-secondary" id="addToQueueBtn" style="font-size: 9px; padding: 2px 7px;">➕ Tambah Task</button>
+              <span style="font-weight: 700; color: #a855f7; font-size: 11px;">👥 Monitoring Status 10 Ahli Senior Software House</span>
+              <span class="hud-status-badge" style="color: #10b981; font-size: 10px; font-weight: 700;">● 10 Ahli Online & Siap Bertugas</span>
             </div>
-            <div class="kanban-queue-list" id="kanbanListContainer">
-              <!-- Populated by app.js -->
+            <div class="agent-team-grid" id="agentListContainer">
+              <!-- Populated dynamically by app.js -->
             </div>
           </div>
         </div>
