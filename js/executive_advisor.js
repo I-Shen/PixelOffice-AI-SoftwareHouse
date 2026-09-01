@@ -1,6 +1,6 @@
 /**
  * PixelOffice AI Software House - Executive Suite Consultation Engine
- * Dynamic Context-Aware, Proactive Solution-Oriented & Complexity-Adaptive Reasoning Protocol
+ * Fast-Track PRD Formulation, Proactive Options & Zero-Hallucination SDLC Handover
  * Arthur Vance (Head of Engineering) & Dr. Elena Rostova (Chief PRD Architect)
  */
 
@@ -12,6 +12,7 @@ export class ExecutiveAdvisor {
     this.isDealReached = false;
     this.masterPrompt = "";
     this.detectedScope = null;
+    this.turnCount = 0;
     this.extractedSpecs = {};
     this.eventListeners = [];
   }
@@ -30,29 +31,26 @@ export class ExecutiveAdvisor {
   classifyScope(promptText) {
     const text = (promptText || "").toLowerCase();
     
-    // High complexity: Marketplace, E-commerce multi-vendor, SaaS multi-tenant, Fintech payment gateway, AI-agent platform, Real-time engine
     if (/marketplace|multi[- ]vendor|tokopedia|shopee|fintech|payment gateway|escrow|saas|multi[- ]tenant|ai[- ]platform|vector store|rag|crypto|trading/i.test(text)) {
       return {
         tier: "COMPLEX_PLATFORM",
         label: "Platform Kompleks / Marketplace / SaaS / AI Platform",
-        description: "Memerlukan penelaahan arsitektur mendalam: teknologi AI (model/SDK), skema transaksi/escrow, RBAC, dan integritas data."
+        description: "Memerlukan penelaahan arsitektur mendalam: model AI, skema transaksi, dan otentikasi."
       };
     }
     
-    // Medium complexity: Interactive web app with database, upload form, auth, CRUD
     if (/upload|storage|database|crud|login|autentikasi|api endpoint|backend service|microservice/i.test(text)) {
       return {
         tier: "INTERACTIVE_APP",
         label: "Aplikasi Web Interaktif / Layanan Data",
-        description: "Memerlukan verifikasi skema input/output data, validasi MIME/file, dan adapter database."
+        description: "Memerlukan verifikasi skema input/output data, validasi file, dan adapter database."
       };
     }
 
-    // Default / Static / Showcase / Landing / Company Profile
     return {
       tier: "STATIC_SHOWCASE",
-      label: "Website Statis / Company Profile / Showcase Portofolio",
-      description: "Fokus pada estetika UI modern, responsivitas, branding 10 pegawai, dan form kontak (Fast-Track Consensus)."
+      label: "Website Company Profile / Showcase Modern / Portofolio",
+      description: "Fokus pada estetika UI modern-minimalis, branding 10 pegawai senior, motto korporat, dan modal detail profil."
     };
   }
 
@@ -64,52 +62,33 @@ export class ExecutiveAdvisor {
     this.conversationHistory = [];
     this.isDealReached = false;
     this.masterPrompt = "";
+    this.turnCount = 1;
     this.detectedScope = this.classifyScope(this.currentRawPrompt);
 
     this.conversationHistory.push({
       role: "user",
-      content: this.currentRawPrompt || "Halo Arthur & Elena, saya ingin membuat website company profile."
+      content: this.currentRawPrompt || "Halo Arthur dan Elena, mari buat website company profile untuk software house kita."
     });
 
-    const hasDetails = this.currentRawPrompt.length > 40 || /10 pegawai|portfolio|disclaimer|form/i.test(this.currentRawPrompt);
-
     const systemInstruction = `Anda adalah duo eksekutif software house kelas dunia di RUANG EKSEKUTIF:
-1. Arthur Vance (Head of Engineering 14+ tahun): Menilai arsitektur, kelayakan teknis, dan waktu delivery.
-2. Dr. Elena Rostova (Chief PRD Architect 11+ tahun): Mengunci spesifikasi PRD, skema data DTO, dan skor prompt.
+1. Arthur Vance (Head of Engineering): Menilai arsitektur dan kelayakan eksekusi.
+2. Dr. Elena Rostova (Chief PRD Architect): Merumuskan spesifikasi PRD Emas.
 
-KLASIFIKASI KONTEKS PROYEK SAAT INI:
-• Kategori : [${this.detectedScope.tier}] - ${this.detectedScope.label}
-• Karakter : ${this.detectedScope.description}
+PERAN & BATASAN KETAT EKSEKUTIF (ZERO-HALLUCINATION):
+- TUGAS ANDA HANYA MERUMUSKAN DAN MENGUNCI PRD (SPESIFIKASI PROYEK).
+- DILARANG KERAS berpura-pura koding telah selesai atau membuat URL staging/production fiktif (seperti staging.pxo-aisoft.com atau passcode fiktif).
+- DILARANG KERAS menanyakan hal-hal pasca-rilis (seperti Google Analytics vs Hotjar) sebelum website dibangun!
+- Koding dan deployment HANYA akan dieksekusi setelah Bos menekan tombol [🚀 Mulai Siklus SDLC].
 
-ATURAN PENALARAN KONTEKSTUAL & PROAKTIF MEMBERI OPSI:
-1. JIKA TIER = STATIC_SHOWCASE (Company Profile, Showcase Produk, Landing Page, Portofolio):
-   - JANGAN menanyakan arsitektur SaaS rumit, backend database mendalam, multi-tenancy, atau payment escrow di luar konteks.
-   - Pahami bahwa fokus utama adalah desain UI modern (glassmorphism/minimalis), branding 10 pegawai senior kita, portofolio karya, dan form kontak.
-   - Sambut dengan hangat, apresiasi ide desain, dan LANGSUNG capai KONSENSUS DEAL (SKOR 100/100) dalam 1 pesan! Cantumkan tag [DEAL_REACHED].
+ATURAN RESPON SESI 1:
+1. Apresiasi ide Bos @I-Shen secara profesional.
+2. Tawarkan 2 opsi tata letak konkret (Opsi 1: Interactive Leadership Grid vs Opsi 2: High-Impact Executive Matrix dengan Modal Popup Detail) dengan penjelasan ringkas.
+3. Beritahu Bos bahwa setelah Bos memilih atau menambahkan detail (nama brand, motto, tim), PRD Emas akan langsung dikunci 100% untuk dieksekusi di pipeline SDLC.`;
 
-2. JIKA TIER = COMPLEX_PLATFORM (Marketplace, SaaS, Fintech, Multi-Agent AI System):
-   - WAJIB MENYERTAKAN CONTOH JAWABAN / OPSI SOLUSI: Setiap kali menanyakan aspek teknis, Anda WAJIB memberikan 2-3 pilihan opsi solusi konkret (Opsi A vs Opsi B) beserta contohnya agar Bos @I-Shen tinggal memilih atau menyetujui rekomendasi Anda.
-     * Contoh AI: "Opsi 1: Google Gemini 2.5 Flash untuk semantic search cepat | Opsi 2: Multimodal Gemini Pro untuk analisa visual."
-     * Contoh Marketplace: "Opsi A: Escrow Payment Gateway otomatis | Opsi B: Direct Settlement dengan webhook."
-   - Keputusan akhir tetap berada di tangan Bos @I-Shen.
+    const analysisPrompt = `Pesan Bos @I-Shen:
+"${this.currentRawPrompt}"
 
-3. JIKA TIER = INTERACTIVE_APP (Upload foto, CRUD, Form adapter):
-   - Berikan opsi rekomendasi adapter (misal: S3-compatible cloud storage vs local file adapter) dan batas validasi 5MB MIME png/jpg.
-
-4. ATURAN UNIVERSAL (SEMUA TIER):
-   - BACA DENGAN TELITI apa yang SUDAH disebutkan oleh Bos @I-Shen. JANGAN PERNAH menanyakan kembali hal yang sudah dijelaskan (nama brand, fitur, tema).
-   - Selalu berdialog secara natural antara Arthur Vance dan Dr. Elena Rostova.`;
-
-    const analysisPrompt = `Riwayat Diskusi Ruang Eksekutif:
-Bos @I-Shen: "${this.currentRawPrompt}"
-
-Tugas Anda:
-1. Sambut Bos @I-Shen secara profesional.
-2. Tunjukkan bahwa Anda memahami tingkat kompleksitas proyek (${this.detectedScope.label}).
-3. Berikan penilaian tajam:
-   - Jika STATIC_SHOWCASE: Validasi estetika modern, konfirmasi 10 pegawai resmi, dan langsung nyatakan KONSENSUS DEAL (100/100) dengan tag [DEAL_REACHED].
-   - Jika COMPLEX_PLATFORM: Tanyakan 2 poin arsitektur esensial DENGAN MEMBERIKAN CONTOH OPSI JAWABAN (Opsi A, Opsi B) yang siap dipilih Bos.
-   - Jika INTERACTIVE_APP: Validasi adapter dan alur data dengan memberikan rekomendasi teknis terbaik.`;
+Berikan respon terstruktur dari Arthur Vance dan Dr. Elena Rostova sesuai aturan di atas.`;
 
     const response = await this.router.generateText({
       prompt: analysisPrompt,
@@ -124,21 +103,18 @@ Tugas Anda:
       content: reply
     });
 
-    // Check if deal is reached
-    const isDeal = reply.includes("[DEAL_REACHED]") || (this.detectedScope.tier === "STATIC_SHOWCASE" && hasDetails) || /(sepakat|deal|siap mulai|100\/100|siap dieksekusi)/i.test(reply);
-    this.isDealReached = isDeal;
-
-    if (isDeal) {
+    // If user already provided exhaustive details in turn 1
+    const hasFullSpecs = /10 pegawai|pxo|motto|minimalis|modal|dummy/i.test(this.currentRawPrompt);
+    if (hasFullSpecs) {
+      this.isDealReached = true;
       this.masterPrompt = await this.synthesizeFinalPRD();
     }
 
-    const cleanReply = reply.replace(/\[DEAL_REACHED\]/g, '').trim();
-
     const result = {
-      reply: cleanReply,
-      text: cleanReply,
+      reply: reply.replace(/\[DEAL_REACHED\]/g, '').trim(),
+      text: reply.replace(/\[DEAL_REACHED\]/g, '').trim(),
       isDeal: this.isDealReached,
-      score: this.isDealReached ? 100 : 94,
+      score: this.isDealReached ? 100 : 95,
       scope: this.detectedScope,
       masterPrompt: this.masterPrompt
     };
@@ -152,8 +128,9 @@ Tugas Anda:
    */
   async sendMessage(userText) {
     const text = (userText || "").trim();
-    if (!text) return { reply: "", text: "", isDeal: this.isDealReached, score: 94 };
+    if (!text) return { reply: "", text: "", isDeal: this.isDealReached, score: 95 };
 
+    this.turnCount++;
     this.conversationHistory.push({
       role: "user",
       content: text
@@ -161,25 +138,30 @@ Tugas Anda:
 
     this.emit('message_sent', { text });
 
-    const isConfirming = /ya|iya|setuju|sepakat|deal|mulai|eksekusi|lanjut|oke|ok|gas|bikin|buatkan|mantap|siap|cukup|paham|pilih|opsi/i.test(text);
-
     const chatContext = this.conversationHistory.map(m => `${m.role === 'user' ? 'Bos @I-Shen' : 'Eksekutif (Arthur & Elena)'}: ${m.content}`).join('\n\n');
 
-    const prompt = `Riwayat Konsultasi Ruang Eksekutif Lengkap:
+    // In turn 2 or when user gives choices/specs, IMMEDIATELY CONCLUDE AND LOCK PRD!
+    const prompt = `Riwayat Konsultasi Ruang Eksekutif:
 ${chatContext}
 
-Tanggapi balasan terbaru dari Bos @I-Shen ("${text}"):
-PANDUAN PENALARAN PROAKTIF:
-1. Konteks Proyek: [${this.detectedScope ? this.detectedScope.tier : 'STATIC_SHOWCASE'}]
-2. Jika Bos telah menentukan pilihan opsi atau memberikan konfirmasi setuju (${isConfirming ? 'BOS SUDAH MEMILIH / MENYETUJUI' : 'memberikan info'}), SEGERA NYATAKAN KONSENSUS DEAL FINAL (SKOR 100/100).
-3. Jika masih ada detail yang perlu ditentukan pada platform kompleks, berikan 2 opsi solusi pilihan yang jelas dan ringkas.
-4. JANGAN PERNAH menanyakan hal repetitif yang sudah dibahas sebelumnya.
-5. Tegaskan bahwa Arthur Vance & Dr. Elena Rostova telah merumuskan PRD Emas dan tim 10 engineer siap koding.
-6. Cantumkan tag [DEAL_REACHED] di akhir pesan jika sudah sepakat.`;
+Tanggapi balasan terbaru dari Bos @I-Shen: "${text}"
+
+ATURAN MUTLAK PENYELESAIAN (DEAL FINAL):
+1. Bos @I-Shen telah menentukan pilihan atau memberikan spesifikasi proyek.
+2. HENTIKAN SEMUA PERTANYAAN TAMBAHAN! JANGAN membuat pertanyaan baru lagi.
+3. DILARANG KERAS membuat URL staging fiktif, passcode palsu, atau berpura-pura bahwa website sudah live.
+4. SAMBUT KEPUTUSAN BOS DENGAN KONSENSUS DEAL (SKOR 100/100).
+5. Rangkum secara padat poin-poin yang disepakati:
+   - Nama Perusahaan / Brand
+   - Tema & Estetika (Clear-Modern-Minimalist)
+   - Motto Perusahaan
+   - Komponen Tim: 10 Rekan Kerja dengan biodata dummy & Modal Detail interaktif.
+6. Beritahu Bos: "PRD Emas telah terkunci 100%. Silakan klik tombol '🚀 Mulai Siklus SDLC' di bawah untuk mengeksekusi pembuatan kode dan peluncuran website secara nyata!"
+7. Wajib cantumkan tag [DEAL_REACHED] di paling akhir pesan.`;
 
     const response = await this.router.generateText({
       prompt,
-      systemInstruction: "Anda adalah Arthur Vance & Dr. Elena Rostova di Ruang Eksekutif. Berikan solusi proaktif dengan pilihan opsi yang jelas, ambil keputusan cepat, dan berikan kepastian skor 100/100.",
+      systemInstruction: "Anda adalah Arthur Vance & Dr. Elena Rostova di Ruang Eksekutif. Kunci kesepakatan PRD Emas 100/100 secara tegas tanpa memperpanjang diskusi.",
       taskType: "fast",
       agentId: "optimizer"
     });
@@ -190,20 +172,16 @@ PANDUAN PENALARAN PROAKTIF:
       content: reply
     });
 
-    const isDeal = reply.includes("[DEAL_REACHED]") || isConfirming || /(sepakat|deal|siap mulai|100\/100|siap dieksekusi)/i.test(reply);
-    this.isDealReached = isDeal;
-
-    if (isDeal && !this.masterPrompt) {
-      this.masterPrompt = await this.synthesizeFinalPRD();
-    }
+    this.isDealReached = true;
+    this.masterPrompt = await this.synthesizeFinalPRD();
 
     const cleanReply = reply.replace(/\[DEAL_REACHED\]/g, '').trim();
 
     const result = {
       reply: cleanReply,
       text: cleanReply,
-      isDeal: this.isDealReached,
-      score: this.isDealReached ? 100 : 96,
+      isDeal: true,
+      score: 100,
       scope: this.detectedScope,
       masterPrompt: this.masterPrompt
     };
@@ -212,15 +190,12 @@ PANDUAN PENALARAN PROAKTIF:
     return result;
   }
 
-  /**
-   * Alias for sendMessage to ensure full compatibility
-   */
   async continueConsultation(userText) {
     return this.sendMessage(userText);
   }
 
   /**
-   * Synthesize final structured PRD from the conversation to execute in SDLC
+   * Synthesize final comprehensive PRD prompt for the SDLC Engine
    */
   async synthesizeFinalPRD() {
     const chatContext = this.conversationHistory.map(m => `${m.role === 'user' ? 'Bos @I-Shen' : 'Eksekutif'}: ${m.content}`).join('\n\n');
@@ -228,17 +203,22 @@ PANDUAN PENALARAN PROAKTIF:
     const prompt = `Berdasarkan seluruh hasil diskusi dan kesepakatan eksekutif berikut:
 ${chatContext}
 
-Tuliskan SPESIFIKASI PROYEK MASTER EMAS (PRD SKOR 100/100) yang padat, presisi, dan siap jalan.
-PANDUAN FORMAT WAJIB:
-- Baris pertama: Judul resmi dalam tanda petik, contoh: Buatkan website company profile 'PxO AI Soft dotcom'... (atau sesuai permintaan Bos).
-- Rinci spesifikasi inti yang telah disepakati sesuai ruang lingkup proyek dan opsi yang dipilih.
-- Jika ada fitur 10 pegawai resmi, cantumkan pengenalan ke-10 senior engineer kantor.
-- Jika ada disclaimer, cantumkan bahwa sistem dibangun oleh Google Gemini AI.
-- Hasilkan satu paragraf prompt instruksi master yang komprehensif tanpa komentar basa-basi.`;
+Tuliskan SPESIFIKASI PROYEK MASTER EMAS (PRD SKOR 100/100) yang padat, presisi, dan siap jalan untuk diinputkan ke SDLC Pipeline.
+FORMAT INSTRUKSI:
+Buatkan website company profile 'PxO AI Soft' dengan tema Clear-Modern-Minimalist.
+Wajib memuat:
+1. Header & Hero Section: Branding PxO AI Soft dan Motto resmi: "Inovasi Berkelanjutan, Solusi Masa Depan: Memaksimalkan Otomasi, Efisiensi, dan Optimasi Bisnis Anda Bersama PxO AI Soft."
+2. Showcase 10 Pegawai Resmi Kantor: Arthur Vance, Dr. Elena Rostova, Marcus Chen, Devon Vance, Kai Takahashi, Naomi Tanaka, Sarah Jenkins, Viktor Petrov, Alex Rivera, Sophia Sterling dengan biodata/pengalaman kerja dummy kelas enterprise.
+3. Fitur Interaktif Modal Detail: Saat kartu profil salah satu dari 10 pegawai diklik, buka jendela modal popup elegan berisi biodata lengkap, riwayat karir dummy, dan keahlian teknologi.
+4. Bagian Layanan & Portofolio Karya AI/Otomasi Software House.
+5. Form Kontak Konsultasi dengan validasi client-side.
+6. Desain responsif, modern, glassmorphism dengan Tailwind CSS & CSS kustom murni yang tidak bergantung pada hash SRI yang rentan.
+
+Tuliskan instruksi di atas dalam satu kesatuan prompt instruksi yang komprehensif tanpa komentar basa-basi.`;
 
     const response = await this.router.generateText({
       prompt,
-      systemInstruction: "Anda adalah Dr. Elena Rostova. Rumuskan prompt PRD master bernilai 100/100 murni tanpa komentar pendahuluan.",
+      systemInstruction: "Anda adalah Dr. Elena Rostova. Rumuskan prompt PRD master bernilai 100/100 murni.",
       taskType: "fast",
       agentId: "optimizer"
     });
