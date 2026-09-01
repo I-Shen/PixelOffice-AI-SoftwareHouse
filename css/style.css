@@ -583,21 +583,46 @@ body {
 }
 
 /* -------------------------------------------------------------
- * Dual Viewport Center: Interior Command Room + Isometric Tower
+ * Twin Scenes Viewport: 2D Interior Room + 2.5D Isometric Tower
  * ------------------------------------------------------------- */
-.canvas-viewport-split {
+.twin-scenes-grid {
   display: grid;
-  grid-template-columns: 1.35fr 1fr;
+  grid-template-columns: 1fr 320px;
   gap: 10px;
   flex: 1;
   min-height: 0;
   width: 100%;
 }
 
-@media (max-width: 1100px) {
-  .canvas-viewport-split {
-    grid-template-columns: 1fr;
+@media (max-width: 1400px) {
+  .twin-scenes-grid {
+    grid-template-columns: 1fr 280px;
   }
+}
+
+@media (max-width: 1100px) {
+  .twin-scenes-grid {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+.scene-sub-badge {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #7dd3fc;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(6px);
+  z-index: 10;
+  pointer-events: none;
+  font-family: var(--font-pixel, monospace);
+  letter-spacing: 0.5px;
 }
 
 .canvas-wrapper {
@@ -605,44 +630,34 @@ body {
   height: 100%;
   min-height: 0;
   width: 100%;
-  background: #0f172a;
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid rgba(59, 130, 246, 0.3);
-  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.7);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.scene-sub-badge {
-  position: absolute;
-  top: 8px;
-  left: 10px;
-  background: rgba(15, 23, 42, 0.88);
-  border: 1px solid rgba(56, 189, 248, 0.45);
-  color: #7dd3fc;
-  font-family: var(--font-pixel, monospace);
-  font-size: 8px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 4px;
-  z-index: 10;
-  pointer-events: none;
-  backdrop-filter: blur(6px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  letter-spacing: 0.5px;
+.interior-scene-box {
+  background: #ece5d8;
 }
 
-.interior-wrapper #officeCanvas {
+.interior-scene-box #officeCanvas {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* Crisp original aspect ratio, pixel-sharp! */
+  object-fit: contain;
+  object-position: left center; /* Mepet kiri sesuai instruksi Bos I-Shen! */
   display: block;
   image-rendering: pixelated;
 }
 
-.building-wrapper #buildingCanvas {
+.building-scene-box {
+  background: #0f172a;
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+.building-scene-box #buildingCanvas {
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -650,8 +665,8 @@ body {
   image-rendering: pixelated;
 }
 
-/* Fullscreen Split Viewport State */
-.canvas-viewport-split.is-fullscreen {
+/* Fullscreen Canvas State */
+.canvas-wrapper.is-fullscreen {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
@@ -662,12 +677,12 @@ body {
   border: none !important;
   background: #090d16 !important;
   box-shadow: none !important;
-  padding: 16px !important;
-  gap: 16px !important;
 }
 
-.canvas-viewport-split.is-fullscreen .canvas-wrapper {
-  height: 100% !important;
+.canvas-wrapper.is-fullscreen #officeCanvas {
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: contain !important;
 }
 
 /* -------------------------------------------------------------
