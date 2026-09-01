@@ -145,13 +145,13 @@ body {
 }
 
 /* -------------------------------------------------------------
- * Cyber-Pixel Digital Clock in Header Center (HH:MM)
+ * Cyber-Pixel Digital Clock & Live Date in Header Center
  * ------------------------------------------------------------- */
 .header-digital-clock {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.8));
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.85));
   border: 1px solid rgba(56, 189, 248, 0.4);
   border-radius: 8px;
   padding: 4px 14px;
@@ -173,7 +173,13 @@ body {
 .clock-inner {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+}
+
+.clock-time-cluster {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .clock-prefix {
@@ -212,9 +218,43 @@ body {
   margin-left: 2px;
 }
 
+.clock-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.clock-date-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+.date-icon {
+  font-size: 11px;
+}
+
+.date-text {
+  color: #cbd5e1;
+  letter-spacing: 0.2px;
+}
+
 @keyframes clock-blink {
   0%, 49% { opacity: 1; }
   50%, 100% { opacity: 0.25; }
+}
+
+@media (max-width: 1200px) {
+  .clock-date-display {
+    display: none;
+  }
+  .clock-divider {
+    display: none;
+  }
 }
 
 .header-status {
