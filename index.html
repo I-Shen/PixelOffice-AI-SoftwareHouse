@@ -25,12 +25,25 @@
 </head>
 <body>
 
-  <!-- Top Navigation & Global Status Header -->
+  <!-- Top Navigation & Global Status Header with Cyber Digital Clock -->
   <header class="app-header">
     <div class="brand-area">
       <div class="brand-logo">PIXEL-CORP</div>
       <div class="brand-text">
         <h1>PixelOffice AI Software House <span class="brand-badge">Autonomous SDLC</span></h1>
+      </div>
+    </div>
+
+    <!-- Center Digital Clock Display (HH:MM) -->
+    <div class="header-digital-clock" id="headerDigitalClock" title="Jam Digital Software House (Sinkronisasi Waktu Nyata)">
+      <div class="clock-inner">
+        <span class="clock-prefix">⚡ HQ TIME</span>
+        <div class="clock-display">
+          <span class="clock-digits" id="clockHours">16</span>
+          <span class="clock-colon">:</span>
+          <span class="clock-digits" id="clockMinutes">07</span>
+          <span class="clock-seconds" id="clockSeconds">:00</span>
+        </div>
       </div>
     </div>
 
@@ -64,16 +77,28 @@
     <!-- LEFT PANE: 2D Pixel Office Canvas & Integrated Control Dock -->
     <section class="left-office-section">
       
-      <!-- Canvas Header Bar -->
+      <!-- Canvas Header Bar with Weather & Fullscreen Controls -->
       <div class="office-bar-header">
         <div class="office-title">
-          <span>🏢 PIXELOFFICE AI SOFTWARE HOUSE (HEADQUARTERS COMMAND CENTER)</span>
+          <span>🏢 PIXELOFFICE HQ COMMAND CENTER</span>
         </div>
         <div class="viewport-badges">
+          <!-- Dynamic Weather Switcher Pill -->
+          <button class="weather-selector-pill" id="weatherToggleBtn" title="Klik untuk mengganti cuaca luar kantor (Hujan, Salju, Gugur, Tahun Baru, Layangan, Cerah)">
+            <span id="weatherIconDisplay">☀️</span>
+            <span id="weatherNameDisplay">Cerah Berawan</span>
+            <span class="weather-caret">▾</span>
+          </button>
+
           <span class="mini-badge">🏢 6 Divisi SDLC</span>
-          <span class="mini-badge">🐠 Central Aquascape</span>
+          <span class="mini-badge">🐠 Aquascape</span>
           <span class="mini-badge">🐱 Pixel the Cat</span>
-          <span class="mini-badge">👥 10 Ahli Senior</span>
+
+          <!-- Fullscreen Toggle Button -->
+          <button class="fullscreen-toggle-btn" id="canvasFullscreenBtn" title="Buka / Tutup Layar Penuh Ruangan Kantor (Fullscreen)">
+            <span id="fullscreenIcon">⛶</span>
+            <span id="fullscreenText">Fullscreen Ruangan</span>
+          </button>
         </div>
       </div>
 
