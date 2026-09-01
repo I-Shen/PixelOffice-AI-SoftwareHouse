@@ -938,12 +938,13 @@ export class PixelOfficeApp {
       const card = document.createElement('div');
       card.className = 'agent-card';
       card.id = `agent-card-${agent.id}`;
+      const shortRole = agent.role.split('&')[0].trim();
       card.innerHTML = `
         <div class="agent-avatar" style="border-color: ${agent.color}; color: ${agent.color}">${agent.avatar}</div>
         <div class="agent-info">
           <div class="agent-meta">
-            <div class="agent-name">${agent.name}</div>
-            <div class="agent-role">${agent.role}</div>
+            <div class="agent-name" title="${agent.name} (${agent.exp})">${agent.name}</div>
+            <div class="agent-role" title="${agent.role}">${shortRole}</div>
           </div>
           <div class="agent-activity-status" id="status-${agent.id}">
             <span>●</span> Standby
