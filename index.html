@@ -106,10 +106,20 @@
         </div>
       </div>
 
-      <!-- Expansive 2D Pixel Canvas with Floating Speech Bubbles -->
-      <div class="canvas-wrapper">
-        <canvas id="officeCanvas"></canvas>
-        <div id="speechBubbleLayer" class="speech-bubble-layer"></div>
+      <!-- Dual Viewport Center: 2D Interior Command Room (Left) + Isometric PxO Headquarters Tower (Right) -->
+      <div class="canvas-viewport-split" id="canvasViewportSplit">
+        <!-- Left: Interior Command Room Canvas (Original crisp ratio, aligned left) -->
+        <div class="canvas-wrapper interior-wrapper">
+          <div class="scene-sub-badge">🏢 INTERIOR RUANG KERJA (10 AGEN)</div>
+          <canvas id="officeCanvas"></canvas>
+          <div id="speechBubbleLayer" class="speech-bubble-layer"></div>
+        </div>
+
+        <!-- Right: Isometric Pixel Tower Headquarters (Synchronized Weather & Seasonal World) -->
+        <div class="canvas-wrapper building-wrapper">
+          <div class="scene-sub-badge" id="towerWeatherBadge">🌆 GEDUNG UTAMA PxO AI SOFT (SINKRONISASI CUACA)</div>
+          <canvas id="buildingCanvas"></canvas>
+        </div>
       </div>
 
       <!-- Integrated Live Progress Stepper Bar -->
