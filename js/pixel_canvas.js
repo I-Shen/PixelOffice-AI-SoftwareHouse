@@ -90,6 +90,7 @@ export class PixelOfficeCanvas {
       { id: "rain", name: "Musim Hujan & Badai", icon: "🌧️" },
       { id: "snow", name: "Musim Salju", icon: "❄️" },
       { id: "autumn", name: "Musim Gugur", icon: "🍂" },
+      { id: "starnight", name: "Malam Penuh Bintang", icon: "🌌" },
       { id: "fireworks", name: "Malam Tahun Baru", icon: "🎆" },
       { id: "windy", name: "Musim Layangan & Angin", icon: "🪁" }
     ];
@@ -543,9 +544,12 @@ export class PixelOfficeCanvas {
   initWeatherParticles() {
     this.weatherParticles = [];
     this.fireworkSparks = [];
+    this.shootingStars = [];
     this.lightningAlpha = 0;
 
-    if (this.currentWeather === "rain") {
+    if (this.currentWeather === "starnight") {
+      this.spawnShootingStar();
+    } else if (this.currentWeather === "rain") {
       for (let i = 0; i < 50; i++) {
         this.weatherParticles.push({
           x: Math.random() * 1200,
@@ -704,7 +708,36 @@ export class PixelOfficeCanvas {
         }
       });
       this.kiteSway = (this.kiteSway || 0) + delta * 0.003;
+    } else if (this.currentWeather === "starnight") {
+      if (!this.shootingStars) this.shootingStars = [];
+      if (Math.random() < 0.018 && this.shootingStars.length < 4) {
+        this.spawnShootingStar();
+      }
+      for (let i = this.shootingStars.length - 1; i >= 0; i--) {
+        const st = this.shootingStars[i];
+        st.x += st.vx * (delta / 16);
+        st.y += st.vy * (delta / 16);
+        st.alpha -= 0.02 * (delta / 16);
+        if (st.alpha <= 0 || st.y > 42) {
+          this.shootingStars.splice(i, 1);
+        }
+      }
     }
+  }
+
+  spawnShootingStar(startX = null, startY = null) {
+    if (!this.shootingStars) this.shootingStars = [];
+    const x = startX !== null ? startX : (80 + Math.random() * 1040);
+    const y = startY !== null ? startY : (6 + Math.random() * 12);
+    const speed = 4.0 + Math.random() * 2.5;
+    this.shootingStars.push({
+      x: x,
+      y: y,
+      vx: speed * 0.88,
+      vy: speed * 0.48,
+      len: 16 + Math.random() * 18,
+      alpha: 1.0
+    });
   }
 
   draw() {
@@ -873,6 +906,47 @@ export class PixelOfficeCanvas {
         this.ctx.lineTo(kite1X - 3, kite1Y + 9);
         this.ctx.lineTo(kite1X + 2, kite1Y + 13);
         this.ctx.stroke();
+
+      } else if (this.currentWeather === "starnight") {
+        const skyGrad = this.ctx.createLinearGradient(wx, winY, wx, winY + winH);
+        skyGrad.addColorStop(0, "#030712");
+        skyGrad.addColorStop(0.5, "#0b1026");
+        skyGrad.addColorStop(1, "#1e1b4b");
+        this.ctx.fillStyle = skyGrad;
+        this.ctx.fillRect(wx, winY, winW, winH);
+
+        // Twinkling stars
+        for (let s = 0; s < 10; s++) {
+          const sx = wx + ((s * 19 + wx * 7) % (winW - 8)) + 4;
+          const sy = winY + ((s * 13 + wx * 3) % (winH - 6)) + 3;
+          const twinkle = 0.35 + Math.sin(this.tick * 4 + s * 1.5) * 0.55;
+          this.ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, twinkle)})`;
+          this.ctx.fillRect(sx, sy, 1.5, 1.5);
+        }
+
+        // Shooting stars streaking through the window pane
+        if (this.shootingStars) {
+          this.shootingStars.forEach(st => {
+            if (st.x >= wx - 20 && st.x <= wx + winW + 20) {
+              this.ctx.save();
+              const grad = this.ctx.createLinearGradient(st.x, st.y, st.x - st.len, st.y - st.len * 0.5);
+              grad.addColorStop(0, "rgba(255, 255, 255, 0.95)");
+              grad.addColorStop(0.3, "rgba(56, 189, 248, 0.7)");
+              grad.addColorStop(1, "rgba(56, 189, 248, 0)");
+              this.ctx.strokeStyle = grad;
+              this.ctx.lineWidth = 1.8;
+              this.ctx.beginPath();
+              this.ctx.moveTo(st.x, st.y);
+              this.ctx.lineTo(st.x - st.len, st.y - st.len * 0.5);
+              this.ctx.stroke();
+
+              // Star head
+              this.ctx.fillStyle = "#ffffff";
+              this.ctx.fillRect(st.x - 1, st.y - 1, 2, 2);
+              this.ctx.restore();
+            }
+          });
+        }
       }
 
       this.ctx.restore();
