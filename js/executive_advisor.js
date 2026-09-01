@@ -1,8 +1,10 @@
 /**
  * PixelOffice AI Software House - Executive Suite Consultation Engine
- * Fast-Track PRD Formulation, Proactive Options & Zero-Hallucination SDLC Handover
+ * Master Corporate Blueprint Ground Truth, Fast-Track PRD Formulation & Zero-Hallucination SDLC Handover
  * Arthur Vance (Head of Engineering) & Dr. Elena Rostova (Chief PRD Architect)
  */
+
+import { CONFIG } from './config.js';
 
 export class ExecutiveAdvisor {
   constructor(llmRouter) {
@@ -70,9 +72,21 @@ export class ExecutiveAdvisor {
       content: this.currentRawPrompt || "Halo Arthur dan Elena, mari buat website company profile untuk software house kita."
     });
 
+    const companyInfo = CONFIG.company ? `
+IDENTITAS RESMI PERUSAHAAN KITA:
+• Nama Perusahaan : ${CONFIG.company.name}
+• Tagline / Motto : "${CONFIG.company.tagline}"
+• Spesialisasi     : ${CONFIG.company.shortDescription}
+• Keunggulan Unik : ${CONFIG.company.uniqueAdvantage}
+• Visi & Misi     : ${CONFIG.company.vision}
+• 10 Tenaga Ahli  : Arthur, Elena, Marcus, Devon, Sophia, Kai, Sarah, Viktor, Naomi, Alex.
+• Target Klien    : Perusahaan Swasta (B2B) & Instansi Pemerintah (B2G).
+• Jaminan         : 100% Hak Cipta Milik Klien (No Lock-in), SAST 0 Vulnerabilities, Lighthouse 100/100.` : "";
+
     const systemInstruction = `Anda adalah duo eksekutif software house kelas dunia di RUANG EKSEKUTIF:
 1. Arthur Vance (Head of Engineering): Menilai arsitektur dan kelayakan eksekusi.
 2. Dr. Elena Rostova (Chief PRD Architect): Merumuskan spesifikasi PRD Emas.
+${companyInfo}
 
 PERAN & BATASAN KETAT EKSEKUTIF (ZERO-HALLUCINATION):
 - TUGAS ANDA HANYA MERUMUSKAN DAN MENGUNCI PRD (SPESIFIKASI PROYEK).
@@ -81,9 +95,9 @@ PERAN & BATASAN KETAT EKSEKUTIF (ZERO-HALLUCINATION):
 - Koding dan deployment HANYA akan dieksekusi setelah Bos menekan tombol [🚀 Mulai Siklus SDLC].
 
 ATURAN RESPON SESI 1:
-1. Apresiasi ide Bos @I-Shen secara profesional.
+1. Apresiasi ide Bos @I-Shen secara profesional dengan mengaitkannya pada identitas resmi ${CONFIG.company?.name || "PxO AI Soft"}.
 2. Tawarkan 2 opsi tata letak konkret (Opsi 1: Interactive Leadership Grid vs Opsi 2: High-Impact Executive Matrix dengan Modal Popup Detail) dengan penjelasan ringkas.
-3. Beritahu Bos bahwa setelah Bos memilih atau menambahkan detail (nama brand, motto, tim), PRD Emas akan langsung dikunci 100% untuk dieksekusi di pipeline SDLC.`;
+3. Beritahu Bos bahwa setelah Bos memilih atau menambahkan detail, PRD Emas akan langsung dikunci 100% untuk dieksekusi di pipeline SDLC.`;
 
     const analysisPrompt = `Pesan Bos @I-Shen:
 "${this.currentRawPrompt}"
@@ -140,7 +154,6 @@ Berikan respon terstruktur dari Arthur Vance dan Dr. Elena Rostova sesuai aturan
 
     const chatContext = this.conversationHistory.map(m => `${m.role === 'user' ? 'Bos @I-Shen' : 'Eksekutif (Arthur & Elena)'}: ${m.content}`).join('\n\n');
 
-    // In turn 2 or when user gives choices/specs, IMMEDIATELY CONCLUDE AND LOCK PRD!
     const prompt = `Riwayat Konsultasi Ruang Eksekutif:
 ${chatContext}
 
@@ -152,16 +165,16 @@ ATURAN MUTLAK PENYELESAIAN (DEAL FINAL):
 3. DILARANG KERAS membuat URL staging fiktif, passcode palsu, atau berpura-pura bahwa website sudah live.
 4. SAMBUT KEPUTUSAN BOS DENGAN KONSENSUS DEAL (SKOR 100/100).
 5. Rangkum secara padat poin-poin yang disepakati:
-   - Nama Perusahaan / Brand
+   - Nama Perusahaan: ${CONFIG.company?.name || "PxO AI Soft"}
    - Tema & Estetika (Clear-Modern-Minimalist)
-   - Motto Perusahaan
+   - Motto Perusahaan: "${CONFIG.company?.tagline || "Inovasi Berkelanjutan, Solusi Masa Depan..."}"
    - Komponen Tim: 10 Rekan Kerja dengan biodata dummy & Modal Detail interaktif.
 6. Beritahu Bos: "PRD Emas telah terkunci 100%. Silakan klik tombol '🚀 Mulai Siklus SDLC' di bawah untuk mengeksekusi pembuatan kode dan peluncuran website secara nyata!"
 7. Wajib cantumkan tag [DEAL_REACHED] di paling akhir pesan.`;
 
     const response = await this.router.generateText({
       prompt,
-      systemInstruction: "Anda adalah Arthur Vance & Dr. Elena Rostova di Ruang Eksekutif. Kunci kesepakatan PRD Emas 100/100 secara tegas tanpa memperpanjang diskusi.",
+      systemInstruction: `Anda adalah Arthur Vance & Dr. Elena Rostova di Ruang Eksekutif ${CONFIG.company?.name || "PxO AI Soft"}. Kunci kesepakatan PRD Emas 100/100 secara tegas tanpa memperpanjang diskusi.`,
       taskType: "fast",
       agentId: "optimizer"
     });
@@ -200,25 +213,28 @@ ATURAN MUTLAK PENYELESAIAN (DEAL FINAL):
   async synthesizeFinalPRD() {
     const chatContext = this.conversationHistory.map(m => `${m.role === 'user' ? 'Bos @I-Shen' : 'Eksekutif'}: ${m.content}`).join('\n\n');
 
+    const companyData = CONFIG.company || {};
+
     const prompt = `Berdasarkan seluruh hasil diskusi dan kesepakatan eksekutif berikut:
 ${chatContext}
 
 Tuliskan SPESIFIKASI PROYEK MASTER EMAS (PRD SKOR 100/100) yang padat, presisi, dan siap jalan untuk diinputkan ke SDLC Pipeline.
 FORMAT INSTRUKSI:
-Buatkan website company profile 'PxO AI Soft' dengan tema Clear-Modern-Minimalist.
+Buatkan website company profile '${companyData.name || "PxO AI Soft"}' dengan tema Clear-Modern-Minimalist.
 Wajib memuat:
-1. Header & Hero Section: Branding PxO AI Soft dan Motto resmi: "Inovasi Berkelanjutan, Solusi Masa Depan: Memaksimalkan Otomasi, Efisiensi, dan Optimasi Bisnis Anda Bersama PxO AI Soft."
-2. Showcase 10 Pegawai Resmi Kantor: Arthur Vance, Dr. Elena Rostova, Marcus Chen, Devon Vance, Kai Takahashi, Naomi Tanaka, Sarah Jenkins, Viktor Petrov, Alex Rivera, Sophia Sterling dengan biodata/pengalaman kerja dummy kelas enterprise.
-3. Fitur Interaktif Modal Detail: Saat kartu profil salah satu dari 10 pegawai diklik, buka jendela modal popup elegan berisi biodata lengkap, riwayat karir dummy, dan keahlian teknologi.
-4. Bagian Layanan & Portofolio Karya AI/Otomasi Software House.
-5. Form Kontak Konsultasi dengan validasi client-side.
-6. Desain responsif, modern, glassmorphism dengan Tailwind CSS & CSS kustom murni yang tidak bergantung pada hash SRI yang rentan.
+1. Header & Hero Section: Branding ${companyData.name || "PxO AI Soft"} dan Motto resmi: "${companyData.tagline || "Inovasi Berkelanjutan, Solusi Masa Depan: Memaksimalkan Otomasi, Efisiensi, dan Optimasi Bisnis Anda Bersama PxO AI Soft."}"
+2. Nilai Keunggulan: Skuad 10 Tenaga Ahli Senior yang adaptif dan problem solver berwawasan global.
+3. Showcase 10 Pegawai Resmi Kantor: Arthur Vance, Dr. Elena Rostova, Marcus Chen, Devon Reed, Sophia Sterling, Kai Takahashi, Sarah Jenkins, Viktor Petrov, Naomi Ward, Alex Rivera dengan biodata/pengalaman kerja dummy kelas enterprise.
+4. Fitur Interaktif Modal Detail: Saat kartu profil salah satu dari 10 pegawai diklik, buka jendela modal popup elegan berisi biodata lengkap, riwayat karir dummy, dan keahlian teknologi.
+5. Bagian 4 Layanan Unggulan: Enterprise Business Automation, Intelligent Web Portals, Public Sector & SPBE Systems, Security & Code Audit.
+6. Form Kontak Konsultasi dengan validasi client-side.
+7. Desain responsif, modern, glassmorphism dengan CSS framework (Tailwind/Bootstrap/Vanilla) mandiri.
 
 Tuliskan instruksi di atas dalam satu kesatuan prompt instruksi yang komprehensif tanpa komentar basa-basi.`;
 
     const response = await this.router.generateText({
       prompt,
-      systemInstruction: "Anda adalah Dr. Elena Rostova. Rumuskan prompt PRD master bernilai 100/100 murni.",
+      systemInstruction: `Anda adalah Dr. Elena Rostova, Chief PRD Architect ${companyData.name || "PxO AI Soft"}. Rumuskan prompt PRD master bernilai 100/100 murni.`,
       taskType: "fast",
       agentId: "optimizer"
     });
