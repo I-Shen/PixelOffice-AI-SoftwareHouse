@@ -1,6 +1,6 @@
 /**
  * PixelOffice AI Software House - Executive Suite Consultation Engine
- * Dynamic Context-Aware & Complexity-Adaptive Reasoning Protocol
+ * Dynamic Context-Aware, Proactive Solution-Oriented & Complexity-Adaptive Reasoning Protocol
  * Arthur Vance (Head of Engineering) & Dr. Elena Rostova (Chief PRD Architect)
  */
 
@@ -81,20 +81,20 @@ KLASIFIKASI KONTEKS PROYEK SAAT INI:
 • Kategori : [${this.detectedScope.tier}] - ${this.detectedScope.label}
 • Karakter : ${this.detectedScope.description}
 
-ATURAN PENALARAN KONTEKSTUAL CERDAS:
+ATURAN PENALARAN KONTEKSTUAL & PROAKTIF MEMBERI OPSI:
 1. JIKA TIER = STATIC_SHOWCASE (Company Profile, Showcase Produk, Landing Page, Portofolio):
    - JANGAN menanyakan arsitektur SaaS rumit, backend database mendalam, multi-tenancy, atau payment escrow di luar konteks.
    - Pahami bahwa fokus utama adalah desain UI modern (glassmorphism/minimalis), branding 10 pegawai senior kita, portofolio karya, dan form kontak.
    - Sambut dengan hangat, apresiasi ide desain, dan LANGSUNG capai KONSENSUS DEAL (SKOR 100/100) dalam 1 pesan! Cantumkan tag [DEAL_REACHED].
 
 2. JIKA TIER = COMPLEX_PLATFORM (Marketplace, SaaS, Fintech, Multi-Agent AI System):
-   - Di sini Anda WAJIB menalar secara kritis dan menanyakan 2-3 poin arsitektural esensial yang belum disebutkan:
-     * Jika melibatkan AI: Tanyakan peran AI (misal: rekomendasi produk pintar, search semantic, atau asisten otomatis) dan teknologi model apa yang diharapkan (misal: Gemini API multimodal).
-     * Jika Marketplace: Tanyakan alur transaksi (escrow, gateway pembayaran, komisi seller/buyer).
-     * Jika SaaS: Tanyakan isolasi data multi-tenant dan role akun.
+   - WAJIB MENYERTAKAN CONTOH JAWABAN / OPSI SOLUSI: Setiap kali menanyakan aspek teknis, Anda WAJIB memberikan 2-3 pilihan opsi solusi konkret (Opsi A vs Opsi B) beserta contohnya agar Bos @I-Shen tinggal memilih atau menyetujui rekomendasi Anda.
+     * Contoh AI: "Opsi 1: Google Gemini 2.5 Flash untuk semantic search cepat | Opsi 2: Multimodal Gemini Pro untuk analisa visual."
+     * Contoh Marketplace: "Opsi A: Escrow Payment Gateway otomatis | Opsi B: Direct Settlement dengan webhook."
+   - Keputusan akhir tetap berada di tangan Bos @I-Shen.
 
 3. JIKA TIER = INTERACTIVE_APP (Upload foto, CRUD, Form adapter):
-   - Tanyakan secara ringkas batas validasi (MIME, size 5MB) dan adapter penyimpanan.
+   - Berikan opsi rekomendasi adapter (misal: S3-compatible cloud storage vs local file adapter) dan batas validasi 5MB MIME png/jpg.
 
 4. ATURAN UNIVERSAL (SEMUA TIER):
    - BACA DENGAN TELITI apa yang SUDAH disebutkan oleh Bos @I-Shen. JANGAN PERNAH menanyakan kembali hal yang sudah dijelaskan (nama brand, fitur, tema).
@@ -108,8 +108,8 @@ Tugas Anda:
 2. Tunjukkan bahwa Anda memahami tingkat kompleksitas proyek (${this.detectedScope.label}).
 3. Berikan penilaian tajam:
    - Jika STATIC_SHOWCASE: Validasi estetika modern, konfirmasi 10 pegawai resmi, dan langsung nyatakan KONSENSUS DEAL (100/100) dengan tag [DEAL_REACHED].
-   - Jika COMPLEX_PLATFORM: Tanyakan 2 pertanyaan arsitektur mendalam mengenai teknologi AI atau alur bisnis yang belum disebutkan.
-   - Jika INTERACTIVE_APP: Validasi adapter dan alur data secara padat.`;
+   - Jika COMPLEX_PLATFORM: Tanyakan 2 poin arsitektur esensial DENGAN MEMBERIKAN CONTOH OPSI JAWABAN (Opsi A, Opsi B) yang siap dipilih Bos.
+   - Jika INTERACTIVE_APP: Validasi adapter dan alur data dengan memberikan rekomendasi teknis terbaik.`;
 
     const response = await this.router.generateText({
       prompt: analysisPrompt,
@@ -161,7 +161,7 @@ Tugas Anda:
 
     this.emit('message_sent', { text });
 
-    const isConfirming = /ya|iya|setuju|sepakat|deal|mulai|eksekusi|lanjut|oke|ok|gas|bikin|buatkan|mantap|siap|cukup|paham/i.test(text);
+    const isConfirming = /ya|iya|setuju|sepakat|deal|mulai|eksekusi|lanjut|oke|ok|gas|bikin|buatkan|mantap|siap|cukup|paham|pilih|opsi/i.test(text);
 
     const chatContext = this.conversationHistory.map(m => `${m.role === 'user' ? 'Bos @I-Shen' : 'Eksekutif (Arthur & Elena)'}: ${m.content}`).join('\n\n');
 
@@ -169,16 +169,17 @@ Tugas Anda:
 ${chatContext}
 
 Tanggapi balasan terbaru dari Bos @I-Shen ("${text}"):
-PANDUAN PENALARAN KONTEKSTUAL:
+PANDUAN PENALARAN PROAKTIF:
 1. Konteks Proyek: [${this.detectedScope ? this.detectedScope.tier : 'STATIC_SHOWCASE'}]
-2. Jika Bos telah memberikan klarifikasi atau menyatakan persetujuan (${isConfirming ? 'BOS MENYETUJUI / MENEGASKAN' : 'memberikan info'}), SEGERA NYATAKAN KONSENSUS DEAL FINAL (SKOR 100/100).
-3. JANGAN PERNAH menanyakan hal repetitif yang sudah dibahas sebelumnya.
-4. Tegaskan bahwa Arthur Vance & Dr. Elena Rostova telah merumuskan PRD Emas dan tim 10 engineer siap koding.
-5. Cantumkan tag [DEAL_REACHED] di akhir pesan.`;
+2. Jika Bos telah menentukan pilihan opsi atau memberikan konfirmasi setuju (${isConfirming ? 'BOS SUDAH MEMILIH / MENYETUJUI' : 'memberikan info'}), SEGERA NYATAKAN KONSENSUS DEAL FINAL (SKOR 100/100).
+3. Jika masih ada detail yang perlu ditentukan pada platform kompleks, berikan 2 opsi solusi pilihan yang jelas dan ringkas.
+4. JANGAN PERNAH menanyakan hal repetitif yang sudah dibahas sebelumnya.
+5. Tegaskan bahwa Arthur Vance & Dr. Elena Rostova telah merumuskan PRD Emas dan tim 10 engineer siap koding.
+6. Cantumkan tag [DEAL_REACHED] di akhir pesan jika sudah sepakat.`;
 
     const response = await this.router.generateText({
       prompt,
-      systemInstruction: "Anda adalah Arthur Vance & Dr. Elena Rostova di Ruang Eksekutif. Ambil keputusan cepat, cermat terhadap konteks, dan berikan kepastian skor 100/100.",
+      systemInstruction: "Anda adalah Arthur Vance & Dr. Elena Rostova di Ruang Eksekutif. Berikan solusi proaktif dengan pilihan opsi yang jelas, ambil keputusan cepat, dan berikan kepastian skor 100/100.",
       taskType: "fast",
       agentId: "optimizer"
     });
@@ -230,7 +231,7 @@ ${chatContext}
 Tuliskan SPESIFIKASI PROYEK MASTER EMAS (PRD SKOR 100/100) yang padat, presisi, dan siap jalan.
 PANDUAN FORMAT WAJIB:
 - Baris pertama: Judul resmi dalam tanda petik, contoh: Buatkan website company profile 'PxO AI Soft dotcom'... (atau sesuai permintaan Bos).
-- Rinci spesifikasi inti yang telah disepakati sesuai ruang lingkup proyek.
+- Rinci spesifikasi inti yang telah disepakati sesuai ruang lingkup proyek dan opsi yang dipilih.
 - Jika ada fitur 10 pegawai resmi, cantumkan pengenalan ke-10 senior engineer kantor.
 - Jika ada disclaimer, cantumkan bahwa sistem dibangun oleh Google Gemini AI.
 - Hasilkan satu paragraf prompt instruksi master yang komprehensif tanpa komentar basa-basi.`;
