@@ -282,19 +282,43 @@ Sajikan hasil riset meliputi:
         exp: a.exp,
         avatar: a.avatar,
         jobDesk: a.jobDesk,
-        credentials: a.credentials
+        credentials: a.credentials,
+        bio: `Senior ${a.role} dengan spesialisasi arsitektur enterprise AI, automasi skala tinggi, dan optimasi performa modern.`
       })), null, 2);
 
       const coderRes = await this.router.generateText({
-        prompt: isWebOrUI ? `Kembangkan aplikasi web/website lengkap yang fungsional, siap jalan, dan sangat estetik untuk kebutuhan: "${userRawPrompt}".
+        prompt: isWebOrUI ? `Kembangkan website company profile resmi "PxO AI Soft" yang LENGKAP, SIAP PAKAI, INTERAKTIF, dan SANGAT MEMUKAU (Skor 100/100) berdasarkan instruksi: "${userRawPrompt}".
 
-PANDUAN KONTEN RESMI (WAJIB):
-1. TAMPILKAN 10 PEGAWAI SENIOR KANTOR KITA BERIKUT (JANGAN gunakan nama dummy/palsu):
+PERSYARATAN WAJIB STRUKTUR & KONTEN:
+1. IDENTITAS & HERO SECTION:
+   - Nama Perusahaan: "PxO AI Soft" (Logo modern PxO AI Soft)
+   - Tema: Clear-Modern-Minimalist dengan nuansa Slate Dark (#0b0f19), Glassmorphism, dan aksen Biru/Emerald.
+   - Motto Korporat: "Inovasi Berkelanjutan, Solusi Masa Depan: Memaksimalkan Otomasi, Efisiensi, dan Optimasi Bisnis Anda Bersama PxO AI Soft."
+   - Tombol CTA: "Konsultasi Proyek" & "Lihat Tim Eksekutif".
+
+2. SHOWCASE 10 REKAN KERJA EKSEKUTIF KANTOR (WAJIB LENGKAP 10 ORANG):
+   Gunakan data resmi ke-10 rekan kerja kita berikut:
 ${officialTeamJson}
-Tampilkan ke-10 orang ini dalam grid kartu tim yang rapi dengan avatar emoji, nama lengkap, role jabatan, pengalaman, dan deskripsi tugasnya.
-2. Cantumkan Portofolio karya software house dan disclaimer resmi bahwa sistem diarsiteki oleh Google Gemini AI.
-3. Desain Tech Modern Minimalis dengan CSS modern bergradasi, responsif mobile/desktop.
-4. PENTING: KEMBALIKAN KODE MURNI HTML5 LENGKAP (dari <!DOCTYPE html> sampai </html>). JANGAN sertakan teks komentar pendahuluan atau log di luar tag HTML!`
+   Tampilkan ke-10 orang dalam grid kartu tim yang rapi, berwibawa, dan elegan.
+
+3. FITUR INTERAKTIF MODAL DETAIL PROFIL:
+   - Setiap kartu profil 10 pegawai memiliki tombol atau dapat diklik ("Lihat Profil Lengkap").
+   - Saat diklik, muncul Jendela Modal Popup (Dialog Overlay) interaktif berisi: Foto Avatar, Nama, Jabatan, Pengalaman Karir Dummy, Spesialisasi Teknologi, dan Jobdesk.
+   - Sertakan tombol tutup modal (X atau tombol Tutup) dan event listener JavaScript murni agar modal bekerja 100% tanpa error!
+
+4. SECTION LAYANAN & PORTOFOLIO:
+   - 3 Layanan Unggulan: Enterprise AI Agents, Modular Monolith System, Automated QA & SAST Security.
+   - Portofolio Software House berteknologi tinggi.
+   - Form Kontak Konsultasi dengan validasi client-side.
+   - Disclaimer: "Sistem diarsiteki oleh Google Gemini AI".
+
+5. TEKNOLOGI STYLING (CSS MANDIRI & AMAN):
+   - Gunakan CDN Tailwind CSS: <script src="https://cdn.tailwindcss.com"></script>
+   - SERTAKAN SELURUH STYLING DASAR & GLASSMORPHISM DALAM TAG <style> agar website tetap tampil sangat indah dan tidak pernah unstyled/rusak di browser manapun!
+   - JANGAN gunakan hash SRI yang dapat memblokir stylesheet.
+
+6. FORMAT OUTPUT:
+   KEMBALIKAN KODE MURNI HTML5 LENGKAP (dari <!DOCTYPE html> sampai </html>). JANGAN menyertakan teks pengantar di luar tag HTML!`
         : `Tuliskan implementasi kode produksi lengkap untuk proyek ini: "${userRawPrompt}".
 Sertakan bagian:
 1. Backend Service & Business Logic
@@ -302,7 +326,7 @@ Sertakan bagian:
 3. SQL Migration / DB DDL
 4. Frontend Component Interface
 5. Unit Test Stubs`,
-        systemInstruction: "Anda adalah Kai Takahashi, Senior Coding Agent 11+ tahun pengalaman. Tulis kode HTML website murni yang sangat rapi, defensif, dan hanya menggunakan data 10 pegawai resmi kantor.",
+        systemInstruction: "Anda adalah Kai Takahashi, Senior Coding Agent 11+ tahun pengalaman. Tulis website HTML5 mandiri berfitur lengkap dengan modal interaktif untuk 10 anggota tim.",
         taskType: "reasoning",
         agentId: "coder"
       });
@@ -388,7 +412,7 @@ Format Output:
 - Identified Threat Vectors & CWE References
 - Remediation Patch Directives for Coding Agent
 - Verdict Status: [REVISE_REQUIRED / PASS_CLEAN]`,
-        systemInstruction: "Anda adalah Viktor Petrov, Principal Application Security & Pentest Lead Agent (OSCP/CISSP). Audit secara ofensif dan berikan rekomendasi patch defensif konkret.",
+        systemInstruction: "Anda adalah Viktor Petrov, Principal Application Security & Pentest Lead Agent (OSCP/CISSP). Berikan saran patch sanitasi tanpa merusak struktur UI atau aset CSS.",
         taskType: "reasoning",
         agentId: "security"
       });
@@ -406,22 +430,26 @@ Format Output:
       });
 
       const patchRes = await this.router.generateText({
-        prompt: isWebOrUI ? `Berdasarkan temuan audit keamanan dari Viktor Petrov berikut:
+        prompt: isWebOrUI ? `Berdasarkan temuan audit keamanan dari Viktor Petrov:
 """
 ${secRes.text}
 """
 
 Tugas Anda sebagai Senior Coding Agent:
-Perbarui dan amankan KODE HTML WEBSITE dari tahap sebelumnya (sanitasi form kontak, sanitasi XSS input, perkuat link keamanan).
-PENTING: KEMBALIKAN KODE WEBSITE LENGKAP DALAM FORMAT HTML5 (dari <!DOCTYPE html> sampai </html>) yang indah, fungsional, dan utuh!`
+Perbarui KODE HTML WEBSITE dari tahap sebelumnya dengan menambahkan sanitasi form (escapeHTML, honeypot) dan event listener aman.
+ATURAN KRUSIAL:
+1. PERTAHANKAN 100% seluruh konten HTML: 10 Profil Tim Eksekutif, Modal Detail Interaktif, Branding PxO AI Soft, Motto Resmi, dan Desain CSS!
+2. JANGAN memangkas atau menghapus elemen UI apa pun.
+3. JANGAN gunakan CSP atau SRI hash yang merusak pemuatan stylesheet Tailwind.
+4. KEMBALIKAN KODE LENGKAP DARI <!DOCTYPE html> sampai </html>!`
         : `Berdasarkan temuan audit keamanan dari Viktor Petrov berikut:
 """
 ${secRes.text}
 """
 
 Tugas Anda sebagai Coding Agent:
-Lakukan refactoring dan tuliskan REVISI KODE LENGKAP yang 100% hardened & kebal terhadap seluruh celah yang ditemukan di atas (sanitasi ketat, parameterize query, cegah XSS/SSRF, dan amankan auth).`,
-        systemInstruction: "Anda adalah Kai Takahashi, Senior Coding Agent 11+ tahun pengalaman. Terapkan rekomendasi pentest secara presisi dan pertahankan kelengkapan kode website.",
+Lakukan refactoring dan tuliskan REVISI KODE LENGKAP yang 100% hardened & kebal terhadap seluruh celah yang ditemukan di atas.`,
+        systemInstruction: "Anda adalah Kai Takahashi, Senior Coding Agent. Terapkan sanitasi keamanan tanpa merusak komponen visual dan pastikan modal 10 tim tetap utuh.",
         taskType: "reasoning",
         agentId: "coder"
       });
