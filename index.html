@@ -288,20 +288,20 @@
       </div>
     </div>
 
-    <!-- Dialogue Filter / Tabs -->
-    <div class="dialogue-filter-bar">
-      <span class="filter-chip active" data-filter="all">Semua Percakapan</span>
-      <span class="filter-chip" data-filter="planning">Konsultasi & Plan</span>
-      <span class="filter-chip" data-filter="debate">War Room</span>
-      <span class="filter-chip" data-filter="engineering">Engineering</span>
-      <span class="filter-chip" data-filter="qa_sec">QA & Security</span>
+    <!-- Dialogue Filter / Tabs with Smooth Horizontal Scroll -->
+    <div class="dialogue-filter-bar" id="dialogueFilterBar">
+      <span class="filter-chip active" data-filter="executive">👑 Ruang Eksekutif</span>
+      <span class="filter-chip" data-filter="all">🏢 Semua Percakapan</span>
+      <span class="filter-chip" data-filter="debate">⚔️ War Room</span>
+      <span class="filter-chip" data-filter="engineering">💻 Engineering</span>
+      <span class="filter-chip" data-filter="qa_sec">🛡️ QA & Security</span>
     </div>
 
     <!-- Dialogue Feed Stream List -->
     <div class="dialogue-feed-container" id="dialogueFeedList">
       <div class="dialogue-empty-state">
-        <span style="font-size: 28px;">💬</span>
-        <p>Belum ada percakapan aktif.<br>Ketik pesan di bawah untuk berdiskusi langsung dengan Arthur & Elena!</p>
+        <span style="font-size: 28px;">👑</span>
+        <p>Selamat datang di <strong>Ruang Eksekutif</strong>.<br>Ketik ide atau instruksi proyek Anda di bawah untuk berdiskusi langsung dengan <strong>Arthur Vance</strong> & <strong>Dr. Elena Rostova</strong>.</p>
       </div>
     </div>
 
@@ -319,11 +319,15 @@
       </button>
     </div>
 
-    <!-- Integrated Interactive Chat Bar inside Dialog Tim Sidebar -->
+    <!-- Integrated Interactive Chat Bar inside Ruang Eksekutif -->
     <div class="sidebar-chat-dock">
+      <div class="chat-dock-room-header">
+        <div class="dock-room-tag">👑 Ruang Eksekutif (Arthur & Elena)</div>
+        <div class="dock-room-desc">Diskusi privat spesifikasi proyek dengan pimpinan tanpa interupsi engineer</div>
+      </div>
       <div class="sidebar-input-row">
-        <input type="text" id="sidebarChatInput" placeholder="Ketik ide proyek / balas Arthur & Elena..." autocomplete="off" />
-        <button id="sidebarSendChatBtn" class="btn-sidebar-send" title="Kirim Diskusi">💬 Kirim</button>
+        <input type="text" id="sidebarChatInput" placeholder="Ketik pesan/instruksi ke Arthur & Elena..." autocomplete="off" />
+        <button id="sidebarSendChatBtn" class="btn-sidebar-send" title="Kirim ke Ruang Eksekutif">💬 Kirim</button>
       </div>
       <div class="sidebar-quick-prompts">
         <button class="quick-chip" data-text="Saya ingin buat website company profile PxO AI Soft dotcom modern dan estetik.">🌐 Company Profile</button>
@@ -339,7 +343,7 @@
     </div>
   </div>
 
-  <script type="module" src="js/app.js?v=2.8.0"></script>
+  <script type="module" src="js/app.js?v=2.8.1"></script>
   <script>
     // Failsafe auto-trigger to guarantee canvas & cards render even if timing edge-cases occur
     window.addEventListener('load', function() {
