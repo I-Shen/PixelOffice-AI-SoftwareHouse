@@ -98,7 +98,7 @@ Berikan respon konsultasi tingkat tinggi dari Arthur Vance dan Dr. Elena Rostova
     const response = await this.router.generateText({
       prompt: analysisPrompt,
       systemInstruction,
-      taskType: "reasoning",
+      taskType: "fast",
       agentId: "manager"
     });
 
