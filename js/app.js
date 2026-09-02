@@ -219,7 +219,11 @@ export class PixelOfficeApp {
       this.quickChips.forEach(chip => {
         chip.addEventListener('click', () => {
           const text = chip.getAttribute('data-text');
-          if (text && this.sidebarChatInput) {
+          if (!text) return;
+          if (text.includes("Mulai SDLC") || text.includes("eksekusi")) {
+            const prompt = (this.advisor && this.advisor.masterPrompt) || (this.promptInput ? this.promptInput.value.trim() : "");
+            this.handleStartSDLC(prompt);
+          } else if (this.sidebarChatInput) {
             this.sidebarChatInput.value = text;
             this.handleSendSidebarChat();
           }
@@ -788,7 +792,8 @@ export class PixelOfficeApp {
       });
 
       if (this.canvasEngine) {
-        this.canvasEngine.showSpeechBubble("optimizer", "Dr. Elena: Memperbarui spesifikasi PRD Emas.", true);
+        this.canvasEngine.showSpeechBubble("manager", "Arthur: Analisis selesai! Klik 'Mulai SDLC' untuk eksekusi tim.", true);
+        this.canvasEngine.showSpeechBubble("optimizer", "Dr. Elena: PRD Emas siap dieksekusi tim.", true);
       }
 
       if (response.isDeal) {
