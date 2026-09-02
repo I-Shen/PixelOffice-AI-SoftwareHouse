@@ -279,7 +279,14 @@ export class PixelOfficeApp {
         if (this.modelBadge) {
           this.modelBadge.textContent = `⏳ ${data.model} Limit (${resetStr})`;
         }
-        this.appendTerminalLog("router", `⚠️ [Limit 429] Model ${data.model} mencapai batas kuota Google. Reset jam ${resetStr}.`);
+        this.appendTerminalLog("router", `⚠️ [Limit 429] ${data.model} mencapai batas kuota Google. Reset jam ${resetStr}.`);
+      });
+
+      this.router.on('timeout_event', (data) => {
+        if (this.modelBadge) {
+          this.modelBadge.textContent = `⏱️ ${data.model} (Server Antre)`;
+        }
+        this.appendTerminalLog("router", `⏱️ [Server Google Antre] ${data.model} memakan waktu >35 detik karena beban trafik Google. Beralih otomatis...`);
       });
 
       this.router.on('fallback_triggered', (data) => {
