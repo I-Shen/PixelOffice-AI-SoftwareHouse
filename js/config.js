@@ -47,16 +47,16 @@ export const CONFIG = {
   // Gemini Model Hierarchy for Smart Multi-Tier Fallback (Strictly Gemini 3.x, Priority: 3.7 -> 3.6 -> 3.5 -> 3.1)
   models: {
     fastTier: [
-      "gemini-3.7-flash",
       "gemini-3.6-flash",
       "gemini-3.5-flash",
+      "gemini-3.7-flash",
       "gemini-3.1-flash-lite",
       "gemini-flash-latest"
     ],
     reasoningTier: [
-      "gemini-3.7-flash",
       "gemini-3.6-flash",
       "gemini-3.5-flash",
+      "gemini-3.7-flash",
       "gemini-3.1-pro-preview",
       "gemini-pro-latest"
     ]
