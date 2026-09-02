@@ -177,12 +177,8 @@ ATURAN MUTLAK PENYELESAIAN (DEAL FINAL):
 
     const cleanReply = reply.replace(/\[DEAL_REACHED\]/g, '').trim();
 
-    // Extract exact immutable project title
-    let lockedTitle = "Girl Basketball Management SMALA";
-    const titleMatch = this.currentRawPrompt.match(/["'“]([^"'”]+)["'”]/i);
-    if (titleMatch && titleMatch[1]) {
-      lockedTitle = titleMatch[1].trim();
-    }
+    // Extract exact dynamic project title based on client input
+    const dynamicTitle = this._extractDynamicTitle(this.currentRawPrompt);
 
     const result = {
       reply: cleanReply,
@@ -190,12 +186,62 @@ ATURAN MUTLAK PENYELESAIAN (DEAL FINAL):
       isDeal: true,
       score: 100,
       scope: this.detectedScope,
-      projectName: lockedTitle,
+      projectName: dynamicTitle,
       masterPrompt: this.masterPrompt
     };
 
     this.emit('message_received', result);
     return result;
+  }
+
+  _extractDynamicTitle(text) {
+    if (!text) return "Enterprise Web Application";
+    const cleanText = String(text).trim();
+
+    // 1. Quoted title right after keywords (e.g. website "...", aplikasi "...", sistem "...", proyek "...")
+    const directNamedMatch = cleanText.match(/(?:website|aplikasi|sistem|proyek|project|platform|portal|toko|klinik|dashboard|software)\s+["'“]([^"'”]+)["'”]/i);
+    if (directNamedMatch && directNamedMatch[1] && !this._isIgnoredWord(directNamedMatch[1])) {
+      return directNamedMatch[1].trim();
+    }
+
+    // 2. Explicit pattern (e.g. nama proyek: "...", judul website adalah "...")
+    const explicitQuotes = cleanText.match(/(?:nama\s+proyek|nama\s+website|nama\s+aplikasi|nama\s+sistem|judul|brand)\s+(?:[^\n\r"']{0,40}?\s+)?(?:adalah|yaitu|=|:)\s*["'“]([^"'”]+)["'”]/i);
+    if (explicitQuotes && explicitQuotes[1] && !this._isIgnoredWord(explicitQuotes[1])) {
+      return explicitQuotes[1].trim();
+    }
+
+    // 3. Generic quotes anywhere
+    const anyQuotes = cleanText.match(/["'“]([^"'”]{2,60})["'”]/g);
+    if (anyQuotes) {
+      for (const q of anyQuotes) {
+        const candidate = q.replace(/["'“”]/g, '').trim();
+        if (!this._isIgnoredWord(candidate)) {
+          return candidate;
+        }
+      }
+    }
+
+    // 4. Match phrases like "website [Nama Brand/Proyek]"
+    const phraseMatch = cleanText.match(/(?:website|aplikasi|sistem|platform|portal)\s+([A-Za-z0-9\s]{3,35})/i);
+    if (phraseMatch && phraseMatch[1]) {
+      const candidate = phraseMatch[1].replace(/^(yang|untuk|dengan|berisi|adalah|yaitu)\s+/i, '').trim();
+      if (!this._isIgnoredWord(candidate)) {
+        return candidate.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      }
+    }
+
+    // 5. Fallback to first meaningful words
+    const stripped = cleanText
+      .replace(/^(?:halo|hai|tolong|buatkan|bikin|rancang|kembangkan|saya\s+butuh|saya\s+mau|mulai\s+konsultasi)[:\s,]*/i, '')
+      .replace(/^(?:website|aplikasi|sistem|proyek|project)\s+/i, '')
+      .trim();
+    const words = stripped.split(/\s+/).slice(0, 4).join(' ');
+    return words.length > 2 ? words.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : "Custom Web Application";
+  }
+
+  _isIgnoredWord(str) {
+    const s = str.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+    return /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|outfit|plus-jakarta-sans|inter|roboto|montserrat|poppins|lato|arial|font|fonts|modal|detail|about-us|hero|layanan|kontak|portfolio|portofolio|cta|salin|copy|format|whatsapp|broadcast)$/i.test(s);
   }
 
   async continueConsultation(userText) {
@@ -213,28 +259,29 @@ ATURAN MUTLAK PENYELESAIAN (DEAL FINAL):
 ${chatContext}
 """
 
-Tuliskan SPESIFIKASI PROYEK MASTER EMAS (GOLDEN PRD SCORE 100/100) yang padat, terstruktur, presisi, dan siap jalan untuk diinputkan ke SDLC Pipeline.
+Tuliskan SPESIFIKASI PROYEK MASTER EMAS (GOLDEN PRD SCORE 100/100) yang padat, terstruktur, presisi, dinamis sesuai domain proyek yang diminta klien, dan siap jalan untuk diinputkan ke SDLC Pipeline.
 
 STRUKTUR PRD WAJIB:
-1. JUDUL & IDENTITAS PROYEK: Nama aplikasi yang diminta secara tepat (contoh: "Girl Basketball Management SMALA").
-2. BENCHMARK DESAIN & INSPIRASI DRIBBLE:
-   - Adaptasi Top Dribbble Sports/Enterprise UI: Obsidian Dark Mode (#080C14), aksen Vibrant Orange (#FF6B00), Glassmorphism (backdrop-filter: blur(16px)), dan Claymorphism 3D tactile buttons.
-   - Tipografi Google Fonts modern (Plus Jakarta Sans / Outfit), court line accents, dan glowing status badges.
+1. JUDUL & IDENTITAS PROYEK: Ekstrak nama aplikasi / brand yang diminta klien secara tepat dan dinamis.
+2. BENCHMARK DESAIN & INSPIRASI DRIBBBLE (SESUAIKAN DENGAN DOMAIN KLIEN):
+   - Kurasi palet warna dan tema Dribbble yang relevan dengan domain bisnis klien (misal: Sporty Neon untuk Olahraga, Emerald/Navy untuk Medis/Fintech, Warm Amber untuk F&B, High-Contrast Obsidian Glassmorphism untuk Enterprise/SaaS).
+   - Tipografi Google Fonts modern, kartu elevasi bertingkat, dan bayangan 3D lembut.
 3. SKEMA DATA MASTER TER-HIDRASI (SINGLE SOURCE OF TRUTH):
-   - Wajib generate minimal 8 entitas data dummy realistis di JavaScript (misal: Roster 8 atlet putri lengkap dengan statistik PPG/RPG/APG, rekam medis/cedera, gol darah, status berkas pendaftaran).
-   - Sinkronisasi data master ini ke seluruh modul: Roster, Dropdown Evaluasi Video Coach, dan Tabel Berkas Turnamen.
+   - Wajib generate minimal 15-20 entitas data dummy realistis di JavaScript yang relevan dengan domain proyek (misal: Roster Atlet untuk Olahraga, Pasien/Dokter untuk Medis, Produk/Katalog untuk E-Commerce, Siswa/Guru untuk Sekolah, Transaksi untuk Keuangan).
+   - Sinkronisasi data master ini ke seluruh modul dan tabel aplikasi.
 4. ATURAN AKSES & PERAN (DYNAMIC RBAC MATRIX):
-   - Switcher Role: Publik/Suporter (Hanya Berita/Galeri/Jadwal) vs Internal Tim (Admin, Coach, Keuangan dengan Guarded View).
-5. DEKOMPOSISI 8 MODUL LENGKAP:
-   - Keuangan (Metrik Saldo, Mutasi Kas, Form Add), Roster & Medis (Cards + Modal Popup Detail), Statistik & Video Review Coach (Form Evaluasi Drill), Jadwal & WhatsApp Broadcast Generator (Format WA bersih + 1-Click Copy), Filling Berkas (Checklist KTS/Akta/Izin), Galeri, Berita, Multi-Role Login.
+   - Sediakan minimal 3-4 role relevan dengan domain klien (misal: Publik vs Staff vs Manager vs Admin).
+   - Role Switcher harus membedakan hak akses secara nyata (Guarded View / Lock Screen untuk data rahasia/keuangan).
+5. DEKOMPOSISI MODUL LENGKAP:
+   - Rincikan seluruh modul fungsional yang diminta klien dalam diskusi beserta fitur interaktif (Card Grid, Modal Popup Detail saat data diklik, Form Input Dinamis, Filter Kategori, dan Generator WhatsApp/Export jika relevan).
 6. STANDAR KUALITAS KODE SENIOR (10+ TAHUN):
-   - Single-file HTML5/CSS3/JS mandiri, bebas hambatan CSP, interaktivitas event listener 100% aktif, DILARANG memotong kode atau menggunakan placeholder kosong.
+   - Single-file HTML5/CSS3/JS mandiri, interaktivitas event listener 100% aktif, DILARANG memotong kode atau menggunakan placeholder kosong.
 
 Tuliskan instruksi di atas dalam satu kesatuan prompt instruksi PRD yang komprehensif tanpa komentar basa-basi.`;
 
     const response = await this.router.generateText({
       prompt,
-      systemInstruction: `Anda adalah Dr. Elena Rostova, Chief PRD Architect PixelOffice AI Software House. Rumuskan prompt PRD master bernilai 100/100 yang presisi, kaya data (hydrated state), dan setia 100% pada kebutuhan aktual proyek Bos @I-Shen.`,
+      systemInstruction: `Anda adalah Dr. Elena Rostova, Chief PRD Architect PixelOffice AI Software House. Rumuskan prompt PRD master bernilai 100/100 yang presisi, kaya data (hydrated state), dan setia 100% pada kebutuhan aktual proyek Bos @I-Shen apapun jenis industri/domainnya.`,
       taskType: "fast",
       agentId: "optimizer"
     });
