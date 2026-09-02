@@ -970,7 +970,7 @@ Buatkan ringkasan status rilis production yang resmi.`,
       .trim();
 
     const fallbackSlug = this._toSlug(cleaned.slice(0, 30));
-    return (fallbackSlug.length > 2 && !this._isIgnoredSlug(fallbackSlug)) ? fallbackSlug : "girl-basketball-management-smala";
+    return (fallbackSlug.length > 2 && !this._isIgnoredSlug(fallbackSlug)) ? fallbackSlug : "enterprise-web-platform";
   }
 
   _isIgnoredSlug(slug) {
