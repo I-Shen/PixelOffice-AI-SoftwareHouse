@@ -288,33 +288,22 @@ Sajikan hasil riset meliputi:
       }
 
       const customModuleGuidance = `
-3. IMPLEMENTASI SELURUH MODUL SECARA LENGKAP, PADAT DATA (HYDRATED), DAN 100% INTERAKTIF:
-   Wajib implementasikan SELURUH modul fungsional yang diminta dalam PRD dengan standar senior 10+ tahun:
-   - SINGLE SOURCE OF TRUTH (MASTER DATA STATE):
-     * Definisikan array 'teamState' di JavaScript root yang memuat minimal 8 atlet/entitas dummy realistis (nama lengkap, jersey #4, #7, #11, #15, #23, dsb., posisi PG/SG/SF/PF/C, kelas, tinggi cm, berat kg, gol darah, rekam medis 'Fit to Play'/'Recovery %', statistik PPG/RPG/APG/3P%, status berkas KTS/Akta/Izin, radar skill).
-     * Sinkronisasikan data master ini secara nyata ke: Modul Roster, Dropdown Pemilih Pemain di Modul Evaluasi Video Coach, dan Tabel Berkas Turnamen!
-   - HEADER & DYNAMIC RBAC ACCESS CONTROL:
-     * Switcher Peran/Role di pojok kanan atas: [👑 Admin] [🏀 Coach] [💰 Keuangan] [📋 Operasional] [🏃‍♀️ Pemain] [🌐 Publik / Suporter].
-     * Terapkan Guarded View: Saat Role = Publik, modul sensitif (Keuangan, Rekam Medis, Berkas Internal) otomatis terkunci / menampilkan banner proteksi '🔒 Akses Terbatas'.
-   - MODUL KEUANGAN TIM:
-     * Kartu metrik: Total Pemasukan (Iuran/Donasi), Total Pengeluaran, Saldo Kas Berjalan.
-     * Tabel riwayat transaksi + form tambah mutasi kas baru yang langsung menghitung ulang saldo kas secara realtime.
-   - MODUL ROSTER & MODAL REKAM MEDIS:
-     * Grid kartu profil atlet mewah dengan nomor jersey besar dan indikator kebugaran.
-     * Klik kartu pemain untuk membuka Modal Popup Interaktif yang menampilkan riwayat cedera, kontak darurat wali murid, dan radar skill.
-   - MODUL STATISTIK MATCH & OBSERVASI VIDEO COACH:
-     * Ringkasan statistik performa tim (PPG, RPG, FG%, Win Rate).
-     * Modul Evaluasi Video: Form upload mock + Dropdown pilih atlet dari data master + Slider skor teknik & fisik + Kolom catatan evaluasi coach.
-   - MODUL JADWAL & GENERATOR WHATSAPP BROADCAST:
-     * Form agenda (Latihan / Sparing / Matchday, Hari/Tanggal, Jam, GOR, Dresscode, Catatan).
-     * Live Preview berformat teks resmi WhatsApp (*bold*, _italic_, bullet).
-     * Tombol 1-klik [📋 Salin Format WhatsApp] lengkap dengan feedback notifikasi toast berhasil disalin.
-   - MODUL FILLING BERKAS & DOKUMEN:
-     * Tabel checklist berkas pendaftaran (KTS, Akta, Surat Ortu) dengan badge [VERIFIED / PENDING] dan tombol pratinjau.
-   - MODUL GALERI & BERITA:
-     * Grid dokumentasi kegiatan (Gym session, Training camp) dan artikel berita rekap tanding SMALA.
-   - STATE PERSISTENCE:
-     * Event listener JavaScript aktif sehingga seluruh aksi form, modal, tab switcher, dan role switcher berfungsi instan tanpa reload halaman!`;
+3. STRUKTUR NAVIGASI TAB & ARSITEKTUR MULTI-MODUL WAJIB:
+   - DILARANG KERAS merender semua fitur berjejer dalam 4 kolom/kotak kecil horizontal di 1 layar!
+   - WAJIB gunakan arsitektur Header dengan Tab Navigation Bar interaktif (<nav class="nav-tabs">):
+     * Tab 1: [🏃‍♀️ Biografi 20 Atlet] -> Halaman luas dengan 4 Kartu Metrik Tim + Grid 20 Kartu Atlet Lengkap + Search Filter + Filter Posisi + Modal Popup Detail saat kartu diklik.
+     * Tab 2: [💰 Manajemen Keuangan] -> 4 Kartu Metrik Saldo/Pemasukan/Pengeluaran + Tabel Mutasi Kas + Form Transaksi Baru.
+     * Tab 3: [📊 Statistik & Video Review] -> 3 Kartu Metrik Performa + Tabel Log Analisa Video Drill & Catatan Observasi Coach.
+     * Tab 4: [📢 Jadwal & WA Broadcast] -> Form Konfigurasi Agenda + Live Preview WhatsApp (*bold*, _italic_) + Tombol 1-Klik [📋 Salin Format WhatsApp] dengan Toast Notification.
+     * Tab 5: [📁 Filing Berkas 20 Atlet] -> Tabel Checklist Digital 20 Siswi (KTS, Akta, Surat Ortu) dengan status Verified DBL.
+   - SINGLE SOURCE OF TRUTH (20 ENTITAS DATA JAVASCRIPT TER-HIDRASI):
+     * Definisikan array JavaScript di root (misal: 'const PLAYERS = [...]') yang memuat MINIMAL 20 OBJEK DATA SISWI ATLET LENGKAP (Alya Safira #07, Clarissa Aurelia #11, Keisha Amanda #15, Zahra Putri #09, Dinda Kirana #23, Nayla Ramadhani #03, Felicia Tan #05, Andrea Michelle #08, Cindy Caroline #12, Gita Savitri #21, Farah Nabila #01, Hesty Wulandari #04, Jessica Melly #06, Larasati Dewi #10, Maya Kusuma #14, Nadia Paramita #17, Olivia Salsabila #19, Putri Anggraeni #22, Raisa Amelia #24, Tiara Maharani #28) lengkap dengan posisi, tinggi, berat, gol darah, riwayat medis, dan rating.
+     * Render ke-20 kartu atlet ini secara dinamis melalui loop JavaScript ke dalam Grid Roster!
+   - INTERAKTIVITAS MODAL POPUP:
+     * Mengklik kartu atlet mana saja memicu 'showPlayerDetail(...)' yang menampilkan modal popup Glassmorphism berisi rincian medis, kontak ortu, dan 2 bar visual progress radar skill.
+   - DYNAMIC GUARDED RBAC ACCESS CONTROL:
+     * Role Switcher di Header: Admin, Coach, Keuangan, Atlet, Publik.
+     * Saat Role = Publik, sembunyikan modul Keuangan dan tampilkan layar proteksi eksklusif ('🔒 Akses Terbatas - Khusus Pengurus Tim') HANYA di dalam Tab Keuangan.`;
 
       const coderRes = await this.router.generateText({
         prompt: isWebOrUI ? `Anda adalah Kai Takahashi, Senior Polyglot & UI/UX Coding Lead (11+ tahun pengalaman).
@@ -974,7 +963,7 @@ Buatkan ringkasan status rilis production yang resmi.`,
   }
 
   _isIgnoredSlug(slug) {
-    const ignoreRegex = /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|elena|arthur|kai|sarah|viktor|naomi|alex|marcus|devon|sophia|modal|detail|about-us|hero|layanan|kontak|portfolio|portofolio|dengan-tombol-cta|tombol-cta|cta|konsultasi|mulai-konsultasi|salin-format|salin-format-whatsapp|salin|copy|format|whatsapp|broadcast|tambah-transaksi|upload-video|verified|pending|outfit|plus-jakarta-sans|jakarta|fira-code|sans-serif|google-fonts|inter|roboto|montserrat|poppins|lato|arial|helvetica|rubik|kanit|oswald|font|fonts)$/i;
+    const ignoreRegex = /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|elena|arthur|kai|sarah|viktor|naomi|alex|marcus|devon|sophia|modal|detail|about-us|hero|layanan|kontak|portfolio|portofolio|dengan-tombol-cta|tombol-cta|cta|konsultasi|mulai-konsultasi|salin-format|salin-format-whatsapp|salin|copy|format|whatsapp|broadcast|tambah-transaksi|upload-video|verified|pending|outfit|plus-jakarta-sans|jakarta|fira-code|sans-serif|google-fonts|inter|roboto|montserrat|poppins|lato|arial|helvetica|rubik|kanit|oswald|font|fonts|akses-terbatas|akses|terbatas|restricted|restricted-access|khusus-staff|overview|roster|roster-tim)$/i;
     return ignoreRegex.test(slug);
   }
 
