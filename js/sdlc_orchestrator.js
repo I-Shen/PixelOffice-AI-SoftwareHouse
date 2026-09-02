@@ -279,31 +279,53 @@ Sajikan hasil riset meliputi:
         message: `Kerjakan dengan teliti tanpa terburu-buru, Kai. Pastikan data tersinkronisasi antar-modul dan tidak ada modul yang kosong!`
       });
 
-      // Extract framework preference from PRD prompt
-      let stylingDirective = "Gunakan styling modern terinspirasi Dribbble: Deep Sports Dark Mode (#080C14), aksen Vibrant Orange (#FF6B00), Glassmorphism (kartu semi-transparan + backdrop-filter blur(16px)), Claymorphism 3D soft tactile buttons, ornamen garis lapangan basket, dan tipografi Google Fonts Plus Jakarta Sans / Outfit di dalam tag <style>.";
+      // Dynamic Domain Intelligence: Adapt aesthetics, color harmony, and module structure to client's industry
+      const domainKeywords = userRawPrompt.toLowerCase();
+      let domainTheme = {
+        name: "Enterprise SaaS",
+        bg: "#090E1A",
+        surface: "#111A2E",
+        primary: "#06B6D4",
+        accent: "#3B82F6",
+        vibe: "High-contrast Slate Glassmorphism dengan glowing cyan border dan elevated cards"
+      };
+
+      if (/medis|hospital|rumah\s*sakit|klinik|dokter|pasien|farmasi|kesehatan/i.test(domainKeywords)) {
+        domainTheme = { name: "Healthcare / Medical", bg: "#081318", surface: "#0F2027", primary: "#10B981", accent: "#0EA5E9", vibe: "Clean Medical Obsidian dengan aksen Emerald & Cyan, status kesehatan, dan kartu rekam medis" };
+      } else if (/toko|ecommerce|e-commerce|shop|produk|katalog|belanja|retail/i.test(domainKeywords)) {
+        domainTheme = { name: "E-Commerce / Retail", bg: "#0D0B17", surface: "#1E1B2E", primary: "#8B5CF6", accent: "#F43F5E", vibe: "Modern Digital Commerce dengan aksen Violet & Coral, badge stok, dan kartu katalog produk" };
+      } else if (/sekolah|akademik|siswa|guru|kelas|kursus|belajar|pendidikan/i.test(domainKeywords)) {
+        domainTheme = { name: "Education / Academic", bg: "#0A1020", surface: "#131D33", primary: "#3B82F6", accent: "#F59E0B", vibe: "Smart Academic Portal dengan aksen Sky Blue & Amber, kartu profil siswa, dan rekapitulasi nilai" };
+      } else if (/resto|cafe|kuliner|makanan|coffee|bistro|f&b/i.test(domainKeywords)) {
+        domainTheme = { name: "Food & Beverage", bg: "#140D07", surface: "#21160C", primary: "#F59E0B", accent: "#D97706", vibe: "Artisanal Dark Bistro dengan aksen Amber Caramel, kartu menu foto, dan status pesanan" };
+      } else if (/basket|olahraga|sport|gym|atlet|fitness/i.test(domainKeywords)) {
+        domainTheme = { name: "Sports & Athletics", bg: "#090E1A", surface: "#111A2E", primary: "#FF6B00", accent: "#10B981", vibe: "High Energy Athletic Obsidian dengan aksen Neon Orange & Emerald, kartu atlet, dan metrik performa" };
+      } else if (/properti|real\s*estate|rumah|apartemen|tanah/i.test(domainKeywords)) {
+        domainTheme = { name: "Real Estate & Property", bg: "#0A1118", surface: "#121E2A", primary: "#D97706", accent: "#0284C7", vibe: "Luxury Architectural Slate dengan aksen Gold Bronze, listing unit, dan jadwal survey" };
+      }
+
+      let stylingDirective = `Gunakan styling modern Dribbble Grade yang disesuaikan dengan industri proyek (${domainTheme.name}): Background ${domainTheme.bg}, kartu permukaan ${domainTheme.surface}, aksen primer ${domainTheme.primary} & ${domainTheme.accent}, Glassmorphism (backdrop-filter: blur(16px)), 3D soft tactile buttons, border halus berkilau, dan tipografi modern Google Fonts (Plus Jakarta Sans / Outfit) di dalam tag <style>.`;
       if (/bootstrap/i.test(userRawPrompt)) {
-        stylingDirective = "Gunakan framework Bootstrap 5 CSS CDN ditambah custom styling Dribbble Glassmorphism di tag <style>.";
+        stylingDirective = `Gunakan framework Bootstrap 5 CSS CDN ditambah custom styling Dribbble (${domainTheme.primary}) di tag <style>.`;
       } else if (/tailwind/i.test(userRawPrompt)) {
-        stylingDirective = "Gunakan Tailwind CSS CDN dan custom styling Dribbble Glassmorphism di tag <style>.";
+        stylingDirective = `Gunakan Tailwind CSS CDN dan custom styling Dribbble (${domainTheme.primary}) di tag <style>.`;
       }
 
       const customModuleGuidance = `
-3. STRUKTUR NAVIGASI TAB & ARSITEKTUR MULTI-MODUL WAJIB:
+3. STRUKTUR NAVIGASI TAB & ARSITEKTUR MULTI-MODUL DINAMIS SESUAI PERMINTAAN KLIEN:
    - DILARANG KERAS merender semua fitur berjejer dalam 4 kolom/kotak kecil horizontal di 1 layar!
-   - WAJIB gunakan arsitektur Header dengan Tab Navigation Bar interaktif (<nav class="nav-tabs">):
-     * Tab 1: [🏃‍♀️ Biografi 20 Atlet] -> Halaman luas dengan 4 Kartu Metrik Tim + Grid 20 Kartu Atlet Lengkap + Search Filter + Filter Posisi + Modal Popup Detail saat kartu diklik.
-     * Tab 2: [💰 Manajemen Keuangan] -> 4 Kartu Metrik Saldo/Pemasukan/Pengeluaran + Tabel Mutasi Kas + Form Transaksi Baru.
-     * Tab 3: [📊 Statistik & Video Review] -> 3 Kartu Metrik Performa + Tabel Log Analisa Video Drill & Catatan Observasi Coach.
-     * Tab 4: [📢 Jadwal & WA Broadcast] -> Form Konfigurasi Agenda + Live Preview WhatsApp (*bold*, _italic_) + Tombol 1-Klik [📋 Salin Format WhatsApp] dengan Toast Notification.
-     * Tab 5: [📁 Filing Berkas 20 Atlet] -> Tabel Checklist Digital 20 Siswi (KTS, Akta, Surat Ortu) dengan status Verified DBL.
-   - SINGLE SOURCE OF TRUTH (20 ENTITAS DATA JAVASCRIPT TER-HIDRASI):
-     * Definisikan array JavaScript di root (misal: 'const PLAYERS = [...]') yang memuat MINIMAL 20 OBJEK DATA SISWI ATLET LENGKAP (Alya Safira #07, Clarissa Aurelia #11, Keisha Amanda #15, Zahra Putri #09, Dinda Kirana #23, Nayla Ramadhani #03, Felicia Tan #05, Andrea Michelle #08, Cindy Caroline #12, Gita Savitri #21, Farah Nabila #01, Hesty Wulandari #04, Jessica Melly #06, Larasati Dewi #10, Maya Kusuma #14, Nadia Paramita #17, Olivia Salsabila #19, Putri Anggraeni #22, Raisa Amelia #24, Tiara Maharani #28) lengkap dengan posisi, tinggi, berat, gol darah, riwayat medis, dan rating.
-     * Render ke-20 kartu atlet ini secara dinamis melalui loop JavaScript ke dalam Grid Roster!
-   - INTERAKTIVITAS MODAL POPUP:
-     * Mengklik kartu atlet mana saja memicu 'showPlayerDetail(...)' yang menampilkan modal popup Glassmorphism berisi rincian medis, kontak ortu, dan 2 bar visual progress radar skill.
+   - WAJIB gunakan arsitektur Header dengan Tab Navigation Bar interaktif (<nav class="nav-tabs">) yang memuat modul-modul fungsional sesuai kebutuhan PRD:
+     * Setiap Tab mewakili 1 Modul Utama yang luas, terstruktur dengan kartu metrik ringkasan, tabel atau grid interaktif, form aksi, dan filter.
+   - SINGLE SOURCE OF TRUTH (15-20 ENTITAS DATA TER-HIDRASI DI JAVASCRIPT):
+     * Definisikan array master di root JavaScript yang memuat minimal 15-20 OBJEK DATA REALISTIS sesuai domain bisnis proyek klien (misal: Pasien/Dokter untuk Medis, Produk/Pesanan untuk Toko, Siswa/Guru untuk Sekolah, Properti untuk Real Estate, Atlet untuk Olahraga, dsb.) lengkap dengan ID, nama, kode, parameter spesifikasi, status, rekam catatan, dan rating.
+     * Render ke-15-20 kartu data ini secara dinamis melalui loop JavaScript ke dalam Card Grid!
+   - INTERAKTIVITAS MODAL DETAIL POPUP:
+     * Mengklik kartu entitas mana saja WAJIB membuka Modal Popup Glassmorphism yang menampilkan rincian spesifikasi mendalam, riwayat/catatan status, dan indikator visual progress bar.
    - DYNAMIC GUARDED RBAC ACCESS CONTROL:
-     * Role Switcher di Header: Admin, Coach, Keuangan, Atlet, Publik.
-     * Saat Role = Publik, sembunyikan modul Keuangan dan tampilkan layar proteksi eksklusif ('🔒 Akses Terbatas - Khusus Pengurus Tim') HANYA di dalam Tab Keuangan.`;
+     * Sediakan Role Switcher di Header yang disesuaikan dengan jenis industri klien (misal: Admin, Manager/Staff, Keuangan, Klien/Publik).
+     * Saat Role = Publik / Terbatas, sembunyikan modul privat/keuangan dan tampilkan layar proteksi eksklusif ('🔒 Akses Terbatas') HANYA di dalam tab privat terkait.
+   - REAL-TIME DISPATCH / BROADCAST GENERATOR:
+     * Sediakan form konfigurasi agenda/transaksi dengan live preview pesan (format *bold*, _italic_) dan tombol 1-klik salin ke clipboard dengan notifikasi toast.`;
 
       const coderRes = await this.router.generateText({
         prompt: isWebOrUI ? `Anda adalah Kai Takahashi, Senior Polyglot & UI/UX Coding Lead (11+ tahun pengalaman).
