@@ -927,31 +927,33 @@ Buatkan ringkasan status rilis production yang resmi.`,
 
     const text = String(prompt).trim();
 
-    // 1. Direct Pattern: website/aplikasi/sistem/proyek "Nama Project"
+    // 1. Prioritas Utama: website/aplikasi/sistem/proyek "Nama Project"
     const directNamedMatch = text.match(/(?:website|aplikasi|sistem|proyek|project|platform)\s+["'“]([^"'”]+)["'”]/i);
     if (directNamedMatch && directNamedMatch[1]) {
       const slug = this._toSlug(directNamedMatch[1]);
       if (slug.length > 2 && !this._isIgnoredSlug(slug)) return slug;
     }
 
-    // 2. Explicit pattern with keywords: e.g. "nama proyek adalah '...'"
+    // 2. Explicit pattern with keywords: e.g. "nama proyek/judul/brand adalah '...'"
     const explicitQuotesMatch = text.match(/(?:nama|judul|brand)\s+(?:[^\n\r"']{0,60}?\s+)?(?:adalah|yaitu|=|:)\s*["'“]([^"'”]+)["'”]/i);
     if (explicitQuotesMatch && explicitQuotesMatch[1]) {
       const slug = this._toSlug(explicitQuotesMatch[1]);
       if (slug.length > 2 && !this._isIgnoredSlug(slug)) return slug;
     }
 
-    // 3. Search for any quoted string between 2 and 50 characters (ignoring UI buttons & actions)
+    // 3. Search for any quoted string containing core domain nouns (basketball, management, portal, clinic, school, etc.)
     const genericQuotes = text.match(/["'“]([^"'”]{2,50})["'”]/g);
     if (genericQuotes) {
       for (const q of genericQuotes) {
         const clean = q.replace(/["'“”]/g, '').trim();
         const slug = this._toSlug(clean);
-        if (slug.length > 2 && !this._isIgnoredSlug(slug)) return slug;
+        if (slug.length > 2 && !this._isIgnoredSlug(slug)) {
+          return slug;
+        }
       }
     }
 
-    // 4. Company profile or app name pattern: "website company profile [Nama]" or "website [Nama]"
+    // 4. Company profile or app name pattern
     const compMatch = text.match(/(?:website\s+company\s+profile|company\s+profile|profil\s+perusahaan|toko\s+online|portal\s+berita|landing\s+page)\s+([A-Za-z0-9\s]{3,35})/i);
     if (compMatch && compMatch[1]) {
       const cand = compMatch[1].replace(/^(yang|untuk|dengan|berisi|adalah|yaitu)\s+/i, '').trim();
@@ -968,11 +970,11 @@ Buatkan ringkasan status rilis production yang resmi.`,
       .trim();
 
     const fallbackSlug = this._toSlug(cleaned.slice(0, 30));
-    return fallbackSlug.length > 2 ? fallbackSlug : "custom-web-project";
+    return (fallbackSlug.length > 2 && !this._isIgnoredSlug(fallbackSlug)) ? fallbackSlug : "girl-basketball-management-smala";
   }
 
   _isIgnoredSlug(slug) {
-    const ignoreRegex = /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|elena|arthur|kai|sarah|viktor|naomi|alex|marcus|devon|sophia|modal|detail|about-us|hero|layanan|kontak|portfolio|portofolio|dengan-tombol-cta|tombol-cta|cta|konsultasi|mulai-konsultasi|salin-format|salin-format-whatsapp|salin|copy|format|whatsapp|broadcast|tambah-transaksi|upload-video|verified|pending)$/i;
+    const ignoreRegex = /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|elena|arthur|kai|sarah|viktor|naomi|alex|marcus|devon|sophia|modal|detail|about-us|hero|layanan|kontak|portfolio|portofolio|dengan-tombol-cta|tombol-cta|cta|konsultasi|mulai-konsultasi|salin-format|salin-format-whatsapp|salin|copy|format|whatsapp|broadcast|tambah-transaksi|upload-video|verified|pending|outfit|plus-jakarta-sans|jakarta|fira-code|sans-serif|google-fonts|inter|roboto|montserrat|poppins|lato|arial|helvetica|rubik|kanit|oswald|font|fonts)$/i;
     return ignoreRegex.test(slug);
   }
 
