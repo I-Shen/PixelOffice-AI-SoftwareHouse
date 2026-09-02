@@ -240,6 +240,9 @@ export class PixelOfficeApp {
 
     if (this.sidebarExecuteSdlcBtn) {
       this.sidebarExecuteSdlcBtn.addEventListener('click', () => {
+        if (this.dealConsensusCard) {
+          this.dealConsensusCard.style.display = 'none';
+        }
         const prompt = (this.advisor && this.advisor.masterPrompt) ? this.advisor.masterPrompt : "";
         this.handleStartSDLC(prompt);
       });
@@ -247,8 +250,40 @@ export class PixelOfficeApp {
 
     if (this.sidebarReviewCockpitBtn) {
       this.sidebarReviewCockpitBtn.addEventListener('click', () => {
+        if (this.dealConsensusCard) {
+          this.dealConsensusCard.style.display = 'none';
+        }
         const telemetryBtn = document.querySelector('.cockpit-tab-btn[data-tab="telemetry"]');
         if (telemetryBtn) telemetryBtn.click();
+      });
+    }
+
+    // Router Telemetry & Real-Time Model Status Listeners
+    if (this.router) {
+      this.router.on('model_attempt', (data) => {
+        if (this.modelBadge) {
+          this.modelBadge.textContent = data.model;
+        }
+        this.appendTerminalLog("router", `[Router] ${data.model} ➡️ ${data.agentId} (${data.taskType})...`);
+      });
+
+      this.router.on('generation_success', (data) => {
+        if (this.modelBadge) {
+          this.modelBadge.textContent = data.model;
+        }
+      });
+
+      this.router.on('rate_limited', (data) => {
+        const resetDate = new Date(Date.now() + (data.durationSec * 1000));
+        const resetStr = resetDate.toLocaleTimeString();
+        if (this.modelBadge) {
+          this.modelBadge.textContent = `⏳ ${data.model} Limit (${resetStr})`;
+        }
+        this.appendTerminalLog("router", `⚠️ [Limit 429] Model ${data.model} mencapai batas kuota Google. Reset jam ${resetStr}.`);
+      });
+
+      this.router.on('fallback_triggered', (data) => {
+        this.appendTerminalLog("router", `🔀 [Auto-Switch] Beralih dari ${data.failedModel} ke ${data.nextModel} (${data.reason}).`);
       });
     }
 
@@ -892,6 +927,10 @@ export class PixelOfficeApp {
     if (!rawText) {
       alert("Silakan diskusikan kebutuhan proyek Anda di Ruang Eksekutif terlebih dahulu!");
       return;
+    }
+
+    if (this.dealConsensusCard) {
+      this.dealConsensusCard.style.display = 'none';
     }
 
     if (this.startBtn) {
