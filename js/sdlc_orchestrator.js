@@ -157,7 +157,7 @@ Pecah secara ketat menjadi 6 deliverable granular:
         activeAgent: "researcher",
         zone: "planning",
         progressPercent: 32,
-        desc: "Mencari dokumentasi API, existing code, dependency, architecture, dan basis data memori masa lalu..."
+        desc: "Mencari Top 5 Inspirasi Desain Dribbble, dokumentasi API, existing code, dan arsitektur data..."
       });
 
       // Long-term memory query
@@ -167,14 +167,18 @@ Pecah secara ketat menjadi 6 deliverable granular:
         : "";
 
       const researchRes = await this.router.generateText({
-        prompt: `Lakukan riset teknis mendalam untuk spesifikasi: "${userRawPrompt}". ${memoryContextStr}
+        prompt: `Lakukan riset teknis & kurasi desain mendalam untuk spesifikasi: "${userRawPrompt}". ${memoryContextStr}
 Sajikan hasil riset meliputi:
-1. Dokumentasi API & endpoint references
-2. Existing code patterns & reusable modules
-3. Dependencies & libraries
-4. Arsitektur sistem rekomendasi
-5. Previous implementation insights`,
-        systemInstruction: "Anda adalah Devon Reed, Staff R&D Research Agent 10+ tahun pengalaman. Terapkan aturan 4:A (Bleeding-Edge stabil dari dokumen resmi).",
+1. 🎨 TOP 5 INSPIRASI DESAIN WEBSITE DARI DRIBBBLE.COM (Sesuai Konteks Domain Klien):
+   - Desain 1: Obsidian Dark Mode & Cyberpunk High-Contrast (Glassmorphism, glow accents, modern dark feel).
+   - Desain 2: Tactile Claymorphism 3D Dashboard (Elevated tactile components, smooth pill buttons).
+   - Desain 3: Pro Sports & Tactical Analytics Hub (Player radar skill charts, court lines vectors).
+   - Desain 4: Scandinavian Clean Athletic Portal (High-density clean typography, crisp data tables).
+   - Desain 5: Enterprise Multi-Tier Platform (Strict RBAC visual layers, guarded modal views).
+2. 📊 Skema Data Master (Single Source of Truth / SSOT) untuk me-render 8+ profil entitas ter-hidrasi (tidak kosong).
+3. 🔐 Guarded RBAC Pattern (Pemisahan hak akses publik vs internal staf).
+4. 📱 WhatsApp Broadcast Generator Pattern (Clean format tanpa tag HTML + 1-Click Copy).`,
+        systemInstruction: "Anda adalah Devon Reed, Staff R&D Research Agent 10+ tahun pengalaman. Terapkan kurasi desain Dribbble kelas dunia dan standar arsitektur senior.",
         taskType: "fast",
         agentId: "researcher"
       });
@@ -188,7 +192,7 @@ Sajikan hasil riset meliputi:
         avatar: "📚",
         color: "#a855f7",
         stage: "2. Research",
-        message: `Riset selesai! Semua dependensi disaring berdasarkan standar resmi Google & MDN 2026 dengan rekam jejak bebas kerentanan (zero CVE).`
+        message: `Riset selesai! Saya telah mengurasi Top 5 Inspirasi Desain Dribbble dan menyiapkan cetak biru data master tersinkronisasi untuk didebatkan di War Room.`
       });
 
       await new Promise(r => setTimeout(r, 700));
@@ -198,11 +202,11 @@ Sajikan hasil riset meliputi:
       // -------------------------------------------------------------
       this.emit('stage_change', {
         stageId: "debate",
-        stageName: "3. War Room: 3-Round Architecture & Security Debate",
+        stageName: "3. War Room: 3-Round Architecture & Dribbble Benchmark Debate",
         activeAgent: "architect",
         zone: "meeting",
         progressPercent: 44,
-        desc: "Sophia, Kai, dan Viktor berdebat 3 ronde; Arthur Vance menetapkan keputusan eksekutif final..."
+        desc: "Sophia, Kai, dan Viktor mendiskusikan Top 5 Desain Dribbble & memilih 1 yang terbaik; Arthur menetapkan konsensus..."
       });
 
       this.emitDialogue({
@@ -212,7 +216,7 @@ Sajikan hasil riset meliputi:
         avatar: "👔",
         color: "#3b82f6",
         stage: "3. War Room",
-        message: `Memulai sidang War Room (maksimal 3 ronde). Sophia, silakan paparkan arsitektur Modular Monolith.`
+        message: `Memulai sidang War Room. Tim, kita diskusikan Top 5 Desain Dribbble dari Devon dan tentukan 1 desain terbaik untuk diadaptasi!`
       });
 
       const debateResult = await this.debateEngine.conductDebate({
@@ -246,14 +250,14 @@ Sajikan hasil riset meliputi:
       // -------------------------------------------------------------
       this.emit('stage_change', {
         stageId: "coding",
-        stageName: "4. Coding Agent: Polyglot Implementation",
+        stageName: "4. Coding Agent: Polyglot Implementation (Dribbble Adapt)",
         activeAgent: "coder",
         zone: "bullpen",
         progressPercent: 55,
-        desc: "Menulis implementasi kode produksi: Frontend, Backend, SQL, API endpoints, dan unit test..."
+        desc: "Kai Takahashi mengadaptasi Desain Dribbble #1 dengan Master State ter-hidrasi lengkap (tidak terburu-buru)..."
       });
 
-      const isWebOrUI = /website|web|landing|profile|halaman|ui|frontend|app|tampilan|company/i.test(userRawPrompt);
+      const isWebOrUI = /website|web|landing|profile|halaman|ui|frontend|app|tampilan|company|sistem|management/i.test(userRawPrompt);
 
       this.emitDialogue({
         agentId: "coder",
@@ -262,7 +266,7 @@ Sajikan hasil riset meliputi:
         avatar: "💻",
         color: "#10b981",
         stage: "4. Coding",
-        message: `Sophia, saya sedang menulis implementasi kode web estetik modern (glassmorphism) dengan proteksi sanitasi form dan isolasi error try-catch bawaan.`
+        message: `Sophia & Arthur, saya mulai mengadaptasi Desain Dribbble #1 (Obsidian Dark Glassmorphism + 3D Claymorphism) dengan 8+ profil data master ter-hidrasi lengkap dan proteksi RBAC aktif!`
       });
 
       this.emitDialogue({
@@ -272,58 +276,49 @@ Sajikan hasil riset meliputi:
         avatar: "📐",
         color: "#06b6d4",
         stage: "4. Coding",
-        message: `Pertahankan arsitektur Modular Monolith yang kohesif, Kai. Jaga latensi tetap optimal dan responsif!`
+        message: `Kerjakan dengan teliti tanpa terburu-buru, Kai. Pastikan data tersinkronisasi antar-modul dan tidak ada modul yang kosong!`
       });
 
-      // Inject official 10 senior personas from the office room
-      const officialTeamJson = JSON.stringify(CONFIG.agents.map(a => ({
-        name: a.name,
-        role: a.role,
-        exp: a.exp,
-        avatar: a.avatar,
-        jobDesk: a.jobDesk,
-        credentials: a.credentials,
-        bio: `Senior ${a.role} dengan spesialisasi arsitektur enterprise AI, automasi skala tinggi, dan optimasi performa modern.`
-      })), null, 2);
-
       // Extract framework preference from PRD prompt
-      // Extract framework preference from PRD prompt
-      let stylingDirective = "Gunakan styling modern: Dark Theme elegan dipadukan dengan aksen warna tema (misal: Basketball Orange #FF7A00 / #FF5500), Glassmorphism (kartu semi-transparan + backdrop-filter blur), Claymorphism (soft 3D pill buttons), dan tipografi Google Fonts Plus Jakarta Sans / Outfit di dalam tag <style>.";
+      let stylingDirective = "Gunakan styling modern terinspirasi Dribbble: Deep Sports Dark Mode (#080C14), aksen Vibrant Orange (#FF6B00), Glassmorphism (kartu semi-transparan + backdrop-filter blur(16px)), Claymorphism 3D soft tactile buttons, ornamen garis lapangan basket, dan tipografi Google Fonts Plus Jakarta Sans / Outfit di dalam tag <style>.";
       if (/bootstrap/i.test(userRawPrompt)) {
-        stylingDirective = "Gunakan framework Bootstrap 5 CSS CDN (<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'>) ditambah custom styling di tag <style>.";
+        stylingDirective = "Gunakan framework Bootstrap 5 CSS CDN ditambah custom styling Dribbble Glassmorphism di tag <style>.";
       } else if (/tailwind/i.test(userRawPrompt)) {
-        stylingDirective = "Gunakan Tailwind CSS CDN (<script src='https://cdn.tailwindcss.com'></script>) dan custom styling di tag <style>.";
+        stylingDirective = "Gunakan Tailwind CSS CDN dan custom styling Dribbble Glassmorphism di tag <style>.";
       }
 
-      const isCompanyProfileOfPxO = /10\s+pegawai|profil\s+tim\s+kantor|pxo\s+ai\s+soft\s+company\s+profile/i.test(userRawPrompt);
-
-      let customModuleGuidance = "";
-      if (isCompanyProfileOfPxO) {
-        customModuleGuidance = `
-3. 10 PROFIL TENAGA AHLI SENIOR KANTOR (LENGKAP MODAL DETAIL):
-   Gunakan data resmi ke-10 rekan kerja kita berikut:
-${officialTeamJson}
-   - Tampilkan seluruh 10 kartu profil lengkap dengan avatar emoji, nama, role, dan tombol "Detail Profil".
-   - Tulis script Modal Popup Dialog yang berfungsi interaktif saat kartu diklik.
-4. 4 PORTOFOLIO PROYEK SHOWCASE (#portfolio):
-   - 4 kartu portofolio enterprise dengan metrik sukses.`;
-      } else {
-        customModuleGuidance = `
-3. IMPLEMENTASI SELURUH MODUL & FITUR SPESIFIKASI PROYEK SECARA NYATA (100% WORKING):
-   Wajib implementasikan SELURUH modul fungsional yang diminta dalam PRD secara lengkap dan interaktif:
-   - Header & Navigasi: Logo & Judul Aplikasi, Tab navigasi modul, dan Switcher Peran/Role Login (misal: Admin, Coach, Keuangan, Operasional, Pemain) yang memfilter data publik vs internal manajemen.
-   - Modul Keuangan: Ringkasan kas (Pemasukan, Pengeluaran, Saldo), form pencatatan transaksi (iuran, donasi, sisa kegiatan), dan tabel riwayat transaksi.
-   - Modul Biodata & Medis Pemain: Kartu profil pemain (nama, nomor punggung, posisi, tinggi/berat badan, gol darah, riwayat cedera) lengkap dengan modal pop-up detail medis.
-   - Modul Statistik & Skill Rating: Visualisasi progress/radar skill pemain, input statistik tanding, dan form observasi video latihan/sparing.
-   - Modul Jadwal & WhatsApp Broadcast Generator: Timeline/jadwal latihan & tanding, serta Generator Pesan Siap Broadcast dengan format teks rapi (bold *...*, tanpa tag HTML) dan tombol one-click [📋 Salin Format WhatsApp].
-   - Modul Filling Berkas & Dokumen: UI manajemen berkas pendaftaran (KTP/Kartu Pelajar, Akta) dengan simulasi upload.
-   - Modul Galeri & Berita: Showcase dokumentasi kegiatan (Gym, Training Camp, Event) yang dapat diakses publik.
-   - State Management Interaktif: Gunakan JavaScript murni (data disimpan di memory/localStorage) sehingga aksi tambah/edit/hapus/filter/switch role langsung merender UI secara realtime!`;
-      }
+      const customModuleGuidance = `
+3. IMPLEMENTASI SELURUH MODUL SECARA LENGKAP, PADAT DATA (HYDRATED), DAN 100% INTERAKTIF:
+   Wajib implementasikan SELURUH modul fungsional yang diminta dalam PRD dengan standar senior 10+ tahun:
+   - SINGLE SOURCE OF TRUTH (MASTER DATA STATE):
+     * Definisikan array 'teamState' di JavaScript root yang memuat minimal 8 atlet/entitas dummy realistis (nama lengkap, jersey #4, #7, #11, #15, #23, dsb., posisi PG/SG/SF/PF/C, kelas, tinggi cm, berat kg, gol darah, rekam medis 'Fit to Play'/'Recovery %', statistik PPG/RPG/APG/3P%, status berkas KTS/Akta/Izin, radar skill).
+     * Sinkronisasikan data master ini secara nyata ke: Modul Roster, Dropdown Pemilih Pemain di Modul Evaluasi Video Coach, dan Tabel Berkas Turnamen!
+   - HEADER & DYNAMIC RBAC ACCESS CONTROL:
+     * Switcher Peran/Role di pojok kanan atas: [👑 Admin] [🏀 Coach] [💰 Keuangan] [📋 Operasional] [🏃‍♀️ Pemain] [🌐 Publik / Suporter].
+     * Terapkan Guarded View: Saat Role = Publik, modul sensitif (Keuangan, Rekam Medis, Berkas Internal) otomatis terkunci / menampilkan banner proteksi '🔒 Akses Terbatas'.
+   - MODUL KEUANGAN TIM:
+     * Kartu metrik: Total Pemasukan (Iuran/Donasi), Total Pengeluaran, Saldo Kas Berjalan.
+     * Tabel riwayat transaksi + form tambah mutasi kas baru yang langsung menghitung ulang saldo kas secara realtime.
+   - MODUL ROSTER & MODAL REKAM MEDIS:
+     * Grid kartu profil atlet mewah dengan nomor jersey besar dan indikator kebugaran.
+     * Klik kartu pemain untuk membuka Modal Popup Interaktif yang menampilkan riwayat cedera, kontak darurat wali murid, dan radar skill.
+   - MODUL STATISTIK MATCH & OBSERVASI VIDEO COACH:
+     * Ringkasan statistik performa tim (PPG, RPG, FG%, Win Rate).
+     * Modul Evaluasi Video: Form upload mock + Dropdown pilih atlet dari data master + Slider skor teknik & fisik + Kolom catatan evaluasi coach.
+   - MODUL JADWAL & GENERATOR WHATSAPP BROADCAST:
+     * Form agenda (Latihan / Sparing / Matchday, Hari/Tanggal, Jam, GOR, Dresscode, Catatan).
+     * Live Preview berformat teks resmi WhatsApp (*bold*, _italic_, bullet).
+     * Tombol 1-klik [📋 Salin Format WhatsApp] lengkap dengan feedback notifikasi toast berhasil disalin.
+   - MODUL FILLING BERKAS & DOKUMEN:
+     * Tabel checklist berkas pendaftaran (KTS, Akta, Surat Ortu) dengan badge [VERIFIED / PENDING] dan tombol pratinjau.
+   - MODUL GALERI & BERITA:
+     * Grid dokumentasi kegiatan (Gym session, Training camp) dan artikel berita rekap tanding SMALA.
+   - STATE PERSISTENCE:
+     * Event listener JavaScript aktif sehingga seluruh aksi form, modal, tab switcher, dan role switcher berfungsi instan tanpa reload halaman!`;
 
       const coderRes = await this.router.generateText({
         prompt: isWebOrUI ? `Anda adalah Kai Takahashi, Senior Polyglot & UI/UX Coding Lead (11+ tahun pengalaman).
-Kembangkan website/aplikasi web LENGKAP, SANGAT MEMUKAU, INTERAKTIF, dan 100% BEBAS DARI HAMBATAN CSP berdasarkan spesifikasi PRD berikut:
+Kembangkan website/aplikasi web PRODUKSI LENGKAP, SANGAT MEWAH (DRIBBBLE-GRADE), PADAT DATA (HYDRATED), INTERAKTIF, dan 100% BEBAS DARI HAMBATAN CSP berdasarkan spesifikasi PRD berikut:
 """
 ${userRawPrompt}
 """
@@ -336,7 +331,7 @@ PANDUAN ARSITEKTUR & EKSEKUSI TEKNIS KAI TAKAHASHI:
 
 2. STYLING & DESAIN VISUAL:
    - ${stylingDirective}
-   - Terapkan estetika modern glassmorphism + claymorphism, kartu berkontras tinggi, border halus, dan micro-animations responsif.
+   - Terapkan estetika Dribbble #1: Obsidian Glassmorphism + 3D Claymorphism, kartu berkontras tinggi, border halus, court line accents, dan micro-animations responsif.
 
 ${customModuleGuidance}
 
@@ -349,7 +344,7 @@ Sertakan bagian:
 3. SQL Migration / DB DDL
 4. Frontend Component Interface
 5. Unit Test Stubs`,
-        systemInstruction: "Anda adalah Kai Takahashi, Senior Polyglot & UI/UX Coding Lead. Kembangkan aplikasi web produksi lengkap, interaktif, memuat seluruh modul yang diminta PRD tanpa pemotongan kode apa pun.",
+        systemInstruction: "Anda adalah Kai Takahashi, Senior Polyglot & UI/UX Coding Lead. Kembangkan aplikasi web produksi lengkap, estetik Dribbble, padat data dummy master ter-hidrasi, dan memuat seluruh modul yang diminta PRD tanpa pemotongan kode apa pun.",
         taskType: "reasoning",
         agentId: "coder"
       });
@@ -932,32 +927,27 @@ Buatkan ringkasan status rilis production yang resmi.`,
 
     const text = String(prompt).trim();
 
-    // 1. Explicit pattern with quotes: e.g. "nama proyek untuk dideploy ... adalah 'PxO AI Soft .....'"
-    const explicitQuotesMatch = text.match(/(?:nama|judul|proyek|project|website|repo|repository|brand)\s+(?:[^\n\r"']{0,60}?\s+)?(?:adalah|yaitu|=|:)\s*["'“]([^"'”]+)["'”]/i);
+    // 1. Direct Pattern: website/aplikasi/sistem/proyek "Nama Project"
+    const directNamedMatch = text.match(/(?:website|aplikasi|sistem|proyek|project|platform)\s+["'“]([^"'”]+)["'”]/i);
+    if (directNamedMatch && directNamedMatch[1]) {
+      const slug = this._toSlug(directNamedMatch[1]);
+      if (slug.length > 2 && !this._isIgnoredSlug(slug)) return slug;
+    }
+
+    // 2. Explicit pattern with keywords: e.g. "nama proyek adalah '...'"
+    const explicitQuotesMatch = text.match(/(?:nama|judul|brand)\s+(?:[^\n\r"']{0,60}?\s+)?(?:adalah|yaitu|=|:)\s*["'“]([^"'”]+)["'”]/i);
     if (explicitQuotesMatch && explicitQuotesMatch[1]) {
       const slug = this._toSlug(explicitQuotesMatch[1]);
-      if (slug.length > 2) return slug;
+      if (slug.length > 2 && !this._isIgnoredSlug(slug)) return slug;
     }
 
-    // 2. Any explicit phrase: "nama proyek/website [X]" without quotes
-    const explicitPlainMatch = text.match(/(?:nama\s+proyek|nama\s+website|nama\s+project|nama\s+brand|judul\s+website)\s+(?:adalah|yaitu|=|:)?\s*([A-Za-z0-9\s]{3,35})/i);
-    if (explicitPlainMatch && explicitPlainMatch[1]) {
-      const slug = this._toSlug(explicitPlainMatch[1]);
-      if (slug.length > 2 && !/^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|mulai|konsultasi)$/i.test(slug)) {
-        return slug;
-      }
-    }
-
-    // 3. Search for any quoted string between 2 and 50 characters (ignoring aesthetic/role/UI words)
+    // 3. Search for any quoted string between 2 and 50 characters (ignoring UI buttons & actions)
     const genericQuotes = text.match(/["'“]([^"'”]{2,50})["'”]/g);
     if (genericQuotes) {
       for (const q of genericQuotes) {
         const clean = q.replace(/["'“”]/g, '').trim();
-        const ignoreList = /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|elena|arthur|kai|sarah|viktor|naomi|alex|marcus|devon|sophia|modal|detail|about\s*us|hero|layanan|kontak|portfolio|portofolio|dengan\s+tombol\s+cta|tombol\s+cta|cta|konsultasi|mulai\s+konsultasi)$/i;
-        if (!ignoreList.test(clean)) {
-          const slug = this._toSlug(clean);
-          if (slug.length > 2 && !ignoreList.test(slug)) return slug;
-        }
+        const slug = this._toSlug(clean);
+        if (slug.length > 2 && !this._isIgnoredSlug(slug)) return slug;
       }
     }
 
@@ -966,7 +956,7 @@ Buatkan ringkasan status rilis production yang resmi.`,
     if (compMatch && compMatch[1]) {
       const cand = compMatch[1].replace(/^(yang|untuk|dengan|berisi|adalah|yaitu)\s+/i, '').trim();
       const slug = this._toSlug(cand);
-      if (slug.length > 2 && !/^(clean|modern|minimalis|profesional|mulai|konsultasi)$/i.test(slug)) {
+      if (slug.length > 2 && !this._isIgnoredSlug(slug)) {
         return slug;
       }
     }
@@ -979,6 +969,11 @@ Buatkan ringkasan status rilis production yang resmi.`,
 
     const fallbackSlug = this._toSlug(cleaned.slice(0, 30));
     return fallbackSlug.length > 2 ? fallbackSlug : "custom-web-project";
+  }
+
+  _isIgnoredSlug(slug) {
+    const ignoreRegex = /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|elena|arthur|kai|sarah|viktor|naomi|alex|marcus|devon|sophia|modal|detail|about-us|hero|layanan|kontak|portfolio|portofolio|dengan-tombol-cta|tombol-cta|cta|konsultasi|mulai-konsultasi|salin-format|salin-format-whatsapp|salin|copy|format|whatsapp|broadcast|tambah-transaksi|upload-video|verified|pending)$/i;
+    return ignoreRegex.test(slug);
   }
 
   _toSlug(str) {
