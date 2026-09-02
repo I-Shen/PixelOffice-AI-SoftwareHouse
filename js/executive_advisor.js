@@ -208,17 +208,25 @@ ${chatContext}
 Tuliskan SPESIFIKASI PROYEK MASTER EMAS (GOLDEN PRD SCORE 100/100) yang padat, terstruktur, presisi, dan siap jalan untuk diinputkan ke SDLC Pipeline.
 
 STRUKTUR PRD WAJIB:
-1. JUDUL & IDENTITAS PROYEK: Nama aplikasi yang diminta, domain, dan tujuan utama.
-2. TEMA DESAIN & UI/UX: Palet warna spesifik (e.g. Dark + Basketball Orange), estetika (Glassmorphism / Claymorphism), tipografi, dan tata letak responsif.
-3. MODUL-MODUL FUNGSIONAL LENGKAP: Jabarkan seluruh modul yang diminta pengguna secara berurutan dan rinci (contoh: Keuangan, Bio Pemain & Medis, Statistik Latihan & Tanding, Jadwal & Broadcast WhatsApp, Filling Berkas, Galeri Berita, Multi-Role Login).
-4. ATURAN AKSES & PERAN (RBAC): Pemisahan data publik vs internal manajemen.
-5. STANDAR TEKNIS: Standalone Web Application, Single-file HTML5/CSS3/JS, Vanilla CSS / Tailwind yang bebas hambatan CSP, interaktivitas JavaScript murni, dan validasi data client-side.
+1. JUDUL & IDENTITAS PROYEK: Nama aplikasi yang diminta secara tepat (contoh: "Girl Basketball Management SMALA").
+2. BENCHMARK DESAIN & INSPIRASI DRIBBLE:
+   - Adaptasi Top Dribbble Sports/Enterprise UI: Obsidian Dark Mode (#080C14), aksen Vibrant Orange (#FF6B00), Glassmorphism (backdrop-filter: blur(16px)), dan Claymorphism 3D tactile buttons.
+   - Tipografi Google Fonts modern (Plus Jakarta Sans / Outfit), court line accents, dan glowing status badges.
+3. SKEMA DATA MASTER TER-HIDRASI (SINGLE SOURCE OF TRUTH):
+   - Wajib generate minimal 8 entitas data dummy realistis di JavaScript (misal: Roster 8 atlet putri lengkap dengan statistik PPG/RPG/APG, rekam medis/cedera, gol darah, status berkas pendaftaran).
+   - Sinkronisasi data master ini ke seluruh modul: Roster, Dropdown Evaluasi Video Coach, dan Tabel Berkas Turnamen.
+4. ATURAN AKSES & PERAN (DYNAMIC RBAC MATRIX):
+   - Switcher Role: Publik/Suporter (Hanya Berita/Galeri/Jadwal) vs Internal Tim (Admin, Coach, Keuangan dengan Guarded View).
+5. DEKOMPOSISI 8 MODUL LENGKAP:
+   - Keuangan (Metrik Saldo, Mutasi Kas, Form Add), Roster & Medis (Cards + Modal Popup Detail), Statistik & Video Review Coach (Form Evaluasi Drill), Jadwal & WhatsApp Broadcast Generator (Format WA bersih + 1-Click Copy), Filling Berkas (Checklist KTS/Akta/Izin), Galeri, Berita, Multi-Role Login.
+6. STANDAR KUALITAS KODE SENIOR (10+ TAHUN):
+   - Single-file HTML5/CSS3/JS mandiri, bebas hambatan CSP, interaktivitas event listener 100% aktif, DILARANG memotong kode atau menggunakan placeholder kosong.
 
 Tuliskan instruksi di atas dalam satu kesatuan prompt instruksi PRD yang komprehensif tanpa komentar basa-basi.`;
 
     const response = await this.router.generateText({
       prompt,
-      systemInstruction: `Anda adalah Dr. Elena Rostova, Chief PRD Architect PixelOffice AI Software House. Rumuskan prompt PRD master bernilai 100/100 yang presisi dan setia 100% pada kebutuhan aktual proyek Bos @I-Shen.`,
+      systemInstruction: `Anda adalah Dr. Elena Rostova, Chief PRD Architect PixelOffice AI Software House. Rumuskan prompt PRD master bernilai 100/100 yang presisi, kaya data (hydrated state), dan setia 100% pada kebutuhan aktual proyek Bos @I-Shen.`,
       taskType: "fast",
       agentId: "optimizer"
     });
