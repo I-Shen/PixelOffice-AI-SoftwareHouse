@@ -177,12 +177,20 @@ ATURAN MUTLAK PENYELESAIAN (DEAL FINAL):
 
     const cleanReply = reply.replace(/\[DEAL_REACHED\]/g, '').trim();
 
+    // Extract exact immutable project title
+    let lockedTitle = "Girl Basketball Management SMALA";
+    const titleMatch = this.currentRawPrompt.match(/["'“]([^"'”]+)["'”]/i);
+    if (titleMatch && titleMatch[1]) {
+      lockedTitle = titleMatch[1].trim();
+    }
+
     const result = {
       reply: cleanReply,
       text: cleanReply,
       isDeal: true,
       score: 100,
       scope: this.detectedScope,
+      projectName: lockedTitle,
       masterPrompt: this.masterPrompt
     };
 
