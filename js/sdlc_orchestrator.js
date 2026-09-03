@@ -938,6 +938,13 @@ Buatkan ringkasan status rilis production yang resmi.`,
 
     const text = String(prompt).trim();
 
+    // 0. Prioritas Tertinggi: [Nama Proyek] e.g. [KasirPro Single-Store POS Edition] atau [SMALA Girl Basketball Management 2025]
+    const bracketMatch = text.match(/\[([A-Za-z0-9_ -]{3,60})\]/);
+    if (bracketMatch && bracketMatch[1]) {
+      const slug = this._toSlug(bracketMatch[1]);
+      if (slug.length > 2 && !this._isIgnoredSlug(slug)) return slug;
+    }
+
     // 1. Prioritas Utama: website/aplikasi/sistem/proyek "Nama Project"
     const directNamedMatch = text.match(/(?:website|aplikasi|sistem|proyek|project|platform)\s+["'“]([^"'”]+)["'”]/i);
     if (directNamedMatch && directNamedMatch[1]) {
@@ -996,4 +1003,8 @@ Buatkan ringkasan status rilis production yang resmi.`,
       .replace(/^-+|-+$/g, '')
       .slice(0, 40);
   }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = SDLCOrchestrator;
 }
