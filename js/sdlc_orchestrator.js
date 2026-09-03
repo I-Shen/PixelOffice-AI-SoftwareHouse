@@ -312,20 +312,16 @@ Sajikan hasil riset meliputi:
       }
 
       const customModuleGuidance = `
-3. STRUKTUR NAVIGASI TAB & ARSITEKTUR MULTI-MODUL DINAMIS SESUAI PERMINTAAN KLIEN:
-   - DILARANG KERAS merender semua fitur berjejer dalam 4 kolom/kotak kecil horizontal di 1 layar!
-   - WAJIB gunakan arsitektur Header dengan Tab Navigation Bar interaktif (<nav class="nav-tabs">) yang memuat modul-modul fungsional sesuai kebutuhan PRD:
-     * Setiap Tab mewakili 1 Modul Utama yang luas, terstruktur dengan kartu metrik ringkasan, tabel atau grid interaktif, form aksi, dan filter.
-   - SINGLE SOURCE OF TRUTH (15-20 ENTITAS DATA TER-HIDRASI DI JAVASCRIPT):
-     * Definisikan array master di root JavaScript yang memuat minimal 15-20 OBJEK DATA REALISTIS sesuai domain bisnis proyek klien (misal: Pasien/Dokter untuk Medis, Produk/Pesanan untuk Toko, Siswa/Guru untuk Sekolah, Properti untuk Real Estate, Atlet untuk Olahraga, dsb.) lengkap dengan ID, nama, kode, parameter spesifikasi, status, rekam catatan, dan rating.
-     * Render ke-15-20 kartu data ini secara dinamis melalui loop JavaScript ke dalam Card Grid!
-   - INTERAKTIVITAS MODAL DETAIL POPUP:
-     * Mengklik kartu entitas mana saja WAJIB membuka Modal Popup Glassmorphism yang menampilkan rincian spesifikasi mendalam, riwayat/catatan status, dan indikator visual progress bar.
-   - DYNAMIC GUARDED RBAC ACCESS CONTROL:
-     * Sediakan Role Switcher di Header yang disesuaikan dengan jenis industri klien (misal: Admin, Manager/Staff, Keuangan, Klien/Publik).
-     * Saat Role = Publik / Terbatas, sembunyikan modul privat/keuangan dan tampilkan layar proteksi eksklusif ('🔒 Akses Terbatas') HANYA di dalam tab privat terkait.
-   - REAL-TIME DISPATCH / BROADCAST GENERATOR:
-     * Sediakan form konfigurasi agenda/transaksi dengan live preview pesan (format *bold*, _italic_) dan tombol 1-klik salin ke clipboard dengan notifikasi toast.`;
+3. ARSITEKTUR & PENALARAN FITUR MANDIRI (BEBAS DARI TEMPLATE / CETAKAN STATIS):
+   - BACA DAN NALAR PRD SECARA MURNI (*FIRST-PRINCIPLES REASONING*):
+     * Anda memiliki kebebasan penuh untuk merancang arsitektur, navigasi, dan tata letak antarmuka yang paling efektif dan tepat guna sesuai kebutuhan spesifik prompt/PRD di atas.
+     * JANGAN memaksakan tab, tombol broadcast pesan, atau skema kartu yang tidak diminta dan tidak relevan dengan model bisnis proyek.
+     * Jika proyek adalah POS / Kasir, fokuskan pada kecepatan transaksi, katalog produk, floating order bar, kalkulasi kembalian, struk thermal, dan audit stok.
+     * Jika proyek adalah jenis aplikasi lain, sesuaikan tata letak dan alur kerjanya 100% secara organik untuk domain tersebut.
+   - DATA DUMMY HYDRATED YANG RELEVAN SECARA KONTEKSTUAL:
+     * Definisikan data awal (dummy state) yang realistis, hidup, dan bermakna langsung untuk domain proyek ini di dalam JavaScript.
+   - INTERAKTIVITAS DAN LOGIKA BISNIS NYATA:
+     * Seluruh kalkulasi otomatis, manipulasi DOM, state filter/search, modal dialog, dan aksi pengguna harus bekerja 100% mulus menggunakan Vanilla JavaScript murni.`;
 
       const coderRes = await this.router.generateText({
         prompt: isWebOrUI ? `Anda adalah Kai Takahashi, Senior Polyglot & UI/UX Coding Lead (11+ tahun pengalaman).
