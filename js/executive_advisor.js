@@ -101,8 +101,8 @@ Data Evaluasi Matematis Riil:
 Tugas Dr. Elena di Putaran 1:
 1. Bedah prompt Bos secara analitis dan jujur:
    - Sampaikan skor evaluasi objektif awal (${this.lastEvaluation.score}/100 - Grade: ${this.lastEvaluation.grade}). JANGAN menulis 100/100!
-   - Uraikan poin-poin kekuatan spesifikasi Bos yang sudah matang (misal: pembagian 3 role, batasan single-store, metode bayar).
-   - Sorot celah logika atau risiko teknis yang harus diantisipasi (misal: validasi pencegahan stok negatif, mekanisme soft-void tanpa hapus data asli, format cetak struk).
+   - Uraikan poin-poin kekuatan spesifikasi Bos yang sudah matang dan jelas.
+   - Sorot celah logika, ambiguitas alur pengguna, atau risiko teknis yang harus diantisipasi sesuai domain spesifik proyek ini.
 2. Lempar telaah teknis ini kepada Arthur Vance (Head of Engineering) untuk diuji kelayakan arsitektur sistemnya.`;
 
     const elenaRes = await this.router.generateText({
@@ -135,11 +135,10 @@ Tanggapi Putaran 1 dari Dr. Elena Rostova mengenai proyek [${dynamicTitle}]:
 "${elenaRes.text}"
 
 Tugas Arthur Vance di Putaran 2:
-1. Jawab tantangan arsitektur yang disorot Elena:
-   - Bagaimana kita memastikan STOK TIDAK BISA NEGATIF (atomic state check sebelum pembayaran)?
-   - Bagaimana mekanisme SOFT-VOID bekerja (pencatatan status VOIDED, alasan pembatalan, pembalik stok otomatis ke katalog, otorisasi PIN/role Manager)?
-   - Bagaimana format struk kasir termal 58mm/80mm diimplementasikan bersih dengan CSS @media print browser?
-   - Konfirmasi penanganan Single Page Application mandiri tanpa dependensi backend eksternal yang rumit.
+1. Jawab tantangan arsitektur yang disorot Elena secara teknis dan mendalam:
+   - Bagaimana arsitektur data flow, state management, dan pencegahan kondisi error / edge cases ditangani pada proyek ini?
+   - Bagaimana penanganan aturan bisnis inti, integritas data, dan otorisasi peran (RBAC) diimplementasikan secara kokoh?
+   - Konfirmasi strategi Single Page Application mandiri (HTML5, Modern CSS, Vanilla JS ES6+) tanpa dependensi eksternal yang rapuh.
 2. Minta Elena merumuskan konsensus akhir untuk dipresentasikan kepada Bos @I-Shen.`;
 
     const arthurRes = await this.router.generateText({
@@ -175,7 +174,7 @@ Tugas Konsensus di Putaran 3:
 1. Beritahu Bos @I-Shen bahwa diskusi internal 3 putaran eksekutif telah selesai dengan hasil konsensus matang.
 2. Tegaskan Nama Proyek Resmi: "${dynamicTitle}".
 3. Sampaikan SKOR KESIAPAN PRD TERVERIFIKASI: ${verifiedScore}/100 (Bukan asal 100/100, melainkan skor tervalidasi hasil perpaduan kebutuhan Bos dan mitigasi teknis kami).
-4. Rangkum secara padat 5 pilar arsitektur yang dikunci (RBAC 3 Role, Anti-Negative Stock, Split POS Dribbble, Soft-Void & Struk 58mm, Dashboard Analitik Omzet).
+4. Rangkum secara padat 4-5 pilar arsitektur utama yang disepakati untuk merealisasikan seluruh visi dan modul proyek ini secara sempurna.
 5. Beritahu Bos: "PRD Emas telah terkunci (${verifiedScore}/100). Silakan klik tombol '🚀 Eksekusi Koding Sekarang' di kartu pop-up untuk memulai pembuatan sistem!"
 6. Wajib akhiri pesan dengan tag [DEAL_REACHED].`;
 
@@ -338,7 +337,7 @@ STRUKTUR DOKUMEN PRD WAJIB:
 2. BENCHMARK DESAIN & INSPIRASI DRIBBBLE (Dark Glassmorphism, palet tematik, tipografi Plus Jakarta Sans)
 3. SKEMA DATA MASTER TER-HIDRASI (Minimal 16 entitas data dummy realistis di JavaScript)
 4. ATURAN AKSES & PERAN (DYNAMIC RBAC MATRIX dengan role switcher aktif)
-5. DEKOMPOSISI MODUL LENGKAP & VALIDASI ATOMIK (Validasi anti-error, pencegahan stok minus, soft-void, dan cetak struk)
+5. DEKOMPOSISI MODUL LENGKAP & VALIDASI LOGIKA BISNIS (Penanganan edge-cases, pencegahan error, dan alur transaksi/operasional yang relevan secara kontekstual)
 6. STANDAR KUALITAS KODE SENIOR (10+ TAHUN): Single-file HTML5/CSS3/JS mandiri tanpa placeholder.
 
 Tuliskan dokumen PRD tersebut secara komprehensif tanpa komentar basa-basi.`;
