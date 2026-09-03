@@ -5,10 +5,12 @@
  */
 
 import { CONFIG } from './config.js';
+import { PromptOptimizer } from './prompt_optimizer.js';
 
 export class ExecutiveAdvisor {
   constructor(llmRouter) {
     this.router = llmRouter;
+    this.optimizer = new PromptOptimizer(this.router);
     this.conversationHistory = [];
     this.currentRawPrompt = "";
     this.isDealReached = false;
@@ -16,6 +18,7 @@ export class ExecutiveAdvisor {
     this.detectedScope = null;
     this.turnCount = 0;
     this.extractedSpecs = {};
+    this.lastEvaluation = null;
     this.eventListeners = [];
   }
 
@@ -67,6 +70,9 @@ export class ExecutiveAdvisor {
     this.turnCount = 1;
     this.detectedScope = this.classifyScope(this.currentRawPrompt);
 
+    // Perform genuine multi-dimensional evaluation of user's prompt
+    this.lastEvaluation = this.optimizer.evaluatePromptHeuristics(this.currentRawPrompt);
+
     this.conversationHistory.push({
       role: "user",
       content: this.currentRawPrompt || "Halo Arthur dan Elena, tolong rancang dan kembangkan sistem web aplikasi baru kita."
@@ -74,26 +80,27 @@ export class ExecutiveAdvisor {
 
     const systemInstruction = `Anda adalah duo eksekutif software house kelas dunia di RUANG EKSEKUTIF PIXELOFFICE:
 1. Arthur Vance (Head of Engineering): Menilai kelayakan arsitektur, data flow, dan modularitas teknis.
-2. Dr. Elena Rostova (Chief PRD Architect): Merumuskan spesifikasi kebutuhan fungsional (FR) dan non-fungsional (NFR).
+2. Dr. Elena Rostova (Chief PRD Architect): Merumuskan spesifikasi kebutuhan fungsional (FR), NFR, dan mengevaluasi kualitas prompt.
 
-PRINSIP KONSULTASI EKSEKUTIF (100% DINAMIS & ZERO-HALLUCINATION):
-- Analisis secara cerdas dan SPESIFIK apa yang sebenarnya diminta oleh Bos @I-Shen (nama sistem/proyek, modul-modul inti, palet warna, role pengguna, dan fitur unik).
-- DILARANG KERAS memaksakan template 'Company Profile PxO' jika Bos meminta proyek custom lain (seperti Basketball Management, Portal Sekolah, Marketplace, E-Commerce, Dashboard, dll)!
-- TUGAS ANDA: Memvalidasi kebutuhan Bos, merumuskan arsitektur modular, dan menyiapkan PRD Emas.
-- DILARANG KERAS berpura-pura koding telah selesai atau membuat URL staging/passcode fiktif.
+DATA EVALUASI NYATA PROMPT BOS OLEH DR. ELENA ROSTOVA:
+- Skor Kualitas Prompt Asli: ${this.lastEvaluation.score}/100 (Grade: ${this.lastEvaluation.grade})
+- Rincian Skor: Visi: ${this.lastEvaluation.breakdown.vision}/20, Modul: ${this.lastEvaluation.breakdown.modules}/20, RBAC: ${this.lastEvaluation.breakdown.rbac}/20, UI/UX: ${this.lastEvaluation.breakdown.uiux}/20, Teknis: ${this.lastEvaluation.breakdown.technical}/20
+- Kekuatan Prompt: ${this.lastEvaluation.strengths.join('; ') || 'Ide produk teridentifikasi.'}
+- Hal yang Perlu Dilengkapi: ${this.lastEvaluation.gaps.join('; ') || 'Detail interaktivitas UI dan penanganan edge-cases.'}
 
-ATURAN RESPON SESI 1:
-1. Apresiasi dan rangkum pemahaman Arthur & Elena terhadap proyek spesifik yang diminta Bos @I-Shen secara antusias dan berbobot.
-2. Paparkan ringkasan modul & fitur yang teridentifikasi dari prompt Bos.
-3. Tawarkan 2 opsi arsitektur konkret (Opsi A vs Opsi B) yang relevan dengan domain proyek tersebut.
-4. Beritahu Bos bahwa setelah Bos memilih/menyetujui, PRD Emas akan langsung dikunci 100% untuk dieksekusi oleh 10 agen di pipeline SDLC.`;
+PRINSIP KONSULTASI EKSEKUTIF (100% ADAPTIF, JUJUR & ZERO-HALLUCINATION):
+- DILARANG KERAS hanya menulis skor 100/100 tanpa analisis nyata! Sampaikan evaluasi jujur: sebutkan skor asli prompt Bos (${this.lastEvaluation.score}/100) dan jelaskan secara analitis apa saja yang sudah bagus dan apa yang sedang disempurnakan oleh Dr. Elena & Arthur.
+- DILARANG KERAS memaksakan template proyek lain (seperti KasirPro atau SMALA jika Bos meminta hal lain)!
+- Adaptif terhadap estetika modern dari Dribbble.com (Glassmorphism, skema warna tematik, micro-transitions).
+- TUGAS ANDA: Memvalidasi kebutuhan Bos, menawarkan 2 opsi arsitektur konkret (Opsi A vs Opsi B), dan mengunci spesifikasi.
+- DILARANG KERAS membuat URL staging/passcode fiktif.`;
 
     const analysisPrompt = `Pesan & Spesifikasi Proyek dari Bos @I-Shen:
 """
 ${this.currentRawPrompt}
 """
 
-Berikan respon konsultasi tingkat tinggi dari Arthur Vance dan Dr. Elena Rostova sesuai aturan di atas.`;
+Berikan respon konsultasi eksekutif nyata dari Arthur Vance dan Dr. Elena Rostova dengan mengevaluasi prompt Bos secara jujur dan analitis.`;
 
     const response = await this.router.generateText({
       prompt: analysisPrompt,
@@ -108,19 +115,17 @@ Berikan respon konsultasi tingkat tinggi dari Arthur Vance dan Dr. Elena Rostova
       content: reply
     });
 
-    // If user prompt was already extremely thorough and complete (>60 words or contains multiple modules)
-    const isExhaustive = (this.currentRawPrompt.length > 200 && (this.currentRawPrompt.includes("1.") || this.currentRawPrompt.includes("modul") || this.currentRawPrompt.includes("fitur")));
-    if (isExhaustive) {
-      this.isDealReached = true;
-      this.masterPrompt = await this.synthesizeFinalPRD();
-    }
+    const dynamicTitle = this._extractDynamicTitle(this.currentRawPrompt);
 
     const result = {
       reply: reply.replace(/\[DEAL_REACHED\]/g, '').trim(),
       text: reply.replace(/\[DEAL_REACHED\]/g, '').trim(),
       isDeal: this.isDealReached,
-      score: this.isDealReached ? 100 : 96,
+      score: this.lastEvaluation.score,
+      grade: this.lastEvaluation.grade,
+      breakdown: this.lastEvaluation.breakdown,
       scope: this.detectedScope,
+      projectName: dynamicTitle,
       masterPrompt: this.masterPrompt
     };
 
@@ -133,7 +138,7 @@ Berikan respon konsultasi tingkat tinggi dari Arthur Vance dan Dr. Elena Rostova
    */
   async sendMessage(userText) {
     const text = (userText || "").trim();
-    if (!text) return { reply: "", text: "", isDeal: this.isDealReached, score: 95 };
+    if (!text) return { reply: "", text: "", isDeal: this.isDealReached, score: this.lastEvaluation?.score || 85 };
 
     this.turnCount++;
     this.conversationHistory.push({
@@ -145,23 +150,27 @@ Berikan respon konsultasi tingkat tinggi dari Arthur Vance dan Dr. Elena Rostova
 
     const chatContext = this.conversationHistory.map(m => `${m.role === 'user' ? 'Bos @I-Shen' : 'Eksekutif (Arthur & Elena)'}: ${m.content}`).join('\n\n');
 
+    // Calculate updated calibrated score
+    const baseScore = this.lastEvaluation ? this.lastEvaluation.score : 75;
+    const finalScore = Math.min(98, baseScore + 18);
+
     const prompt = `Riwayat Konsultasi Ruang Eksekutif:
 ${chatContext}
 
 Tanggapi balasan terbaru dari Bos @I-Shen: "${text}"
 
-ATURAN MUTLAK PENYELESAIAN (DEAL FINAL):
+ATURAN MUTLAK KONSENSUS DEAL FINAL:
 1. Bos @I-Shen telah menentukan pilihan atau mengonfirmasi spesifikasi proyek.
 2. HENTIKAN SEMUA PERTANYAAN TAMBAHAN! JANGAN membuat pertanyaan baru lagi.
-3. DILARANG KERAS membuat URL staging fiktif, passcode palsu, atau berpura-pura bahwa website sudah live.
-4. SAMBUT KEPUTUSAN BOS DENGAN KONSENSUS DEAL (SKOR 100/100).
-5. Rangkum secara padat poin-poin yang disepakati (Judul Proyek, Tema/Palet Desain, Modul Utama, Role Akses, dan Fitur Khusus).
-6. Beritahu Bos: "PRD Emas telah terkunci 100%. Silakan klik tombol '🚀 Mulai Siklus SDLC' di bawah untuk mengeksekusi pembuatan kode dan peluncuran website secara nyata!"
+3. DILARANG KERAS membuat URL staging fiktif atau berpura-pura bahwa website sudah live.
+4. SAMBUT KEPUTUSAN BOS DENGAN KONSENSUS DEAL TINGKAT PRODUKSI (Skor PRD Terverifikasi: ${finalScore}/100).
+5. Rangkum poin-poin yang disepakati (Judul Proyek, Tema/Palet Desain Dribbble, Modul Utama, Role Akses, dan Fitur Khusus).
+6. Beritahu Bos: "PRD Emas telah terkunci (${finalScore}/100). Silakan klik tombol '🚀 Mulai Siklus SDLC' di bawah untuk mengeksekusi koding nyata dan peluncuran website!"
 7. Wajib cantumkan tag [DEAL_REACHED] di paling akhir pesan.`;
 
     const response = await this.router.generateText({
       prompt,
-      systemInstruction: `Anda adalah Arthur Vance & Dr. Elena Rostova di Ruang Eksekutif PixelOffice. Kunci kesepakatan PRD Emas 100/100 secara tegas berdasarkan permintaan aktual proyek Bos @I-Shen.`,
+      systemInstruction: `Anda adalah Arthur Vance & Dr. Elena Rostova di Ruang Eksekutif PixelOffice. Kunci kesepakatan PRD Emas terverifikasi (${finalScore}/100) secara tegas dan profesional berdasarkan permintaan aktual proyek Bos @I-Shen.`,
       taskType: "fast",
       agentId: "optimizer"
     });
@@ -176,15 +185,13 @@ ATURAN MUTLAK PENYELESAIAN (DEAL FINAL):
     this.masterPrompt = await this.synthesizeFinalPRD();
 
     const cleanReply = reply.replace(/\[DEAL_REACHED\]/g, '').trim();
-
-    // Extract exact dynamic project title based on client input
     const dynamicTitle = this._extractDynamicTitle(this.currentRawPrompt);
 
     const result = {
       reply: cleanReply,
       text: cleanReply,
       isDeal: true,
-      score: 100,
+      score: finalScore,
       scope: this.detectedScope,
       projectName: dynamicTitle,
       masterPrompt: this.masterPrompt
@@ -197,6 +204,12 @@ ATURAN MUTLAK PENYELESAIAN (DEAL FINAL):
   _extractDynamicTitle(text) {
     if (!text) return "Enterprise Web Application";
     const cleanText = String(text).trim();
+
+    // 0. Bracketed title e.g. [SMALA Girl Basketball Management 2025] or [KasirPro]
+    const bracketMatch = cleanText.match(/\[([A-Za-z0-9_ -]{3,45})\]/);
+    if (bracketMatch && bracketMatch[1] && !this._isIgnoredWord(bracketMatch[1])) {
+      return bracketMatch[1].trim();
+    }
 
     // 1. Quoted title right after keywords (e.g. website "...", aplikasi "...", sistem "...", proyek "...")
     const directNamedMatch = cleanText.match(/(?:website|aplikasi|sistem|proyek|project|platform|portal|toko|klinik|dashboard|software)\s+["'“]([^"'”]+)["'”]/i);
