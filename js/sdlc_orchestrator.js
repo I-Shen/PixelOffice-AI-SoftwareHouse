@@ -338,11 +338,11 @@ PANDUAN ARSITEKTUR & EKSEKUSI TEKNIS KAI TAKAHASHI:
 1. ATURAN CSP & KEAMANAN BROWSER:
    - JANGAN gunakan meta CSP yang membatasi JavaScript! Wajib gunakan:
      <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
-   - Pastikan seluruh JavaScript dinamis, event listeners, tab switcher, modal dialog, dan tombol copy broadcast dieksekusi 100% lancar.
+   - Pastikan seluruh JavaScript dinamis, event listeners, tab switcher, modal dialog, formulir input, kalkulasi real-time, dan interaktivitas UI dieksekusi 100% lancar tanpa error konsol.
 
 2. STYLING & DESAIN VISUAL:
    - ${stylingDirective}
-   - Terapkan estetika Dribbble #1: Obsidian Glassmorphism + 3D Claymorphism, kartu berkontras tinggi, border halus, court line accents, dan micro-animations responsif.
+   - Terapkan estetika antarmuka Dribbble kelas dunia: Dark Slate / Obsidian Glassmorphism, kartu berkontras tinggi, border glowing halus, aksen warna yang hidup dan harmonis, serta micro-animations responsif yang mulus.
 
 ${customModuleGuidance}
 
@@ -938,8 +938,22 @@ Buatkan ringkasan status rilis production yang resmi.`,
 
     const text = String(prompt).trim();
 
-    // 0. Prioritas Tertinggi: [Nama Proyek] e.g. [KasirPro Single-Store POS Edition] atau [SMALA Girl Basketball Management 2025]
-    const bracketMatch = text.match(/\[([A-Za-z0-9_ -]{3,60})\]/);
+    // 0a. Explicit project name pattern with brackets: e.g. nama proyek [KasirPro ...]
+    const namedBracketMatch = text.match(/(?:nama\s+proyek|nama\s+aplikasi|nama\s+website|nama\s+sistem|proyek|project)\s*[:=]?\s*\[([^\]]{3,80})\]/i);
+    if (namedBracketMatch && namedBracketMatch[1]) {
+      const slug = this._toSlug(namedBracketMatch[1]);
+      if (slug.length > 2 && !this._isIgnoredSlug(slug)) return slug;
+    }
+
+    // 0b. Explicit project name with quotes: e.g. nama proyeknya adalah "Kasir Pro"
+    const explicitNamedQuotes = text.match(/(?:nama\s+website\s+yang\s+dipakai\s+url\s+dan\s+nama\s+proyeknya|nama\s+proyek|nama\s+website|nama\s+aplikasi|nama\s+sistem)\s+(?:[^\n\r"']{0,40}?\s+)?(?:adalah|yaitu|=|:)\s*["'“]([^"'”]+)["'”]/i);
+    if (explicitNamedQuotes && explicitNamedQuotes[1]) {
+      const slug = this._toSlug(explicitNamedQuotes[1]);
+      if (slug.length > 2 && !this._isIgnoredSlug(slug)) return slug;
+    }
+
+    // 0c. Prioritas Tertinggi: [Nama Proyek] e.g. [KasirPro Single-Store POS Edition v2.0 - Ultra Fast Checkout]
+    const bracketMatch = text.match(/\[([^\]]{3,80})\]/);
     if (bracketMatch && bracketMatch[1]) {
       const slug = this._toSlug(bracketMatch[1]);
       if (slug.length > 2 && !this._isIgnoredSlug(slug)) return slug;
@@ -959,7 +973,7 @@ Buatkan ringkasan status rilis production yang resmi.`,
       if (slug.length > 2 && !this._isIgnoredSlug(slug)) return slug;
     }
 
-    // 3. Search for any quoted string containing core domain nouns (basketball, management, portal, clinic, school, etc.)
+    // 3. Search for any quoted string containing core domain nouns
     const genericQuotes = text.match(/["'“]([^"'”]{2,50})["'”]/g);
     if (genericQuotes) {
       for (const q of genericQuotes) {
@@ -992,7 +1006,7 @@ Buatkan ringkasan status rilis production yang resmi.`,
   }
 
   _isIgnoredSlug(slug) {
-    const ignoreRegex = /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|elena|arthur|kai|sarah|viktor|naomi|alex|marcus|devon|sophia|modal|detail|about-us|hero|layanan|kontak|portfolio|portofolio|dengan-tombol-cta|tombol-cta|cta|konsultasi|mulai-konsultasi|salin-format|salin-format-whatsapp|salin|copy|format|whatsapp|broadcast|tambah-transaksi|upload-video|verified|pending|outfit|plus-jakarta-sans|jakarta|fira-code|sans-serif|google-fonts|inter|roboto|montserrat|poppins|lato|arial|helvetica|rubik|kanit|oswald|font|fonts|akses-terbatas|akses|terbatas|restricted|restricted-access|khusus-staff|overview|roster|roster-tim)$/i;
+    const ignoreRegex = /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|elena|arthur|kai|sarah|viktor|naomi|alex|marcus|devon|sophia|modal|detail|about-us|hero|layanan|kontak|portfolio|portofolio|dengan-tombol-cta|tombol-cta|cta|konsultasi|mulai-konsultasi|salin-format|salin-format-whatsapp|salin|copy|format|whatsapp|broadcast|tambah-transaksi|upload-video|verified|pending|outfit|plus-jakarta-sans|jakarta|fira-code|sans-serif|google-fonts|inter|roboto|montserrat|poppins|lato|arial|helvetica|rubik|kanit|oswald|font|fonts|akses-terbatas|akses|terbatas|restricted|restricted-access|khusus-staff|overview|roster|roster-tim|jumlah-item|jumlah|item|total-belanja|total|lihat-pesanan|role|role-kasir|role-manager|role-admin|role-owner|kasir|manager|admin|owner|opsi|opsi-pengurutan)$/i;
     return ignoreRegex.test(slug);
   }
 
