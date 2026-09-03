@@ -328,14 +328,24 @@ ${userRawPrompt}
 """
 
 PANDUAN ARSITEKTUR & EKSEKUSI TEKNIS KAI TAKAHASHI:
-1. ATURAN CSP & KEAMANAN BROWSER:
-   - JANGAN gunakan meta CSP yang membatasi JavaScript! Wajib gunakan:
-     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
-   - Pastikan seluruh JavaScript dinamis, event listeners, tab switcher, modal dialog, formulir input, kalkulasi real-time, dan interaktivitas UI dieksekusi 100% lancar tanpa error konsol.
+1. ATURAN CSP, KEAMANAN BROWSER & ANTI-HALLUCINATED DEPENDENCIES (MUTLAK):
+   - ZERO HALLUCINATED DEPENDENCIES (DILARANG KERAS MENGIMPOR LIBRARY EKSTERNAL / CDN RAPUH):
+     * DILARANG KERAS menyisipkan tag <script src="https://cdn.jsdelivr.net/..." atau unpkg/cdnjs untuk library pihak ketiga (misal: Chart.js, Lodash, Axios, jQuery, Moment, Tailwind JS, Canvas-confetti, FontAwesome JS, dll) KECUALI jika user memintanya secara eksplisit!
+     * Wajib gunakan 100% SELF-CONTAINED VANILLA JAVASCRIPT ES6+:
+       - Gunakan DOM API standar browser murni (document.querySelector, addEventListener, classList).
+       - Untuk icon, gunakan SVG inline modern atau Emoji/Unicode yang tajam.
+       - Untuk grafik/visualisasi data, bangun menggunakan HTML5 <canvas> API murni atau layout bar flexbox CSS murni.
+       - Untuk state dan reaktivitas data, gunakan object JavaScript murni & localStorage bawaan browser.
+     * DILARANG menggunakan sintaks 'import ... from' atau 'require(...)' di dalam tag <script> browser yang tidak di-bundle.
+   - KEPATUHAN CONTENT SECURITY POLICY (CSP):
+     * Wajib sertakan meta CSP yang mengizinkan eksekusi script internal secara aman:
+       <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+     * Pastikan seluruh JavaScript dinamis, event listeners, tab switcher, modal dialog, formulir input, kalkulasi real-time, dan interaktivitas UI berjalan 100% mulus tanpa error konsol dan tanpa terblokir CSP browser.
 
 2. STYLING & DESAIN VISUAL:
    - ${stylingDirective}
    - Terapkan estetika antarmuka Dribbble kelas dunia: Dark Slate / Obsidian Glassmorphism, kartu berkontras tinggi, border glowing halus, aksen warna yang hidup dan harmonis, serta micro-animations responsif yang mulus.
+   - Seluruh kode styling CSS ditulis utuh di dalam tag <style> internal (hanya link Google Fonts yang diizinkan sebagai stylesheet eksternal).
 
 ${customModuleGuidance}
 
@@ -428,13 +438,14 @@ Periksa 6 Vektor Ancaman Serangan:
 4. [SECRETS & CRYPTO]: Hardcoded credentials, weak hashes (MD5/SHA1)
 5. [SERVER-SIDE]: SSRF, Path Traversal, Insecure Deserialization
 6. [AVAILABILITY]: ReDoS (Unsafe RegExp), Rate-limiting & payload size ceilings
+7. [DEPENDENCY & CSP]: Hallucinated external scripts, broken CDN URLs, atau pelanggaran browser Content Security Policy
 
 Format Output:
 - Pentest Assessment Summary
 - Identified Threat Vectors & CWE References
 - Remediation Patch Directives for Coding Agent
 - Verdict Status: [REVISE_REQUIRED / PASS_CLEAN]`,
-        systemInstruction: "Anda adalah Viktor Petrov, Principal Application Security & Pentest Lead Agent (OSCP/CISSP). Berikan saran patch sanitasi form dan DOM tanpa merusak struktur visual dan DILARANG KERAS menyarankan meta CSP yang memblokir eksekusi JavaScript interaktif/animasi.",
+        systemInstruction: "Anda adalah Viktor Petrov, Principal Application Security & Pentest Lead Agent (OSCP/CISSP). Berikan saran patch sanitasi form dan DOM tanpa merusak struktur visual, pastikan kode bebas dari ketergantungan library luar/CDN yang rapuh, dan DILARANG KERAS menyarankan meta CSP yang memblokir eksekusi JavaScript interaktif/animasi.",
         taskType: "reasoning",
         agentId: "security"
       });
@@ -466,11 +477,12 @@ ${coderRes.text}
 TUGAS ANDA:
 Perbarui KODE HTML ASLI di atas dengan menambahkan sanitasi form (fungsi escapeHTML untuk output teks, honeypot field pada form) dan event listener aman.
 
-ATURAN ANTI-TRUNCATION MUTLAK (DILARANG KERAS MEMOTONG KODE):
+ATURAN KESELAMATAN & ANTI-TRUNCATION MUTLAK:
 1. PERTAHANKAN 100% SELURUH KONTEN HTML ASLI: SELURUH MODUL, TAB, FORM, TABEL, SCRIPT JAVASCRIPT, DAN SELURUH TAG <style> CSS!
 2. DILARANG KERAS memotong kode dengan komentar seperti "<!-- ... sisa ... -->" atau "<!-- contoh ... -->".
 3. DILARANG KERAS menyembunyikan elemen dengan class="hidden" yang tidak semestinya.
-4. KEMBALIKAN KODE LENGKAP DARI <!DOCTYPE html> sampai </html>!`
+4. DILARANG KERAS mengimpor library luar/CDN baru. Gunakan 100% Vanilla JS murni.
+5. KEMBALIKAN KODE LENGKAP DARI <!DOCTYPE html> sampai </html>!`
           : `Berdasarkan temuan audit keamanan dari Viktor Petrov berikut:
 """
 ${secRes.text}
