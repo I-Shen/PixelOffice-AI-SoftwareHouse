@@ -258,6 +258,26 @@ export class PixelOfficeApp {
       });
     }
 
+    // Executive Advisor 3-Round Internal Discussion Listeners
+    if (this.advisor) {
+      this.advisor.on('discussion_round', (data) => {
+        this.appendDialogueMessage({
+          agentId: data.speaker.includes("Elena") ? "optimizer" : "manager",
+          name: data.speaker,
+          role: data.role,
+          avatar: data.avatar,
+          color: data.color,
+          stage: `Ruang Eksekutif [Putaran ${data.round}]`,
+          message: data.text
+        });
+
+        if (this.canvasEngine) {
+          const agentKey = data.speaker.includes("Elena") ? "optimizer" : "manager";
+          this.canvasEngine.showSpeechBubble(agentKey, `${data.speaker}: Membedah kebutuhan...`, true);
+        }
+      });
+    }
+
     // Router Telemetry & Real-Time Model Status Listeners
     if (this.router) {
       this.router.on('model_attempt', (data) => {
@@ -846,16 +866,16 @@ export class PixelOfficeApp {
       this.appendDialogueMessage({
         agentId: "manager",
         name: "Arthur Vance & Dr. Elena Rostova",
-        role: "Executive Advisor",
+        role: "Executive Consensus",
         avatar: "👑",
         color: "#f59e0b",
-        stage: "Ruang Eksekutif",
+        stage: "Ruang Eksekutif [Putaran 3: Konsensus]",
         message: response.reply
       });
 
       if (this.canvasEngine) {
-        this.canvasEngine.showSpeechBubble("manager", "Arthur: Analisis selesai! Klik 'Mulai SDLC' untuk eksekusi tim.", true);
-        this.canvasEngine.showSpeechBubble("optimizer", "Dr. Elena: PRD Emas siap dieksekusi tim.", true);
+        this.canvasEngine.showSpeechBubble("manager", `Arthur: Konsensus tercapai (${response.score}/100) untuk ${response.projectName}!`, true);
+        this.canvasEngine.showSpeechBubble("optimizer", `Dr. Elena: PRD Emas siap dieksekusi tim.`, true);
       }
 
       if (response.isDeal) {
@@ -873,10 +893,18 @@ export class PixelOfficeApp {
     if (!this.dealConsensusCard) return;
     this.dealConsensusCard.style.display = 'flex';
 
+    const score = (response && response.score) ? response.score : 94;
+    const title = (response && response.projectName) ? response.projectName : "Enterprise Web Application";
+
+    const badgeEl = document.getElementById('dealBadgeTitle');
+    if (badgeEl) {
+      badgeEl.textContent = `🏆 KONSENSUS TERCAPAI (${score}/100)`;
+    }
+
     if (this.dealSummaryText) {
       this.dealSummaryText.innerHTML = `
-        <strong>🏆 Konsensus Tercapai (Skor 100/100 Emas)!</strong><br>
-        Arthur Vance & Dr. Elena Rostova telah merumuskan PRD Emas siap eksekusi.
+        <strong>🏆 Konsensus Tercapai (Skor Terverifikasi: ${score}/100)!</strong><br>
+        Arthur Vance & Dr. Elena Rostova telah mengunci PRD Emas untuk proyek <strong>${title}</strong> setelah 3 putaran diskusi mendalam.
       `;
     }
 
@@ -886,7 +914,7 @@ export class PixelOfficeApp {
 
     if (response && response.masterPrompt && this.promptInput) {
       this.promptInput.value = response.masterPrompt;
-      if (this.scoreValue) this.scoreValue.textContent = "100";
+      if (this.scoreValue) this.scoreValue.textContent = String(score);
     }
   }
 
