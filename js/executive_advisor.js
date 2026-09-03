@@ -228,8 +228,20 @@ Tugas Konsensus di Putaran 3:
     if (!text) return "Enterprise Web Application";
     const cleanText = String(text).trim();
 
-    // 0. Bracketed title e.g. [KasirPro Single-Store POS Edition] or [SMALA Girl Basketball Management 2025]
-    const bracketMatch = cleanText.match(/\[([A-Za-z0-9_ -]{3,60})\]/);
+    // 0a. Explicit project name pattern with brackets: e.g. nama proyek [KasirPro ...]
+    const namedBracketMatch = cleanText.match(/(?:nama\s+proyek|nama\s+aplikasi|nama\s+website|nama\s+sistem|proyek|project)\s*[:=]?\s*\[([^\]]{3,80})\]/i);
+    if (namedBracketMatch && namedBracketMatch[1] && !this._isIgnoredWord(namedBracketMatch[1])) {
+      return namedBracketMatch[1].trim();
+    }
+
+    // 0b. Explicit project name with quotes: e.g. nama proyeknya adalah "Kasir Pro"
+    const explicitNamedQuotes = cleanText.match(/(?:nama\s+website\s+yang\s+dipakai\s+url\s+dan\s+nama\s+proyeknya|nama\s+proyek|nama\s+website|nama\s+aplikasi|nama\s+sistem)\s+(?:[^\n\r"']{0,40}?\s+)?(?:adalah|yaitu|=|:)\s*["'“]([^"'”]+)["'”]/i);
+    if (explicitNamedQuotes && explicitNamedQuotes[1] && !this._isIgnoredWord(explicitNamedQuotes[1])) {
+      return explicitNamedQuotes[1].trim();
+    }
+
+    // 0c. Any bracket with valid title: e.g. [KasirPro Single-Store POS Edition v2.0 - Ultra Fast Checkout]
+    const bracketMatch = cleanText.match(/\[([^\]]{3,80})\]/);
     if (bracketMatch && bracketMatch[1] && !this._isIgnoredWord(bracketMatch[1])) {
       return bracketMatch[1].trim();
     }
@@ -286,7 +298,7 @@ Tugas Konsensus di Putaran 3:
 
   _isIgnoredWord(str) {
     const s = str.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
-    return /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|outfit|plus-jakarta-sans|inter|roboto|montserrat|poppins|lato|arial|font|fonts|modal|detail|about-us|hero|layanan|kontak|portfolio|portofolio|cta|salin|copy|format|whatsapp|broadcast)$/i.test(s);
+    return /^(clean|modern|minimalis|profesional|eyecatching|tailwind|bootstrap|vanilla|outfit|plus-jakarta-sans|inter|roboto|montserrat|poppins|lato|arial|font|fonts|modal|detail|about-us|hero|layanan|kontak|portfolio|portofolio|cta|salin|copy|format|whatsapp|broadcast|jumlah-item|jumlah|item|total-belanja|total|lihat-pesanan|role|role-kasir|role-manager|role-admin|role-owner|kasir|manager|admin|owner|opsi|opsi-pengurutan)$/i.test(s);
   }
 
   async continueConsultation(userText) {
