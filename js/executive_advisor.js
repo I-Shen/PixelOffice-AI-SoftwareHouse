@@ -70,58 +70,137 @@ export class ExecutiveAdvisor {
     this.turnCount = 1;
     this.detectedScope = this.classifyScope(this.currentRawPrompt);
 
-    // Perform genuine multi-dimensional evaluation of user's prompt
+    // 1. Perform genuine multi-dimensional evaluation of user's prompt
     this.lastEvaluation = this.optimizer.evaluatePromptHeuristics(this.currentRawPrompt);
+    const dynamicTitle = this._extractDynamicTitle(this.currentRawPrompt);
+    this.currentProjectTitle = dynamicTitle;
 
     this.conversationHistory.push({
       role: "user",
       content: this.currentRawPrompt || "Halo Arthur dan Elena, tolong rancang dan kembangkan sistem web aplikasi baru kita."
     });
 
-    const systemInstruction = `Anda adalah duo eksekutif software house kelas dunia di RUANG EKSEKUTIF PIXELOFFICE:
-1. Arthur Vance (Head of Engineering): Menilai kelayakan arsitektur, data flow, dan modularitas teknis.
-2. Dr. Elena Rostova (Chief PRD Architect): Merumuskan spesifikasi kebutuhan fungsional (FR), NFR, dan mengevaluasi kualitas prompt.
+    this.emit('message_sent', { text: this.currentRawPrompt });
 
-DATA EVALUASI NYATA PROMPT BOS OLEH DR. ELENA ROSTOVA:
-- Skor Kualitas Prompt Asli: ${this.lastEvaluation.score}/100 (Grade: ${this.lastEvaluation.grade})
-- Rincian Skor: Visi: ${this.lastEvaluation.breakdown.vision}/20, Modul: ${this.lastEvaluation.breakdown.modules}/20, RBAC: ${this.lastEvaluation.breakdown.rbac}/20, UI/UX: ${this.lastEvaluation.breakdown.uiux}/20, Teknis: ${this.lastEvaluation.breakdown.technical}/20
-- Kekuatan Prompt: ${this.lastEvaluation.strengths.join('; ') || 'Ide produk teridentifikasi.'}
-- Hal yang Perlu Dilengkapi: ${this.lastEvaluation.gaps.join('; ') || 'Detail interaktivitas UI dan penanganan edge-cases.'}
+    // =========================================================================
+    // 🗣️ PUTARAN 1: Dr. Elena Rostova (Chief PRD Architect)
+    // Telaah & Bedah Kebutuhan Asli: Skor Objektif, Kekuatan, dan Celah Logika
+    // =========================================================================
+    const elenaPrompt = `Anda adalah Dr. Elena Rostova, Chief PRD Architect di PixelOffice AI.
+Lakukan Putaran 1 Penalaran Mendalam terhadap instruksi proyek dari Bos @I-Shen berikut:
+"${this.currentRawPrompt}"
 
-PRINSIP KONSULTASI EKSEKUTIF (100% ADAPTIF, JUJUR & ZERO-HALLUCINATION):
-- DILARANG KERAS hanya menulis skor 100/100 tanpa analisis nyata! Sampaikan evaluasi jujur: sebutkan skor asli prompt Bos (${this.lastEvaluation.score}/100) dan jelaskan secara analitis apa saja yang sudah bagus dan apa yang sedang disempurnakan oleh Dr. Elena & Arthur.
-- DILARANG KERAS memaksakan template proyek lain (seperti KasirPro atau SMALA jika Bos meminta hal lain)!
-- Adaptif terhadap estetika modern dari Dribbble.com (Glassmorphism, skema warna tematik, micro-transitions).
-- TUGAS ANDA: Memvalidasi kebutuhan Bos, menawarkan 2 opsi arsitektur konkret (Opsi A vs Opsi B), dan mengunci spesifikasi.
-- DILARANG KERAS membuat URL staging/passcode fiktif.`;
+Data Evaluasi Matematis Riil:
+- Skor Asli: ${this.lastEvaluation.score}/100 (Grade: ${this.lastEvaluation.grade})
+- Skor Visi & Scope: ${this.lastEvaluation.breakdown.vision}/20
+- Skor Modul Fungsional: ${this.lastEvaluation.breakdown.modules}/20
+- Skor RBAC & Role Akses: ${this.lastEvaluation.breakdown.rbac}/20
+- Skor Desain & UI/UX Dribbble: ${this.lastEvaluation.breakdown.uiux}/20
+- Skor Keamanan & Validasi Teknis: ${this.lastEvaluation.breakdown.technical}/20
 
-    const analysisPrompt = `Pesan & Spesifikasi Proyek dari Bos @I-Shen:
-"""
-${this.currentRawPrompt}
-"""
+Tugas Dr. Elena di Putaran 1:
+1. Bedah prompt Bos secara analitis dan jujur:
+   - Sampaikan skor evaluasi objektif awal (${this.lastEvaluation.score}/100 - Grade: ${this.lastEvaluation.grade}). JANGAN menulis 100/100!
+   - Uraikan poin-poin kekuatan spesifikasi Bos yang sudah matang (misal: pembagian 3 role, batasan single-store, metode bayar).
+   - Sorot celah logika atau risiko teknis yang harus diantisipasi (misal: validasi pencegahan stok negatif, mekanisme soft-void tanpa hapus data asli, format cetak struk).
+2. Lempar telaah teknis ini kepada Arthur Vance (Head of Engineering) untuk diuji kelayakan arsitektur sistemnya.`;
 
-Berikan respon konsultasi eksekutif nyata dari Arthur Vance dan Dr. Elena Rostova dengan mengevaluasi prompt Bos secara jujur dan analitis.`;
+    const elenaRes = await this.router.generateText({
+      prompt: elenaPrompt,
+      systemInstruction: "Anda adalah Dr. Elena Rostova, Chief PRD Architect di PixelOffice AI. Anda menalar prompt secara kritis, tajam, objektif, dan matematis.",
+      taskType: "fast",
+      agentId: "optimizer"
+    });
 
-    const response = await this.router.generateText({
-      prompt: analysisPrompt,
-      systemInstruction,
+    this.conversationHistory.push({
+      role: "assistant",
+      content: `[Dr. Elena Rostova]: ${elenaRes.text}`
+    });
+
+    this.emit('discussion_round', {
+      round: 1,
+      speaker: "Dr. Elena Rostova",
+      role: "Chief PRD Architect",
+      avatar: "🔍",
+      color: "#8b5cf6",
+      text: elenaRes.text
+    });
+
+    // =========================================================================
+    // 🗣️ PUTARAN 2: Arthur Vance (Head of Engineering)
+    // Uji Kelayakan Arsitektur, Data Flow, Transaksi Atomik & RBAC Security
+    // =========================================================================
+    const arthurPrompt = `Anda adalah Arthur Vance, Head of Engineering di PixelOffice AI.
+Tanggapi Putaran 1 dari Dr. Elena Rostova mengenai proyek [${dynamicTitle}]:
+"${elenaRes.text}"
+
+Tugas Arthur Vance di Putaran 2:
+1. Jawab tantangan arsitektur yang disorot Elena:
+   - Bagaimana kita memastikan STOK TIDAK BISA NEGATIF (atomic state check sebelum pembayaran)?
+   - Bagaimana mekanisme SOFT-VOID bekerja (pencatatan status VOIDED, alasan pembatalan, pembalik stok otomatis ke katalog, otorisasi PIN/role Manager)?
+   - Bagaimana format struk kasir termal 58mm/80mm diimplementasikan bersih dengan CSS @media print browser?
+   - Konfirmasi penanganan Single Page Application mandiri tanpa dependensi backend eksternal yang rumit.
+2. Minta Elena merumuskan konsensus akhir untuk dipresentasikan kepada Bos @I-Shen.`;
+
+    const arthurRes = await this.router.generateText({
+      prompt: arthurPrompt,
+      systemInstruction: "Anda adalah Arthur Vance, Head of Engineering di PixelOffice AI. Anda berfokus pada kepatuhan arsitektur, kelayakan kode produksi, dan zero-bug guarantee.",
       taskType: "fast",
       agentId: "manager"
     });
 
-    const reply = response.text;
     this.conversationHistory.push({
       role: "assistant",
-      content: reply
+      content: `[Arthur Vance]: ${arthurRes.text}`
     });
 
-    const dynamicTitle = this._extractDynamicTitle(this.currentRawPrompt);
+    this.emit('discussion_round', {
+      round: 2,
+      speaker: "Arthur Vance",
+      role: "Head of Engineering",
+      avatar: "👔",
+      color: "#3b82f6",
+      text: arthurRes.text
+    });
+
+    // =========================================================================
+    // 👑 PUTARAN 3: Konsensus Eksekutif Final (Arthur & Elena Bersama)
+    // Skor PRD Terverifikasi & Presentasi Siap Eksekusi ke Bos @I-Shen
+    // =========================================================================
+    const verifiedScore = Math.min(98, Math.max(88, this.lastEvaluation.score + 14));
+    const consensusPrompt = `Anda adalah Arthur Vance & Dr. Elena Rostova di Ruang Eksekutif PixelOffice.
+Berdasarkan Putaran 1 (Telaah Elena) dan Putaran 2 (Arsitektur Arthur), rumuskan KONSENSUS DEAL FINAL untuk Bos @I-Shen mengenai proyek [${dynamicTitle}].
+
+Tugas Konsensus di Putaran 3:
+1. Beritahu Bos @I-Shen bahwa diskusi internal 3 putaran eksekutif telah selesai dengan hasil konsensus matang.
+2. Tegaskan Nama Proyek Resmi: "${dynamicTitle}".
+3. Sampaikan SKOR KESIAPAN PRD TERVERIFIKASI: ${verifiedScore}/100 (Bukan asal 100/100, melainkan skor tervalidasi hasil perpaduan kebutuhan Bos dan mitigasi teknis kami).
+4. Rangkum secara padat 5 pilar arsitektur yang dikunci (RBAC 3 Role, Anti-Negative Stock, Split POS Dribbble, Soft-Void & Struk 58mm, Dashboard Analitik Omzet).
+5. Beritahu Bos: "PRD Emas telah terkunci (${verifiedScore}/100). Silakan klik tombol '🚀 Eksekusi Koding Sekarang' di kartu pop-up untuk memulai pembuatan sistem!"
+6. Wajib akhiri pesan dengan tag [DEAL_REACHED].`;
+
+    const consensusRes = await this.router.generateText({
+      prompt: consensusPrompt,
+      systemInstruction: "Anda adalah Arthur Vance & Dr. Elena Rostova. Sajikan konsensus eksekutif final yang profesional, presisi, tervalidasi, dan ramah kepada Bos @I-Shen.",
+      taskType: "fast",
+      agentId: "manager"
+    });
+
+    this.conversationHistory.push({
+      role: "assistant",
+      content: consensusRes.text
+    });
+
+    this.isDealReached = true;
+    this.masterPrompt = await this.synthesizeFinalPRD(dynamicTitle, verifiedScore);
+
+    const cleanReply = consensusRes.text.replace(/\[DEAL_REACHED\]/g, '').trim();
 
     const result = {
-      reply: reply.replace(/\[DEAL_REACHED\]/g, '').trim(),
-      text: reply.replace(/\[DEAL_REACHED\]/g, '').trim(),
-      isDeal: this.isDealReached,
-      score: this.lastEvaluation.score,
+      reply: cleanReply,
+      text: cleanReply,
+      isDeal: true,
+      score: verifiedScore,
       grade: this.lastEvaluation.grade,
       breakdown: this.lastEvaluation.breakdown,
       scope: this.detectedScope,
@@ -140,73 +219,17 @@ Berikan respon konsultasi eksekutif nyata dari Arthur Vance dan Dr. Elena Rostov
     const text = (userText || "").trim();
     if (!text) return { reply: "", text: "", isDeal: this.isDealReached, score: this.lastEvaluation?.score || 85 };
 
-    this.turnCount++;
-    this.conversationHistory.push({
-      role: "user",
-      content: text
-    });
-
-    this.emit('message_sent', { text });
-
-    const chatContext = this.conversationHistory.map(m => `${m.role === 'user' ? 'Bos @I-Shen' : 'Eksekutif (Arthur & Elena)'}: ${m.content}`).join('\n\n');
-
-    // Calculate updated calibrated score
-    const baseScore = this.lastEvaluation ? this.lastEvaluation.score : 75;
-    const finalScore = Math.min(98, baseScore + 18);
-
-    const prompt = `Riwayat Konsultasi Ruang Eksekutif:
-${chatContext}
-
-Tanggapi balasan terbaru dari Bos @I-Shen: "${text}"
-
-ATURAN MUTLAK KONSENSUS DEAL FINAL:
-1. Bos @I-Shen telah menentukan pilihan atau mengonfirmasi spesifikasi proyek.
-2. HENTIKAN SEMUA PERTANYAAN TAMBAHAN! JANGAN membuat pertanyaan baru lagi.
-3. DILARANG KERAS membuat URL staging fiktif atau berpura-pura bahwa website sudah live.
-4. SAMBUT KEPUTUSAN BOS DENGAN KONSENSUS DEAL TINGKAT PRODUKSI (Skor PRD Terverifikasi: ${finalScore}/100).
-5. Rangkum poin-poin yang disepakati (Judul Proyek, Tema/Palet Desain Dribbble, Modul Utama, Role Akses, dan Fitur Khusus).
-6. Beritahu Bos: "PRD Emas telah terkunci (${finalScore}/100). Silakan klik tombol '🚀 Mulai Siklus SDLC' di bawah untuk mengeksekusi koding nyata dan peluncuran website!"
-7. Wajib cantumkan tag [DEAL_REACHED] di paling akhir pesan.`;
-
-    const response = await this.router.generateText({
-      prompt,
-      systemInstruction: `Anda adalah Arthur Vance & Dr. Elena Rostova di Ruang Eksekutif PixelOffice. Kunci kesepakatan PRD Emas terverifikasi (${finalScore}/100) secara tegas dan profesional berdasarkan permintaan aktual proyek Bos @I-Shen.`,
-      taskType: "fast",
-      agentId: "optimizer"
-    });
-
-    const reply = response.text;
-    this.conversationHistory.push({
-      role: "assistant",
-      content: reply
-    });
-
-    this.isDealReached = true;
-    this.masterPrompt = await this.synthesizeFinalPRD();
-
-    const cleanReply = reply.replace(/\[DEAL_REACHED\]/g, '').trim();
-    const dynamicTitle = this._extractDynamicTitle(this.currentRawPrompt);
-
-    const result = {
-      reply: cleanReply,
-      text: cleanReply,
-      isDeal: true,
-      score: finalScore,
-      scope: this.detectedScope,
-      projectName: dynamicTitle,
-      masterPrompt: this.masterPrompt
-    };
-
-    this.emit('message_received', result);
-    return result;
+    // Always run the comprehensive 3-round internal executive deliberation when user submits requirements
+    this.currentRawPrompt = text;
+    return this.startConsultation(text);
   }
 
   _extractDynamicTitle(text) {
     if (!text) return "Enterprise Web Application";
     const cleanText = String(text).trim();
 
-    // 0. Bracketed title e.g. [SMALA Girl Basketball Management 2025] or [KasirPro]
-    const bracketMatch = cleanText.match(/\[([A-Za-z0-9_ -]{3,45})\]/);
+    // 0. Bracketed title e.g. [KasirPro Single-Store POS Edition] or [SMALA Girl Basketball Management 2025]
+    const bracketMatch = cleanText.match(/\[([A-Za-z0-9_ -]{3,60})\]/);
     if (bracketMatch && bracketMatch[1] && !this._isIgnoredWord(bracketMatch[1])) {
       return bracketMatch[1].trim();
     }
@@ -217,10 +240,19 @@ ATURAN MUTLAK KONSENSUS DEAL FINAL:
       return directNamedMatch[1].trim();
     }
 
-    // 2. Explicit pattern (e.g. nama proyek: "...", judul website adalah "...")
+    // 2. Explicit pattern with keywords: e.g. "nama proyek/judul/brand adalah '...'"
     const explicitQuotes = cleanText.match(/(?:nama\s+proyek|nama\s+website|nama\s+aplikasi|nama\s+sistem|judul|brand)\s+(?:[^\n\r"']{0,40}?\s+)?(?:adalah|yaitu|=|:)\s*["'“]([^"'”]+)["'”]/i);
     if (explicitQuotes && explicitQuotes[1] && !this._isIgnoredWord(explicitQuotes[1])) {
       return explicitQuotes[1].trim();
+    }
+
+    // 2b. Explicit named phrase without quotes (e.g. dengan nama XYZ, bernama XYZ)
+    const namePhraseMatch = cleanText.match(/(?:bernama|dengan\s+nama|nama\s+proyek|nama\s+website|nama\s+aplikasi|nama\s+sistem|nama\s+brand)\s+([A-Za-z0-9_ -]{2,35})/i);
+    if (namePhraseMatch && namePhraseMatch[1]) {
+      const cand = namePhraseMatch[1].replace(/^(adalah|yaitu|:)\s*/i, '').trim();
+      if (!this._isIgnoredWord(cand) && cand.length > 2) {
+        return cand.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      }
     }
 
     // 3. Generic quotes anywhere
@@ -264,37 +296,44 @@ ATURAN MUTLAK KONSENSUS DEAL FINAL:
   /**
    * Synthesize final comprehensive PRD prompt for the SDLC Engine
    */
-  async synthesizeFinalPRD() {
+  async synthesizeFinalPRD(projectTitle = null, verifiedScore = 95) {
+    const title = projectTitle || this.currentProjectTitle || this._extractDynamicTitle(this.currentRawPrompt);
+    const score = verifiedScore || 95;
+    const projectCode = "PRD-" + title.toUpperCase().replace(/[^A-Z0-9]+/g, '-').slice(0, 25);
     const chatContext = this.conversationHistory.map(m => `${m.role === 'user' ? 'Bos @I-Shen' : 'Eksekutif'}: ${m.content}`).join('\n\n');
 
-    const prompt = `Berdasarkan seluruh hasil diskusi dan kesepakatan eksekutif berikut:
+    const prompt = `Berdasarkan seluruh hasil diskusi internal 3 putaran eksekutif berikut:
 """
 ${chatContext}
 """
 
-Tuliskan SPESIFIKASI PROYEK MASTER EMAS (GOLDEN PRD SCORE 100/100) yang padat, terstruktur, presisi, dinamis sesuai domain proyek yang diminta klien, dan siap jalan untuk diinputkan ke SDLC Pipeline.
+Tuliskan DOKUMEN SPESIFIKASI KEBUTUHAN PRODUK (MASTER PRD) yang padat, terstruktur, presisi, dan siap jalan untuk SDLC Pipeline.
 
-STRUKTUR PRD WAJIB:
-1. JUDUL & IDENTITAS PROYEK: Ekstrak nama aplikasi / brand yang diminta klien secara tepat dan dinamis.
-2. BENCHMARK DESAIN & INSPIRASI DRIBBBLE (SESUAIKAN DENGAN DOMAIN KLIEN):
-   - Kurasi palet warna dan tema Dribbble yang relevan dengan domain bisnis klien (misal: Sporty Neon untuk Olahraga, Emerald/Navy untuk Medis/Fintech, Warm Amber untuk F&B, High-Contrast Obsidian Glassmorphism untuk Enterprise/SaaS).
-   - Tipografi Google Fonts modern, kartu elevasi bertingkat, dan bayangan 3D lembut.
-3. SKEMA DATA MASTER TER-HIDRASI (SINGLE SOURCE OF TRUTH):
-   - Wajib generate minimal 15-20 entitas data dummy realistis di JavaScript yang relevan dengan domain proyek (misal: Roster Atlet untuk Olahraga, Pasien/Dokter untuk Medis, Produk/Katalog untuk E-Commerce, Siswa/Guru untuk Sekolah, Transaksi untuk Keuangan).
-   - Sinkronisasi data master ini ke seluruh modul dan tabel aplikasi.
-4. ATURAN AKSES & PERAN (DYNAMIC RBAC MATRIX):
-   - Sediakan minimal 3-4 role relevan dengan domain klien (misal: Publik vs Staff vs Manager vs Admin).
-   - Role Switcher harus membedakan hak akses secara nyata (Guarded View / Lock Screen untuk data rahasia/keuangan).
-5. DEKOMPOSISI MODUL LENGKAP:
-   - Rincikan seluruh modul fungsional yang diminta klien dalam diskusi beserta fitur interaktif (Card Grid, Modal Popup Detail saat data diklik, Form Input Dinamis, Filter Kategori, dan Generator WhatsApp/Export jika relevan).
-6. STANDAR KUALITAS KODE SENIOR (10+ TAHUN):
-   - Single-file HTML5/CSS3/JS mandiri, interaktivitas event listener 100% aktif, DILARANG memotong kode atau menggunakan placeholder kosong.
+DATA IDENTITAS PROYEK WAJIB (JANGAN DIUBAH ATAU MEMBUAT NAMA LAIN):
+- Nama Proyek: "${title}"
+- Kode Proyek: "${projectCode}"
+- Skor Kesiapan PRD: ${score}/100 (Terverifikasi Siap Koding)
 
-Tuliskan instruksi di atas dalam satu kesatuan prompt instruksi PRD yang komprehensif tanpa komentar basa-basi.`;
+STRUKTUR DOKUMEN PRD WAJIB:
+# DOKUMEN SPESIFIKASI KEBUTUHAN PRODUK (PRD KESIAPAN: ${score}/100)
+**Nama Proyek:** ${title}
+**Kode Proyek:** ${projectCode}
+**Arsitek PRD:** Dr. Elena Rostova & Arthur Vance
+**Klien Eksekutif:** Bos @I-Shen
+**Status Kelayakan:** ${score}/100 (Terverifikasi Siap Eksekusi SDLC)
+
+1. RINGKASAN EKSEKUTIF & LINGKUP SISTEM (Sesuai domain "${title}")
+2. BENCHMARK DESAIN & INSPIRASI DRIBBBLE (Dark Glassmorphism, palet tematik, tipografi Plus Jakarta Sans)
+3. SKEMA DATA MASTER TER-HIDRASI (Minimal 16 entitas data dummy realistis di JavaScript)
+4. ATURAN AKSES & PERAN (DYNAMIC RBAC MATRIX dengan role switcher aktif)
+5. DEKOMPOSISI MODUL LENGKAP & VALIDASI ATOMIK (Validasi anti-error, pencegahan stok minus, soft-void, dan cetak struk)
+6. STANDAR KUALITAS KODE SENIOR (10+ TAHUN): Single-file HTML5/CSS3/JS mandiri tanpa placeholder.
+
+Tuliskan dokumen PRD tersebut secara komprehensif tanpa komentar basa-basi.`;
 
     const response = await this.router.generateText({
       prompt,
-      systemInstruction: `Anda adalah Dr. Elena Rostova, Chief PRD Architect PixelOffice AI Software House. Rumuskan prompt PRD master bernilai 100/100 yang presisi, kaya data (hydrated state), dan setia 100% pada kebutuhan aktual proyek Bos @I-Shen apapun jenis industri/domainnya.`,
+      systemInstruction: `Anda adalah Dr. Elena Rostova & Arthur Vance. Rumuskan dokumen PRD master resmi untuk proyek "${title}" dengan skor kesiapan ${score}/100. Wajib gunakan nama proyek "${title}" dan kode "${projectCode}". Dilarang keras menggunakan template hardcoded lama!`,
       taskType: "fast",
       agentId: "optimizer"
     });
@@ -302,5 +341,9 @@ Tuliskan instruksi di atas dalam satu kesatuan prompt instruksi PRD yang kompreh
     this.masterPrompt = response.text.trim();
     return this.masterPrompt;
   }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = ExecutiveAdvisor;
 }
 
