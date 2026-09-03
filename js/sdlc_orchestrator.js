@@ -169,15 +169,12 @@ Pecah secara ketat menjadi 6 deliverable granular:
       const researchRes = await this.router.generateText({
         prompt: `Lakukan riset teknis & kurasi desain mendalam untuk spesifikasi: "${userRawPrompt}". ${memoryContextStr}
 Sajikan hasil riset meliputi:
-1. 🎨 TOP 5 INSPIRASI DESAIN WEBSITE DARI DRIBBBLE.COM (Sesuai Konteks Domain Klien):
-   - Desain 1: Obsidian Dark Mode & Cyberpunk High-Contrast (Glassmorphism, glow accents, modern dark feel).
-   - Desain 2: Tactile Claymorphism 3D Dashboard (Elevated tactile components, smooth pill buttons).
-   - Desain 3: Pro Sports & Tactical Analytics Hub (Player radar skill charts, court lines vectors).
-   - Desain 4: Scandinavian Clean Athletic Portal (High-density clean typography, crisp data tables).
-   - Desain 5: Enterprise Multi-Tier Platform (Strict RBAC visual layers, guarded modal views).
-2. 📊 Skema Data Master (Single Source of Truth / SSOT) untuk me-render 8+ profil entitas ter-hidrasi (tidak kosong).
-3. 🔐 Guarded RBAC Pattern (Pemisahan hak akses publik vs internal staf).
-4. 📱 WhatsApp Broadcast Generator Pattern (Clean format tanpa tag HTML + 1-Click Copy).`,
+1. 🎨 TOP 5 INSPIRASI DESAIN WEBSITE DARI DRIBBBLE.COM (100% Disesuaikan dengan Domain Proyek):
+   - Kurasi 5 konsep desain antarmuka terdepan dari Dribbble yang paling relevan dengan jenis industri dan karakteristik proyek ini.
+   - Analisis palet warna modern, hierarki visual, kontras tinggi, Glassmorphism, dan pola micro-interactions yang tepat guna.
+2. 📊 Skema Data Master (Single Source of Truth / SSOT) yang realistis, relevan, dan ter-hidrasi untuk domain proyek ini.
+3. 🔐 Guarded RBAC Pattern (Pemisahan hak akses dan kontrol otorisasi pengguna yang sesuai).
+4. ⚡ Logika Bisnis & Validasi Interaktif Mandiri yang dibutuhkan untuk kelancaran alur kerja proyek.`,
         systemInstruction: "Anda adalah Devon Reed, Staff R&D Research Agent 10+ tahun pengalaman. Terapkan kurasi desain Dribbble kelas dunia dan standar arsitektur senior.",
         taskType: "fast",
         agentId: "researcher"
