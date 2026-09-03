@@ -262,15 +262,16 @@ export class PixelOfficeApp {
     if (this.router) {
       this.router.on('model_attempt', (data) => {
         if (this.modelBadge) {
-          this.modelBadge.textContent = data.model;
+          this.modelBadge.textContent = `${data.model} (Kunci #${data.keyIndex})`;
         }
-        this.appendTerminalLog("router", `[Router] ${data.model} ➡️ ${data.agentId} (${data.taskType})...`);
+        this.appendTerminalLog("router", `[Router] ${data.model} (Kunci #${data.keyIndex}/${data.totalKeys}) ➡️ ${data.agentId} (${data.taskType})...`);
       });
 
       this.router.on('generation_success', (data) => {
         if (this.modelBadge) {
-          this.modelBadge.textContent = data.model;
+          this.modelBadge.textContent = `${data.model} (${data.elapsedSec}s)`;
         }
+        this.appendTerminalLog("router", `✅ [Sukses] ${data.model} (Kunci #${data.keyIndex}) selesai dalam ${data.elapsedSec}s [${data.tokens} tokens].`);
       });
 
       this.router.on('rate_limited', (data) => {
@@ -279,14 +280,21 @@ export class PixelOfficeApp {
         if (this.modelBadge) {
           this.modelBadge.textContent = `⏳ ${data.model} Limit (${resetStr})`;
         }
-        this.appendTerminalLog("router", `⚠️ [Limit 429] ${data.model} mencapai batas kuota Google. Reset jam ${resetStr}.`);
+        this.appendTerminalLog("router", `⚠️ [Limit 429] ${data.model} mencapai batas kuota Google (Terdeteksi dalam ${data.elapsedSec}s). Reset jam ${resetStr}.`);
       });
 
       this.router.on('timeout_event', (data) => {
         if (this.modelBadge) {
-          this.modelBadge.textContent = `⏱️ ${data.model} (Server Antre)`;
+          this.modelBadge.textContent = `⏱️ ${data.model} Timeout`;
         }
-        this.appendTerminalLog("router", `⏱️ [Server Google Antre] ${data.model} memakan waktu >35 detik karena beban trafik Google. Beralih otomatis...`);
+        this.appendTerminalLog("router", `⏱️ [Server Google Sibuk] ${data.model} (Kunci #${data.keyIndex}) belum merespons setelah ${data.elapsedSec} detik. Menghitung latensi riil & beralih otomatis...`);
+      });
+
+      this.router.on('high_demand_event', (data) => {
+        if (this.modelBadge) {
+          this.modelBadge.textContent = `⚠️ ${data.model} High Demand`;
+        }
+        this.appendTerminalLog("router", `⚠️ [High Demand 503] ${data.model} (Kunci #${data.keyIndex}) overload di server Google (${data.elapsedSec}s). Beralih otomatis...`);
       });
 
       this.router.on('fallback_triggered', (data) => {
