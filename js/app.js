@@ -526,17 +526,29 @@ export class PixelOfficeApp {
     this.orchestrator.on('sdlc_complete', res => {
       if (this.startBtn) {
         this.startBtn.disabled = false;
-        this.startBtn.innerHTML = `<span>🚀 Mulai Siklus SDLC</span>`;
+        this.startBtn.innerHTML = `<span>🔄 Mulai Revisi / Sprint Baru</span>`;
       }
       this.appendTerminalLog("system", `🎉 [SDLC SELESAI] Terbackup di GitHub & Terdeploy live di Vercel.`);
+      this.appendTerminalLog("system", `💡 [Sistem Siap Revisi] Anda dapat mengetik revisi judul, tema, atau fitur kapan saja di Ruang Eksekutif.`);
+      
       if (this.canvasEngine) {
-        this.canvasEngine.showSpeechBubble("manager", "Proyek selesai 100%! Seluruh kode & audit telah diverifikasi.", true);
+        this.canvasEngine.showSpeechBubble("manager", "Proyek selesai 100%! Siap menerima instruksi revisi baru dari Bos.", true);
         this.canvasEngine.unlockAllAgents();
       }
 
+      this.appendDialogueMessage({
+        agentId: "manager",
+        name: "Arthur Vance & Dr. Elena Rostova",
+        role: "Executive Advisor",
+        avatar: "👑",
+        color: "#f59e0b",
+        stage: "Ruang Eksekutif",
+        message: `🎉 **Peluncuran Selesai 100%!**\n\nBos @I-Shen, jika ada tampilan atau fitur yang belum sesuai (misalnya: **ingin ganti judul proyek, ganti tema/palet warna Dribbble, atau ubah alur modul**), silakan ketik instruksi revisi Anda langsung di kolom chat ini. Kami akan langsung merumuskan revisi dan mengeksekusi iterasi sprint baru!`
+      });
+
       if (this.progressBarFill) this.progressBarFill.style.width = `100%`;
       if (this.progressPercentageDisplay) this.progressPercentageDisplay.textContent = `100%`;
-      if (this.currentStageText) this.currentStageText.textContent = `✅ Proyek 100% Selesai & Terdeploy Live`;
+      if (this.currentStageText) this.currentStageText.textContent = `✅ Proyek Selesai & Siap Revisi / Iterasi Baru`;
 
       for (let i = 0; i <= 8; i++) {
         const chip = document.getElementById(`step-${i}`);
